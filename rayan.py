@@ -24,7 +24,7 @@ hours = range(0, 24, 3)
 levels = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70, 80, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 925, 950, 975, 1000]
 
 
-print "Loading data..."
+print("Loading data...")
 levels = []
 for year in years:
     for month in months:
@@ -45,7 +45,7 @@ data = [(yr, mn, dy, hr, u, v, t, alt, hpa)\
         in zip(data['u'], data['v'], data['t'])]
 
 
-print "Writing CSV..."
+print("Writing CSV...")
 import csv
 with open('wind.csv', 'w') as f:
     w = csv.writer(f)
