@@ -1,7 +1,6 @@
 import h5py
 import numpy as np 
 import math
-import io
 import sys
 
 EARTH_RADIUS = 6.371e6
@@ -83,10 +82,12 @@ def lin_to_angular_velocities(lat, lon, u, v):
     dlon = math.degrees(v / EARTH_RADIUS * math.cos(math.radians(90-lat)))
     return dlat, dlon
 
-def simulate(outstream, data, slat, slon, salt, ascent_rate, timestep_s, stop_alt):
+def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=None):
     
     lat, lon, alt = slat, slon, salt
     time = 0
+
+    f = open(path)
 
     while alt < stop_alt:
         u, v = get_wind(data, *get_bounds_and_fractions(lat, lon, alt))
@@ -98,9 +99,14 @@ def simulate(outstream, data, slat, slon, salt, ascent_rate, timestep_s, stop_al
         lat = lat + dlat * timestep_s
         lon = lon + dlon * timestep_s
         time = time + timestep_s
-        print("Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt))
+        
+        if outfile = None:
+            print("Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt))
+        else:
+            f.write("Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt))
 
 
-simulate(sys.stdout, open_h5("../../gfsanl/2018020300.h5"), 37, -122, 0, 5, 300, 15000)
+data = open_h5("../../gfsanl//" + str(sys.argv[1]))
+simulate(data, *argv[2:])
 
 
