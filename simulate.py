@@ -1,3 +1,4 @@
+
 import h5py
 import numpy as np 
 import math
@@ -87,7 +88,8 @@ def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=
     lat, lon, alt = slat, slon, salt
     time = 0
 
-    f = open(path)
+    if outfile != None:
+        f = open(outfile)
 
     while alt < stop_alt:
         u, v = get_wind(data, *get_bounds_and_fractions(lat, lon, alt))
@@ -100,13 +102,16 @@ def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=
         lon = lon + dlon * timestep_s
         time = time + timestep_s
         
-        if outfile = None:
+        if outfile == None:
             print("Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt))
         else:
             f.write("Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt))
 
 
-data = open_h5("../../gfsanl//" + str(sys.argv[1]))
-simulate(data, *argv[2:])
+data = open_h5("../../gfsanl//" + str(sys.argv[1]) + ".h5")
+if len(sys.argv) == 9:
+    simulate(data, *list(map(int, sys.argv[2:8])), sys.argv[9])
+else:
+    simulate(data, *list(map(int, sys.argv[2:8])))
 
 
