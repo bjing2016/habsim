@@ -12,24 +12,28 @@ levels = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
           900, 925, 950, 975, 1000]
 
 
-cache = {};
+cache = {}
 
 def open_h5(filename):
     hf = h5py.File(filename, 'r')
     return hf['test']
 
 def get_or_fetch(data, lat, lon):
-    if (lat, lon) in cache.keys():
-        return cache[(lat,lon)]
-    else:
-        cache[(lat, lon)] = [data[0][:][lat:lat+2][lon:lon+2], data[1][:][lat:lat+2][lon:lon+2]]
-
+    global cache
+    if (lat, lon) not in cache.keys():
+        cache[(lat, lon)] = data[:,:,lat:lat+2,lon:lon+2]
+   
+    return cache[(lat,lon)]
+    
 def get_wind(data, lat_res, lon_res, level_res):
     lat_i, lat_f = lat_res
     lon_i, lon_f = lon_res
     level_i, level_f = level_res
 
-    data = get_or_fetch(data, lat_i, lon_i)
+
+    get_or_fetch(data, lat_i, lon_i)
+    
+    data = cache[(lat_i, lon_i)]
 
     u = data[0][level_i][0][0] * lat_f * lon_f * level_f + \
         data[0][level_i][1][0] * (1-lat_f) * lon_f * level_f + \
