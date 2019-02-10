@@ -49,7 +49,7 @@ def grb2_to_array(filename):
 
 def save_h5py(array, path):
     with h5py.File(path + ".h5", 'w') as hf:
-        hf.create_dataset("test", data = dataset, dtype = 'f', compression = 'gzip')
+        hf.create_dataset("test", data = array, dtype = 'f', compression = 'gzip')
 
 def delete_grb2(path):
     os.remove(path + ".grb2")
@@ -67,29 +67,26 @@ def main_single_dataset(y, m, d, h, save_dir):
 
 def main():
     args = sys.argv[1:]
-    print(args)
     if len(args) == 5 or len(args) == 9:
         path = args.pop()
     else:
         path = default_dir
-    print(len(args))
     if len(args) != 4 and len(args) != 8:
         print("Invalid number of arguments.")
         exit()
 
-    print("trace")
     if len(args) == 4:
-        args.append(args)
+        y, m, d, h = list(map(int, args))
+        main_single_dataset(y, m, d, h, path)
+        exit()
 
-    print(args)
-  
     y1, y2, m1, m2, d1, d2, h1, h2 = list(map(int, args))
-
+    print("args")
     for y in range(y1, y2 + 1):
         for m in range(m1, m2 + 1):
+            print("trace2")
             for d in range(d1, d2 + 1):
-                print("trace")
-                for h in range(h1, h2 + 1):
+                for h in range(h1, h2 + 6, 6):
                     main_single_dataset(y, m, d, h, path)
 
 main()
