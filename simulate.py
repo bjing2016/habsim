@@ -11,33 +11,42 @@ levels = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
 
+
+cache = {};
+
 def open_h5(filename):
     hf = h5py.File(filename, 'r')
     return hf['test']
 
+def get_or_fetch(data, lat, lon):
+    if (lat, lon) in cache.keys():
+        return cache[(lat,lon)]
+    else:
+        cache[(lat, lon)] = [data[0][:][lat:lat+2][lon:lon+2], data[1][:][lat:lat+2][lon:lon+2]]
 
 def get_wind(data, lat_res, lon_res, level_res):
     lat_i, lat_f = lat_res
     lon_i, lon_f = lon_res
     level_i, level_f = level_res
 
-    u = data[0][level_i][lat_i][lon_i] * lat_f * lon_f * level_f + \
-        data[0][level_i][lat_i + 1][lon_i] * (1-lat_f) * lon_f * level_f + \
-        data[0][level_i][lat_i][lon_i + 1] * lat_f * (1-lon_f) * level_f + \
-        data[0][level_i][lat_i + 1][lon_i + 1] * (1-lat_f) * (1-lon_f) * level_f + \
-        data[0][level_i + 1][lat_i][lon_i]* lat_f * lon_f * (1-level_f) + \
-        data[0][level_i + 1][lat_i + 1][lon_i] * (1-lat_f) * lon_f * (1-level_f) + \
-        data[0][level_i + 1][lat_i][lon_i + 1]* lat_f * (1-lon_f) * (1-level_f) + \
-        data[0][level_i + 1][lat_i + 1][lon_i + 1] * (1-lat_f) * (1-lon_f) * (1-level_f)
-        
-    v = data[1][level_i][lat_i][lon_i] * lat_f * lon_f * level_f + \
-        data[1][level_i][lat_i + 1][lon_i] * (1-lat_f) * lon_f * level_f + \
-        data[1][level_i][lat_i][lon_i + 1] * lat_f * (1-lon_f) * level_f + \
-        data[1][level_i][lat_i + 1][lon_i + 1] * (1-lat_f) * (1-lon_f) * level_f + \
-        data[1][level_i + 1][lat_i][lon_i]* lat_f * lon_f * (1-level_f) + \
-        data[1][level_i + 1][lat_i + 1][lon_i] * (1-lat_f) * lon_f * (1-level_f) + \
-        data[1][level_i + 1][lat_i][lon_i + 1]* lat_f * (1-lon_f) * (1-level_f) + \
-        data[1][level_i + 1][lat_i + 1][lon_i + 1] * (1-lat_f) * (1-lon_f) * (1-level_f)
+    data = get_or_fetch(data, lat_i, lon_i)
+
+    u = data[0][level_i][0][0] * lat_f * lon_f * level_f + \
+        data[0][level_i][1][0] * (1-lat_f) * lon_f * level_f + \
+        data[0][level_i][0][1] * lat_f * (1-lon_f) * level_f + \
+        data[0][level_i][1][1] * (1-lat_f) * (1-lon_f) * level_f + \
+        data[0][level_i + 1][0][0]* lat_f * lon_f * (1-level_f) + \
+        data[0][level_i + 1][1][0] * (1-lat_f) * lon_f * (1-level_f) + \
+        data[0][level_i + 1][0][1]* lat_f * (1-lon_f) * (1-level_f) + \
+        data[0][level_i + 1][1][1] * (1-lat_f) * (1-lon_f) * (1-level_f)
+    v = data[1][level_i][0][0] * lat_f * lon_f * level_f + \
+        data[1][level_i][1][0] * (1-lat_f) * lon_f * level_f + \
+        data[1][level_i][0][1] * lat_f * (1-lon_f) * level_f + \
+        data[1][level_i][1][1] * (1-lat_f) * (1-lon_f) * level_f + \
+        data[1][level_i + 1][0][0]* lat_f * lon_f * (1-level_f) + \
+        data[1][level_i + 1][1][0] * (1-lat_f) * lon_f * (1-level_f) + \
+        data[1][level_i + 1][0][1]* lat_f * (1-lon_f) * (1-level_f) + \
+        data[1][level_i + 1][1][1] * (1-lat_f) * (1-lon_f) * (1-level_f)
 
     return u, v
 
