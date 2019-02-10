@@ -1,6 +1,7 @@
 import matplotlib
 import numpy as np
 import pygrib
+import h5py
 import urllib.request
 import os.path
 import sys
