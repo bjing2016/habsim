@@ -10,3 +10,6 @@ Platform ascent optimization
 
 2) Csv files will be hosted on a public server at web.stanford.edu/~bjing
 3) Distributed users may run simulation code without installing eccodes.
+
+Numpy array format: Array format: [u,v][Pressure][lat 90 to -90 step .5][long 0 to 359.5 step .5]
+levels = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 925, 950, 975, 1000]
