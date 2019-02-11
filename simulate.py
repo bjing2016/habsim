@@ -77,8 +77,7 @@ def get_bounds_and_fractions (lat, lon, alt):
 
     
     lon = (lon % 360) * 2;
-    lon_res = (math.floor(lat), 1 - lon % 1)
-
+    lon_res = (math.floor(lon), 1 - lon % 1)
     return lat_res, lon_res, pressure_res
 
 
@@ -106,7 +105,6 @@ def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=
 
     while alt < stop_alt:
         u, v = get_wind(data, *get_bounds_and_fractions(lat, lon, alt))
-
         dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
             
 
