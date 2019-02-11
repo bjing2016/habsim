@@ -25,7 +25,8 @@ def download_anl(y, m, d, h, save_dir):
     url = "https://nomads.ncdc.noaa.gov/data/gfsanl/" + str(y) + str(m).zfill(2) + "/" + str(y) + str(m).zfill(2) + str(d).zfill(2) + \
               "/gfsanl_4_" + str(y) + str(m).zfill(2) + str(d).zfill(2) + "_" + str(h).zfill(2) + "00_000.grb2"
 
-    if not os.path.exists(save_path + ".grb2"):
+    if (not os.path.exists(save_path + ".grb2")) and (not os.path.exists(save_path + ".h5")):
+        print("Retreiving " + url)
         urllib.request.urlretrieve (url, save_path + ".grb2")
     return save_path
 
@@ -59,12 +60,15 @@ def delete_grb2(path):
 
 def main_single_dataset(y, m, d, h, save_dir):
     path = download_anl(y, m, d, h, save_dir)
-    print("Downloaded " + path + ", unpacking")
-    data = grb2_to_array(path)
-    print("Saving " + path)
-    save_h5py(data, path)
-    print("Deleting" + path)
-    delete_grb2(path)
+    if not os.path.exists(path + ".h5"):
+        print("Downloaded " + path + ", unpacking")
+        data = grb2_to_array(path)
+        print("Saving " + path)
+        save_h5py(data, path)
+        print("Deleting" + path)
+        delete_grb2(path)
+    else:
+        print("Skipping " + path)
 
 
 def main():
@@ -88,6 +92,8 @@ def main():
         for m in range(m1, m2 + 1):
             for d in range(d1, d2 + 1):
                 for h in range(h1, h2 + 6, 6):
-                    main_single_dataset(y, m, d, h, path)
-
+                    try:
+                        main_single_dataset(y, m, d, h, path)
+                    except (IOError, ValueError):
+                        print("Error:" + get_file_name(path,y,m,d,h))
 main()

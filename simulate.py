@@ -101,10 +101,11 @@ def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=
     time = 0
 
     if outfile != None:
-        f = open(outfile)
+        f = open(outfile,"w")
 
     while alt < stop_alt:
-        u, v = get_wind(data, *get_bounds_and_fractions(lat, lon, alt))
+        bounds = get_bounds_and_fractions(lat, lon, alt)
+        u, v = get_wind(data, *bounds)
         dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
             
 
@@ -119,10 +120,12 @@ def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=
             f.write("Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt))
 
 
-data = open_h5("../../gfsanl//" + str(sys.argv[1]) + ".h5")
+data = open_h5(str(sys.argv[1]) + ".h5")
 if len(sys.argv) == 9:
-    simulate(data, *list(map(float, sys.argv[2:8])), sys.argv[9])
+    args = list(map(float, sys.argv[2:8]))
+    simulate(data, *args, sys.argv[8])
 else:
-    simulate(data, *list(map(float, sys.argv[2:8])))
+    args = list(map(float, sys.argv[2:8]))
+    simulate(data, *args)
 
 
