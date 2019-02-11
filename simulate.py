@@ -30,7 +30,6 @@ def get_wind(data, lat_res, lon_res, level_res):
     lon_i, lon_f = lon_res
     level_i, level_f = level_res
 
-
     get_or_fetch(data, lat_i, lon_i)
     
     data = cache[(lat_i, lon_i)]
@@ -71,12 +70,13 @@ def get_bounds_and_fractions (lat, lon, alt):
             break;
         pressure_res = i-1, 0
     
-    lat = lat * 2;
-    lat = 90 - lat;
+    lat = (lat + 90) * 2
+    lat = 360 - lat
+
     lat_res = (math.floor(lat) , 1 - lat % 1)
 
     
-    lat = (lon % 360) * 2;
+    lon = (lon % 360) * 2;
     lon_res = (math.floor(lat), 1 - lon % 1)
 
     return lat_res, lon_res, pressure_res
@@ -92,8 +92,8 @@ def alt_to_hpa(altitude):
 
 
 def lin_to_angular_velocities(lat, lon, u, v): 
-    dlat = math.degrees(u / EARTH_RADIUS)
-    dlon = math.degrees(v / EARTH_RADIUS * math.cos(math.radians(90-lat)))
+    dlat = math.degrees(v / EARTH_RADIUS)
+    dlon = math.degrees(u / EARTH_RADIUS * math.cos(math.radians(90-lat)))
     return dlat, dlon
 
 def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=None):
