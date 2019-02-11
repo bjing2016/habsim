@@ -123,8 +123,8 @@ def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=
 
 data = open_h5("../../gfsanl//" + str(sys.argv[1]) + ".h5")
 if len(sys.argv) == 9:
-    simulate(data, *list(map(int, sys.argv[2:8])), sys.argv[9])
+    simulate(data, *list(map(float, sys.argv[2:8])), sys.argv[9])
 else:
-    simulate(data, *list(map(int, sys.argv[2:8])))
+    simulate(data, *list(map(float, sys.argv[2:8])))
 
 
