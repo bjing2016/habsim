@@ -22,6 +22,15 @@ def get_path_string(path_cache):
     return string
 
 
+def get_marker_string(lat, lon, label, title):
+        return '''var marker = new google.maps.Marker({
+                position: {lat: ''' + str(lat)+''', lng: ''' + str(lon) + '''},
+                label: " ''' + label + ''' ",
+                title:" ''' + title + ''' "
+            });
+            // To add the marker to the map, call setMap();
+            marker.setMap(map);
+        '''
 
 #########
 

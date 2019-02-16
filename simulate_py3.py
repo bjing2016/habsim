@@ -5,6 +5,7 @@ import math
 import sys
 from webutils import *
 import elev
+from scipy.stats import norm
 
 EARTH_RADIUS = 6.371e6
 
@@ -20,7 +21,6 @@ cache = {}
 filecache = {}
 
 path = ""
-timestamp = ""
 
 def get_file(filename):
     global filecache
@@ -36,11 +36,11 @@ def get_or_fetch(timestamp , lat, lon):
    
     return cache[(timestamp,lat,lon)]
     
-def get_wind(lat_res, lon_res, level_res, time_f):
+def get_wind(lat_res, lon_res, level_res, time_res):
     lat_i, lat_f = lat_res
     lon_i, lon_f = lon_res
     level_i, level_f = level_res
-    
+    timestamp, time_f = time_res
     get_or_fetch(timestamp, lat_i, lon_i)
     get_or_fetch(get_next_timestamp(timestamp), lat_i, lon_i)
     
@@ -68,7 +68,7 @@ def get_wind(lat_res, lon_res, level_res, time_f):
 ## Currently [lat 90 to -90][lon 0 to 395.5]
 
 ## Note: this returns bounds as array indices ##
-def get_bounds_and_fractions (lat, lon, alt, t_offset_mins):
+def get_bounds_and_fractions (lat, lon, alt, timestamp, t_offset_mins):
     
     lat_res, lon_res, pressure_res = None, None, None
     
@@ -91,7 +91,9 @@ def get_bounds_and_fractions (lat, lon, alt, t_offset_mins):
     lon_res = (math.floor(lon), 1 - lon % 1)
 
     time_f = 1-t_offset_mins/total_mins
-    return lat_res, lon_res, pressure_res, time_f
+
+    time_res = (timestamp, time_f)
+    return lat_res, lon_res, pressure_res, time_res
 
 
 ## Credits to KMarshland ##
@@ -126,19 +128,45 @@ def get_next_timestamp(timestamp):
     return str(y2) + str(m2).zfill(2) + str(d2).zfill(2) + str(h2).zfill(2)
 
 
+def get_prev_timestamp(timestamp):
+    
+    timestamp = int(timestamp)
+    
+    h2 = h1 = timestamp % 100
+    d2 = d1 = (timestamp // 100) % 100
+    m2 = m1 = (timestamp // 100**2) % 100
+    y2 = y1 = (timestamp // 100**3)
+
+    h2 = (h1 - 6) % 24
+    if h2 > h1:
+        d2 = d1 - 1
+        if y1 == 2016:
+            threshhold = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        else:
+            threshhold = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        d2 = d2 % threshhold[m1 - 2]
+        if d2 > d1:
+            m2 = (m1 - 1) % 12
+            if m2 > m1:
+                y2 = y1 - 1
+    return str(y2) + str(m2).zfill(2) + str(d2).zfill(2) + str(h2).zfill(2)
+
+
 def lin_to_angular_velocities(lat, lon, u, v): 
     dlat = math.degrees(v / EARTH_RADIUS)
     dlon = math.degrees(u / (EARTH_RADIUS * math.cos(math.radians(lat))))
     return dlat, dlon
 
-def simulate(t_offset_mins, slat, slon, ascent_rate, timestep_s, stop_alt, pathcache, infocache):
-    global timestamp
+def simulate(timestamp, t_offset_mins, slat, slon, ascent_rate, timestep_s, stop_alt):
     lat, lon = slat, slon
     alt = elev.getElevation(lat,lon)
     time = 0
-
+    pathcache = list()
     pathcache.append([lat, lon])
-    infocache = infocache + "Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt) + "<br/>\n"
+    infocache = ''' <br/><br/>
+    
+    Timestamp=''' + str(timestamp) + ", offset=" + str(t_offset_mins) + ", ascent rate=" + str("%.2f" % ascent_rate) + ''' <br/> 
+    Time='''+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt) + "<br/>\n"
 
     while alt < stop_alt:
 
@@ -146,11 +174,10 @@ def simulate(t_offset_mins, slat, slon, ascent_rate, timestep_s, stop_alt, pathc
             t_offset_mins = t_offset_mins - total_mins
             timestamp = get_next_timestamp(timestamp)
 
-        bounds = get_bounds_and_fractions(lat, lon, alt, t_offset_mins)
+        bounds = get_bounds_and_fractions(lat, lon, alt,timestamp, t_offset_mins)
         u, v = get_wind(*bounds)
         dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
-            
-
+  
         alt = alt + timestep_s * ascent_rate
         lat = lat + dlat * timestep_s
         lon = lon + dlon * timestep_s
@@ -158,24 +185,67 @@ def simulate(t_offset_mins, slat, slon, ascent_rate, timestep_s, stop_alt, pathc
         t_offset_mins = t_offset_mins + timestep_s / 60
 
         pathcache.append([lat, lon])
-        infocache = infocache + "Time="+ str(time) + "," + str("%.4f" % lat) + "," + str("%.4f" % lon) + ",alt=" + str(alt) + "<br/>\n"
+        infocache = infocache + "Time="+ str(time) + "," + str("%.4f" % lat) + "," + str("%.4f" % lon) + ",alt=" + str("%.2f" %alt) + "<br/>\n"
     
-    return pathcache, infocache
+    return pathcache, infocache, lat, lon
+    
+
+def get_run_set(timestamp, t_offset_mins, t_neighbors, t_interval, ascent_rate, ascent_rate_neighbors, ascent_rate_var):
+    result = list()
+ #   ascent_queue = [i/2/(ascent_rate_neighbors+1) for i in range(1,ascent_rate_neighbors*2+2)]
+    time_set_que = [rectify_timestamp(timestamp, t_offset_mins - (t_neighbors * t_interval)*60 + t_interval*60*i) for i in range(2*t_neighbors + 1)]
+    ascent_queue = [norm.ppf(i/2/(ascent_rate_neighbors+1), loc = ascent_rate, scale = ascent_rate_var) for i in range(1,ascent_rate_neighbors*2+2)]
+    
+    for rate in ascent_queue:
+        for time in time_set_que:
+            result.append((time, rate))
+    return result
+
+def rectify_timestamp(timestamp, t_offset_mins):
+    while t_offset_mins < 0:
+        timestamp = get_prev_timestamp(timestamp)
+        t_offset_mins = t_offset_mins + total_mins
+    while t_offset_mins > total_mins:
+        timestamp = get_next_timestamp(timestamp)
+        t_offset_mins = t_offset_mins - total_mins
+    
+    return timestamp, t_offset_mins
 
 def main():
     global path, timestamp
+    argv = sys.argv
     path = sys.argv[1]
     timestamp = sys.argv[2]
-    pathcache = list()
-    infocache = ""
-    args = list(map(float, sys.argv[3:10]))
-    pathcache, infocache = simulate(*args, pathcache, infocache)
+    bigpathcache = ""
+    biginfocache = ""
     
-    result = part1 + str(sys.argv[4]) + "," + str(sys.argv[5]) + part2
-    result = result + get_path_string(pathcache) + part3 + infocache + part4
+    run_queue = get_run_set(timestamp, float(argv[3]), int(argv[4]), float(argv[5]), float(argv[8]), int(argv[9]), float(argv[10]))
+    
+    for item in run_queue:
+    
+        pathcache, infocache, final_lat, final_lon = simulate(item[0][0], item[0][1], float(sys.argv[6]), float(sys.argv[7]), item[1], \
+            float(sys.argv[11]), float(argv[12]))
+        bigpathcache = bigpathcache + get_path_string(pathcache) + get_marker_string(final_lat, final_lon,"", str(item))
+        biginfocache = biginfocache + infocache
+
+    result = part1 + str(sys.argv[6]) + "," + str(sys.argv[7]) + part2
+    result = result + bigpathcache + part3 + biginfocache + part4
     print(result)
 
+    
+
+'''
+    args = list(map(float, sys.argv[3:10]))
+
+
+    
+    
+    bigpathcache = bigpathcache + get_path_string(pathcache) + get_marker_string(final_lat, final_lon, "", "")
+    infocache = infocache + infocache
+'''
+    
 main()
 
 
-## Usage: simulate.py path timestamp t_offset lat lon launch_alt ascent_rate timestep_s stop_alt
+## Usage: simulate.py path timestamp t_offset t_neighbors, t_interval, lat, lon, ascent_rate, ascent_rate_neighbors, ascent_var, timestep_s, stop_alt
+ #           0           1       2       3           4           5       6   7       8               9                    10         11          12

@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+
 from PIL import Image
 import numpy
 
@@ -11,8 +11,8 @@ east, mid, west = numpy.array(east), numpy.array(mid), numpy.array(west)
 
 def getElevation(lat, lon):
 
-    rLat = round(-(lat - 50) * 240 - 1)
-    rLon = round((lon - (-150)) * 240)
+    rLat = int(round(-(lat - 50) * 240 - 1))
+    rLon = int(round((lon - (-150)) * 240))
 
     
     if rLat < 0 or rLat >= 4800:
@@ -30,5 +30,5 @@ def getElevation(lat, lon):
         rLon = rLon - 7200 * 2
     else:
         return 0
-
+  
     return region[rLat][rLon]
