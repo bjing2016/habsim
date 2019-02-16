@@ -4,15 +4,17 @@ Primarily designed for platform ascent optimization, this repo offers tools for 
 ## Usage
 
 simulate.py path_timestamp lat lon launch_alt ascent_rate timestep_s stop_alt \(outfile\)
+
+
 getanalysis.py y1 \(y2\) m1 \(m2\) d1 \(d2\) h1 \(h2\) target_path
 
 ## Installing eccodes/pygrib
 Eccodes/pygrib will be run on one computer to unpack the relevant info from grb files to csv (so that not everyone has to do it).
 
-    If you want to do this yourself, download and install eccodes: https://confluence.ecmwf.int//display/ECC/Releases.
-    Follow the instructions to unpack the tar and install eccodes. Make sure you have CMake and gfortran installed.
+If you want to do this yourself, download and install eccodes: https://confluence.ecmwf.int//display/ECC/Releases.
+Follow the instructions to unpack the tar and install eccodes. Make sure you have CMake and gfortran installed.
 
-    To expediate pygrib installation, make sure you install eccodes in your preprocessor/linker path, or otherwise set said path to the eccodes directory.
+To expediate pygrib installation, make sure you install eccodes in your preprocessor/linker path, or otherwise set said path to the eccodes directory.
 
 
 ## Data format
