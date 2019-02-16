@@ -139,6 +139,7 @@ part3 = '''
         Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
         Lon: <input id="lon" type="text" size="8" name="lon"> <br/>
         Click to select coordinates. <br/></br>
+        <form>
         If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
             Timestamp: <input id = "time" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) <br/>
             Time offset: <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
@@ -154,7 +155,7 @@ part3 = '''
             <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/><br/>
 
 	    <button formaction="cgi-bin/hist_batch.php" method = "get">Simulate</button>
-
+        </form>
         <br/><br/>
         Output: <br/>
 '''
