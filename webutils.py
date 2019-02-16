@@ -133,21 +133,29 @@ part3 = '''
 <div id="map_canvas" style="width:80%; height:100%"></div>
     <div id="info" style="padding-left:2ch; padding-right: 2ch">
       <div>
-        <h1>Launch a balloon from the past.</h1>
-
-       	<form action="cgi-bin/test.php" method="get">	
-		Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
-		Lon: <input id="lon" type="text" size="8" name="lon"> <br/><br/>
+         <h1>Launch a balloon from the past, with variations in time and ascent rate.</h1>
+        Date range supported: 2018, all timestamps <br/>
+        Locations supported: NW quadrant<br/>
+        Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
+        Lon: <input id="lon" type="text" size="8" name="lon"> <br/>
+        Click to select coordinates. <br/></br>
         If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
-        Timestamp: <input id = "time" type="text" size="12" name="timestamp"> <br/>yyyymmddhh (hh = 00, 06, 12, 18) <br/><br/>
-				
-		Ascent rate: <input id="rate" type="text" size="4" name="rate">m/s <br/>
-		Timestep: <input id="timestep" type="text" size="4" name="timestep">s <br/>
-		Stop alt: <input id = "alt" type = "alt" size = "4" name = "alt">m <br/> <br/>
-	
-	    <button formaction="cgi-bin/simple_hist_asc.php" method = "get">Simulate</button></br></br>
-
+            Timestamp: <input id = "time" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) <br/>
+            Time offset: <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
+                    
+            Ascent rate: <input id="rate" type="text" size="4" name="rate">m/s <br/>
     
+            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/> <br/>
+            
+            Time variability: <input id = "tn" type = "text" size = "2" name = "tn"> neighbors on each side. <br/> 
+            Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/>
+            
+            Ascent rate variability: <input id="var" type="text" size="4" name="var">m/s <br/>
+            <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/><br/>
+
+	    <button formaction="cgi-bin/hist_batch.php" method = "get">Simulate</button>
+
+        <br/><br/>
         Output: <br/>
 '''
 part4 = '''

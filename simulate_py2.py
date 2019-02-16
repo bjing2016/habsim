@@ -239,13 +239,15 @@ def main():
     run_queue = get_run_set(timestamp, float(argv[3]), int(argv[4]), float(argv[5]), float(argv[8]), int(argv[9]), float(argv[10]))
     
     for item in run_queue:
-        if item[1] < 0:
-            pass
-        pathcache, infocache, final_lat, final_lon = simulate(item[0][0], item[0][1], float(sys.argv[6]), float(sys.argv[7]), item[1], \
-            float(sys.argv[11]), float(argv[12]))
-        bigpathcache = bigpathcache + get_path_string(pathcache) + get_marker_string(final_lat, final_lon,"", str(item))
-        biginfocache = biginfocache + infocache
-
+        try:
+            if item[1] < 0:
+                pass
+            pathcache, infocache, final_lat, final_lon = simulate(item[0][0], item[0][1], float(sys.argv[6]), float(sys.argv[7]), item[1], \
+                float(sys.argv[11]), float(argv[12]))
+            bigpathcache = bigpathcache + get_path_string(pathcache) + get_marker_string(final_lat, final_lon,"", str(item))
+            biginfocache = biginfocache + infocache
+        except (IOError, ValueError):
+            biginfocache = biginfocache + "<br/>Error:" + str(item) + "<br/>"
     result = part1 + str(sys.argv[6]) + "," + str(sys.argv[7]) + part2
     result = result + bigpathcache + part3 + biginfocache + part4
     print(result)
