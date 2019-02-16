@@ -3,6 +3,8 @@ import h5py
 import numpy as np 
 import math
 import sys
+from webutils import *
+import elev
 
 EARTH_RADIUS = 6.371e6
 
@@ -95,13 +97,14 @@ def lin_to_angular_velocities(lat, lon, u, v):
     dlon = math.degrees(u / EARTH_RADIUS * math.cos(math.radians(90-lat)))
     return dlat, dlon
 
-def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=None):
+def simulate(data, slat, slon, ascent_rate, timestep_s, stop_alt, pathcache, infocache):
     
-    lat, lon, alt = slat, slon, salt
+    lat, lon = slat, slon
+    alt = elev.getElevation(lat,lon)
     time = 0
 
-    if outfile != None:
-        f = open(outfile,"w")
+    pathcache.append([lat, lon])
+    infocache = infocache + "Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt) + "<br/>\n"
 
     while alt < stop_alt:
         bounds = get_bounds_and_fractions(lat, lon, alt)
@@ -113,19 +116,23 @@ def simulate(data, slat, slon, salt, ascent_rate, timestep_s, stop_alt, outfile=
         lat = lat + dlat * timestep_s
         lon = lon + dlon * timestep_s
         time = time + timestep_s
-        
-        if outfile == None:
-            print("Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt))
-        else:
-            f.write("Time="+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt))
 
+        pathcache.append([lat, lon])
+        infocache = infocache + "Time="+ str(time) + "," + str("%.4f" % lat) + "," + str("%.4f" % lon) + ",alt=" + str(alt) + "<br/>\n"
+    
+    return pathcache, infocache
 
-data = open_h5(str(sys.argv[1]) + ".h5")
-if len(sys.argv) == 9:
-    args = list(map(float, sys.argv[2:8]))
-    simulate(data, *args, sys.argv[8])
-else:
-    args = list(map(float, sys.argv[2:8]))
-    simulate(data, *args)
+def main():
+    data = open_h5(str(sys.argv[1]) + ".h5")
+    pathcache = list()
+    infocache = ""
+    args = list(map(float, sys.argv[2:7]))
+    pathcache, infocache = simulate(data, *args, pathcache, infocache)
+    
+    result = part1 + str(sys.argv[2]) + "," + str(sys.argv[3]) + part2
+    result = result + get_path_string(pathcache) + part3 + infocache + part4
+    print(result)
 
+main()
 
+## Usage: simulate.py path_timestamp lat lon launch_alt ascent_rate timestep_s stop_alt \(outfile\)
