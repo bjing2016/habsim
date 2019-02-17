@@ -7,7 +7,7 @@ def get_timestamp(y,m,d,h):
 
 def trim(y,m,d,h):
     data = numpy.load(get_timestamp(y,m,d,h) + ".npy")
-    data = data[:,:,0:182,0:360]
+    data = data[:,:,0:182,360:]
     numpy.save("trim/" + get_timestamp(y,m,d,h)+".npy", data)
 
 

@@ -133,7 +133,7 @@ part3 = '''
 <div id="map_canvas" style="width:80%; height:100%"></div>
     <div id="info" style="padding-left:2ch; padding-right: 2ch">
       <div>
-         <h1>Launch a balloon from the past.</h1>
+         <h2>Launch a balloon from the past.</h2>
         Date range supported: 2018, all timestamps <br/>
         Locations supported: NW quadrant<br/>
         <form>

@@ -1,13 +1,9 @@
-
-from PIL import Image
 import numpy
 
 
-east = Image.open("30N090W_20101117_gmted_mea150.tif")
-mid = Image.open("30N120W_20101117_gmted_mea150.tif")
-west = Image.open("30N150W_20101117_gmted_mea150.tif")
-
-east, mid, west = numpy.array(east), numpy.array(mid), numpy.array(west)
+east = numpy.load("30N090W_20101117_gmted_mea150.npy")
+mid = numpy.load("30N120W_20101117_gmted_mea150.npy")
+west = numpy.load("30N150W_20101117_gmted_mea150.npy")
 
 def getElevation(lat, lon):
 

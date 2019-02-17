@@ -199,6 +199,8 @@ def get_run_set(timestamp, t_offset_mins, t_neighbors, t_interval, ascent_rate, 
     result = list()
  #   ascent_queue = [i/2/(ascent_rate_neighbors+1) for i in range(1,ascent_rate_neighbors*2+2)]
     time_set_que = [rectify_timestamp(timestamp, t_offset_mins - (t_neighbors * t_interval)*60 + t_interval*60*i) for i in range(2*t_neighbors + 1)]
+    if ascent_rate_neighbors = 0:
+        ascent_rate_var = 1;
     ascent_queue = [norm.ppf(i/2.0/(ascent_rate_neighbors+1), loc = ascent_rate, scale = ascent_rate_var) for i in range(1,ascent_rate_neighbors*2+2)]
     #print(ascent_rate_neighbors)
     #for i in range(1,ascent_rate_neighbors*2+2):
@@ -227,7 +229,7 @@ def main():
     timestamp = sys.argv[2]
     bigpathcache = ""
     biginfocache = "Timestamp=" + str(argv[2]) + "<br/>" + \
-        "Timestamp=" + str(argv[3]) + "<br/>" + \
+        "Offset=" + str(argv[3]) + "<br/>" + \
             "Time neighbors=" + str(argv[4]) + "<br/>" + \
                 "Time interval=" + str(argv[5]) + "<br/>" + \
                     "Lat=" + str(argv[6]) + "<br/>" + \
