@@ -40,7 +40,7 @@ part1 = '''
 <html>
     <head>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
-        <title>Historical Simple Ascent</title>
+        <title>Historical Batch Ascent</title>
          <style type="text/css">
  		html { height: 100% }
 	      body { height: 100%; margin: 0; padding: 0 }
@@ -133,7 +133,7 @@ part3 = '''
 <div id="map_canvas" style="width:80%; height:100%"></div>
     <div id="info" style="padding-left:2ch; padding-right: 2ch">
       <div>
-         <h1>Launch a balloon from the past, with variations in time and ascent rate.</h1>
+         <h1>Launch a balloon from the past.</h1>
         Date range supported: 2018, all timestamps <br/>
         Locations supported: NW quadrant<br/>
         Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
@@ -141,7 +141,7 @@ part3 = '''
         Click to select coordinates. <br/></br>
         
         If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
-            Timestamp: <input id = "time" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) <br/>
+            Timestamp: <input id = "timestamp" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) <br/>
             Time offset: <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
                     
             Ascent rate: <input id="rate" type="text" size="4" name="rate">m/s <br/>
@@ -152,6 +152,7 @@ part3 = '''
             Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/>
             
             Ascent rate variability: <input id="var" type="text" size="4" name="var">m/s <br/>
+            Step: <input id="step" type="text" size="4" name="step">s <br/>
             <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/><br/>
         </form>
 	    <button formaction="cgi-bin/hist_batch.php" method = "get">Simulate</button>

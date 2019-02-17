@@ -34,7 +34,7 @@ def get_or_fetch(timestamp , lat, lon):
     global cache
     if (timestamp, lat, lon) not in cache.keys():
         data = get_file(path + timestamp)
-        lon_adj = lon - 180 % 360
+        lon_adj = (lon - 180) % 360
         cache[(timestamp, lat, lon)] = data[:,:,lat:lat+2,lon_adj:lon_adj+2]
    
     return cache[(timestamp,lat,lon)]
