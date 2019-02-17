@@ -27,12 +27,15 @@ def get_file(filename):
         filecache[filename] = np.load(filename + ".npy")
     return filecache[filename]
 
+
+#### ATTENTION: LON IS ADJUSTED BECAUSE OF TRIMMED DATA ####
+
 def get_or_fetch(timestamp , lat, lon):
     global cache
     if (timestamp, lat, lon) not in cache.keys():
         data = get_file(path + timestamp)
-  
-        cache[(timestamp, lat, lon)] = data[:,:,lat:lat+2,lon:lon+2]
+        lon_adj = lon - 180 % 360
+        cache[(timestamp, lat, lon)] = data[:,:,lat:lat+2,lon_adj:lon_adj+2]
    
     return cache[(timestamp,lat,lon)]
     
@@ -144,11 +147,12 @@ def get_prev_timestamp(timestamp):
             threshhold = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         else:
             threshhold = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        d2 = d2 % threshhold[m1 - 2]
-        if d2 > d1:
-            m2 = (m1 - 1) % 12
-            if m2 > m1:
+        if d2 == 0:
+            d2 = threshhold[m1-2 % 12]
+            m2 = m1 - 1
+            if m2 == 0:
                 y2 = y1 - 1
+                m2 = 12
     return str(y2) + str(m2).zfill(2) + str(d2).zfill(2) + str(h2).zfill(2)
 
 
