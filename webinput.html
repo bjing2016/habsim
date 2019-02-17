@@ -62,10 +62,11 @@
                 document.getElementById("lat").value = lat;
 
                 document.getElementById("lon").value = lng;
+                
 
 
       }
- 
+        
             //Define OSM map type pointing at the OpenStreetMap tile server
             map.mapTypes.set("OSM", new google.maps.ImageMapType({
                 getTileUrl: function(coord, zoom) {
@@ -85,8 +86,8 @@
                 maxZoom: 18
             }));
 
-
-
+            
+            
         </script>
 <div id="map_canvas" style="width:80%; height:100%"></div>
     <div id="info" style="padding-left:2ch; padding-right: 2ch">
@@ -100,23 +101,32 @@
         Click to select coordinates. <br/></br>
         
         If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
-            Timestamp: <input id = "timestamp" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) <br/>
-            Time offset: <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
-                    
-            Ascent rate: <input id="rate" type="text" size="4" name="rate">m/s <br/>
-    
-            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/> <br/>
-            
+            Timestamp: <input id = "timestamp" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) + <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
             Time variability: <input id = "tn" type = "text" size = "2" name = "tn"> neighbors on each side. <br/> 
-            Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/>
+            Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/> 
             
-            Ascent rate variability: <input id="var" type="text" size="4" name="var">m/s <br/>
+            
+            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/><br/>
+        
+            Ascent rate: <input id="rate" type="text" size="4" name="rate"> &pm; <input id="var" type="text" size="4" name="var"> m/s<br/>
+            <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/>
 
-            <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/><br/>
+            <br/>
             Step: <input id="step" type="text" size="4" name="step">s <br/>
 	    <button formaction="https://web.stanford.edu/~bjing/cgi-bin/hist_batch.php" method = "get">Simulate</button>
 	    </form>
       </div>
     </div>
+    <script> 
+    document.getElementById("timestamp").value = 2018052500;
+    document.getElementById("offset").value = 0;
+    document.getElementById("rate").value = 4;
+    document.getElementById("alt").value = 36000;
+    document.getElementById("tn").value = 0;
+    document.getElementById("ti").value = 6;
+    document.getElementById("var").value = 0.5;
+    document.getElementById("an").value = 0;
+    document.getElementById("step").value = 120;
+    </script>
 </body>
 </html>

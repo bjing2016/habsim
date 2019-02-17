@@ -32,6 +32,27 @@ def get_marker_string(lat, lon, label, title):
             marker.setMap(map);
         '''
 
+
+## Usage: simulate.py path timestamp t_offset t_neighbors, t_interval, lat, lon, ascent_rate, ascent_rate_neighbors, ascent_var, timestep_s, stop_alt
+ #           0           1       2       3           4           5       6   7       8               9                    10         11          12
+
+def get_setting_string(args):
+    return '''<script>
+    document.getElementById("lat").value = ''' + args[6] + ''';
+    document.getElementById("lon").value = ''' + args[7] + ''';
+    document.getElementById("timestamp").value = ''' + args[2] + ''';
+    document.getElementById("offset").value = ''' + args[3] + ''';
+    document.getElementById("rate").value = ''' + args[8] + ''';
+    document.getElementById("alt").value = ''' + args[12] + ''';
+    document.getElementById("tn").value = ''' + args[4] + ''';
+    document.getElementById("ti").value = ''' + args[5] + ''';
+    document.getElementById("var").value = ''' + args[10] + ''';
+    document.getElementById("an").value = ''' + args[9] + ''';
+    document.getElementById("step").value = ''' + args[11] + ''';
+    </script>'''
+    
+    
+
 #########
 
 part1 = '''
@@ -141,23 +162,21 @@ part3 = '''
         Lon: <input id="lon" type="text" size="8" name="lon"> <br/>
         Click to select coordinates. <br/></br>
         
-        If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
-            Timestamp: <input id = "timestamp" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) <br/>
-            Time offset: <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
-                    
-            Ascent rate: <input id="rate" type="text" size="4" name="rate">m/s <br/>
-    
-            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/> <br/>
-            
+            If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
+            Timestamp: <input id = "timestamp" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) + <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
             Time variability: <input id = "tn" type = "text" size = "2" name = "tn"> neighbors on each side. <br/> 
-            Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/>
+            Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/> 
             
-            Ascent rate variability: <input id="var" type="text" size="4" name="var">m/s <br/>
-           
-            <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/><br/>
-             Step: <input id="step" type="text" size="4" name="step">s <br/>
+            
+            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/><br/>
+        
+            Ascent rate: <input id="rate" type="text" size="4" name="rate"> +/- <input id="var" type="text" size="4" name="var"> m/s<br/>
+            <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/>
+
+            <br/>
+            Step: <input id="step" type="text" size="4" name="step">s <br/>
       
-	    <button formaction="cgi-bin/hist_batch.php" method = "get">Simulate</button>
+	    <button formaction="https://web.stanford.edu/~bjing/cgi-bin/hist_batch.php" method = "get">Simulate</button>
         </form>
         <br/><br/>
         Output: <br/>
@@ -166,6 +185,8 @@ part4 = '''
 
       </div>
     </div>
+    '''
+part5 = '''
 </body>
 </html>
 

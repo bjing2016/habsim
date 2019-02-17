@@ -1,4 +1,3 @@
-
 import numpy as np 
 import math
 import sys
@@ -34,8 +33,7 @@ def get_or_fetch(timestamp , lat, lon):
     global cache
     if (timestamp, lat, lon) not in cache.keys():
         data = get_file(path + timestamp)
-        lon_adj = (lon - 180) % 360
-        cache[(timestamp, lat, lon)] = data[:,:,lat:lat+2,lon_adj:lon_adj+2]
+        cache[(timestamp, lat, lon)] = data[:,:,lat:lat+2,lon:lon+2]
    
     return cache[(timestamp,lat,lon)]
     
@@ -90,7 +88,7 @@ def get_bounds_and_fractions (lat, lon, alt, timestamp, t_offset_mins):
     lat_res = (int(math.floor(lat)), 1 - lat % 1)
 
     
-    lon = (lon % 360) * 2;
+    lon = (lon % 360) * 2 - 360;
     lon_res = (int(math.floor(lon)), 1 - lon % 1)
 
     time_f = 1-t_offset_mins/total_mins
@@ -199,7 +197,7 @@ def get_run_set(timestamp, t_offset_mins, t_neighbors, t_interval, ascent_rate, 
     result = list()
  #   ascent_queue = [i/2/(ascent_rate_neighbors+1) for i in range(1,ascent_rate_neighbors*2+2)]
     time_set_que = [rectify_timestamp(timestamp, t_offset_mins - (t_neighbors * t_interval)*60 + t_interval*60*i) for i in range(2*t_neighbors + 1)]
-    if ascent_rate_neighbors = 0:
+    if ascent_rate_neighbors == 0:
         ascent_rate_var = 1;
     ascent_queue = [norm.ppf(i/2.0/(ascent_rate_neighbors+1), loc = ascent_rate, scale = ascent_rate_var) for i in range(1,ascent_rate_neighbors*2+2)]
     #print(ascent_rate_neighbors)
@@ -254,8 +252,8 @@ def main():
             biginfocache = biginfocache + infocache
         except (IOError, ValueError):
             biginfocache = biginfocache + "<br/>Error:" + str(item) + "<br/>"
-    result = part1 + str(sys.argv[6]) + "," + str(sys.argv[7]) + part2
-    result = result + bigpathcache + part3 + biginfocache + part4
+    result = part1 + str(sys.argv[6]) + "," + str(sys.argv[7]) + part2 
+    result = result + bigpathcache + part3 + biginfocache + part4 + get_setting_string(sys.argv) + part5
     print(result)
     
 main()
