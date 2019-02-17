@@ -136,6 +136,7 @@ part3 = '''
          <h1>Launch a balloon from the past.</h1>
         Date range supported: 2018, all timestamps <br/>
         Locations supported: NW quadrant<br/>
+        <form>
         Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
         Lon: <input id="lon" type="text" size="8" name="lon"> <br/>
         Click to select coordinates. <br/></br>
@@ -152,9 +153,10 @@ part3 = '''
             Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/>
             
             Ascent rate variability: <input id="var" type="text" size="4" name="var">m/s <br/>
-            Step: <input id="step" type="text" size="4" name="step">s <br/>
+           
             <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/><br/>
-        </form>
+             Step: <input id="step" type="text" size="4" name="step">s <br/>
+      
 	    <button formaction="cgi-bin/hist_batch.php" method = "get">Simulate</button>
         </form>
         <br/><br/>
