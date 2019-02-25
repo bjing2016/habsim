@@ -7,6 +7,8 @@ import os.path
 import sys
 
 
+### Current download as npy ###
+
 levels = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
           500, 550, 600, 650, 700, 750, 800, 850,\
@@ -64,7 +66,9 @@ def main_single_dataset(y, m, d, h, save_dir):
         print("Downloaded " + path + ", unpacking")
         data = grb2_to_array(path)
         print("Saving " + path)
-        save_h5py(data, path)
+        np.save(path + ".npy", data)
+        
+        ### save_h5py(data, path)
         print("Deleting" + path)
         delete_grb2(path)
     else:

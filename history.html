@@ -101,31 +101,40 @@
         Click to select coordinates. <br/></br>
         
         If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
-            Timestamp: <input id = "timestamp" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) + <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
-            Time variability: <input id = "tn" type = "text" size = "2" name = "tn"> neighbors on each side. <br/> 
-            Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/> 
-            
-            
-            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/><br/>
-        
-            Ascent rate: <input id="rate" type="text" size="4" name="rate"> &pm; <input id="var" type="text" size="4" name="var"> m/s<br/>
-            <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/>
-
+            Date: <input id = "y" type="text" size="2" name="y">/<input id = "mo" type="text" size="1" name="mo">/<input id = "d" type="text" size="1" name="d"> (yyyy/mm/dd) <br/>
+            Time (UTC): <input id = "h" type="text" size="1" name="h">:<input id = "mi" type="text" size="1" name="mi"><br/>
             <br/>
+            Time variability: <input id = "tn" type = "text" size = "1" name = "tn"> neighbors on each side. <br/> 
+            Interval <input id = "ti" type = "text" size = "1" name = "ti"> hours.<br/> <br/> 
+            
+            Ascent rate: <input id="asc" type="text" size="2" name="asc"> &pm; <input id="var" type="text" size="1" name="var"> m/s with
+            <input id = "an" type = "text" size = "1" name = "an"> neighbors on each side, normally distributed. <br/>
+            <br/>
+            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/><br/>
+            
+            Descent rate: <input id = "desc" type = "text" size = "2" name = "desc">m/s<br/><br/>
+
+            Simulate for <input id = "max_h" type = "text" size = "2" name = "max_h"> hours. <br/><br/>
+            
             Step: <input id="step" type="text" size="4" name="step">s <br/>
 	    <button formaction="https://web.stanford.edu/~bjing/cgi-bin/hist_batch.php" method = "get">Simulate</button>
 	    </form>
       </div>
     </div>
     <script> 
-    document.getElementById("timestamp").value = 2018052500;
-    document.getElementById("offset").value = 0;
-    document.getElementById("rate").value = 4;
-    document.getElementById("alt").value = 36000;
+    document.getElementById("y").value = 2018;
+    document.getElementById("mo").value = 7;
+    document.getElementById("d").value = 1;
+    document.getElementById("h").value = 12;
+    document.getElementById("mi").value = 30;
     document.getElementById("tn").value = 0;
-    document.getElementById("ti").value = 6;
+    document.getElementById("ti").value = 24;
+    document.getElementById("asc").value = 3.7;
     document.getElementById("var").value = 0.5;
     document.getElementById("an").value = 0;
+    document.getElementById("alt").value = 29000;
+    document.getElementById("desc").value = 0;
+    document.getElementById("max_h").value = 5;
     document.getElementById("step").value = 120;
     </script>
 </body>

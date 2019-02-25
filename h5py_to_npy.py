@@ -15,7 +15,7 @@ def convert(y, m, d, h):
     
 def main():
     args = sys.argv[1:]
-    if len(args) != 4 and len(args) != 8:
+    if len(args) != 8:
         print("Invalid number of arguments.")
         exit()
 
