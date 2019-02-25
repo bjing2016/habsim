@@ -1,6 +1,3 @@
-### Keeps NW quadrant assuming resolution of .5 degrees ###
-
-
 import numpy
 import sys
 
