@@ -180,6 +180,6 @@ def load_filecache(simtime, duration_hours, step_hours, path, suffix):
         if loadtime not in filecache.keys():
             name = loadtime.strftime("%Y%m%d%H")
             filecache[loadtime] = np.load(path + "/" + name + suffix)
-            loadtime = loadtime + data_step
+        loadtime = loadtime + data_step
     
     return basetime
