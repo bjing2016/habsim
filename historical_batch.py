@@ -107,5 +107,5 @@ for item in run_queue:
 print(part3)
 print(text_output)
 print(part4)
-print(get_setting_string(y, mo, d, h, mi, t_neighbors, t_interval_hours, ascent_rate, ascent_var, ascent_neighbors, stop_alt, descent_rate, max_t_h, timestep_s))
+print(get_setting_string(lat, lon, y, mo, d, h, mi, t_neighbors, t_interval_hours, ascent_rate, ascent_var, ascent_neighbors, stop_alt, descent_rate, max_t_h, timestep_s))
 print(part5)

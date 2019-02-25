@@ -36,8 +36,10 @@ def get_marker_string(lat, lon, label, title):
 ## Usage: simulate.py path timestamp t_offset t_neighbors, t_interval, lat, lon, ascent_rate, ascent_rate_neighbors, ascent_var, timestep_s, stop_alt
  #           0           1       2       3           4           5       6   7       8               9                    10         11          12
 
-def get_setting_string(y, mo, d, h, mi, tn, ti, asc, var, an, alt, desc, max_h, step):
+def get_setting_string(lat, lon, y, mo, d, h, mi, tn, ti, asc, var, an, alt, desc, max_h, step):
     return '''<script>
+    document.getElementById("lat").value = ''' + str(lat) +''';
+    document.getElementById("lon").value = ''' + str(lon) +''';
     document.getElementById("y").value = ''' + str(y) +''';
     document.getElementById("mo").value = ''' + str(mo)+ ''';
     document.getElementById("d").value = ''' + str(d) +''';
