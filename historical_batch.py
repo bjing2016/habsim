@@ -15,8 +15,8 @@ h = int(sys.argv[5])
 mi = int(sys.argv[6])
 t_neighbors = int(sys.argv[7])
 t_interval_hours = float(sys.argv[8])
-lat = float(sys.argv[9])
-lon = float(sys.argv[10])
+slat = float(sys.argv[9])
+slon = float(sys.argv[10])
 ascent_rate = abs(float(sys.argv[11]))
 ascent_neighbors = int(sys.argv[12])
 ascent_var = float(sys.argv[13])
@@ -65,13 +65,13 @@ for rate in ascent_queue:
     for timestamp in tque_with_basetime:
         run_queue.append((timestamp, rate))
 
-print(part1 + str(lat) + "," + str(lon))
+print(part1 + str(slat) + "," + str(slon))
 print(part2)
 
 
 for item in run_queue:
     (basetime, launchtime), rate = item
-    rise, fall, coast = simulate(basetime, launchtime, lat, lon, rate, timestep_s, stop_alt, descent_rate, max_t_h)
+    rise, fall, coast = simulate(basetime, launchtime, slat, slon, rate, timestep_s, stop_alt, descent_rate, max_t_h)
 
 
     last = None
@@ -82,9 +82,9 @@ for item in run_queue:
     else:
         last = rise[-1]
 
-    __, lat, lon, __ = last
+    __, mlat, mlon, __ = last
 
-    print(get_marker_string(lat, lon, "", str(rate) + "," + str(launchtime)))
+    print(get_marker_string(mlat, mlon, "", str(rate) + "," + str(launchtime)))
 
     text_output = text_output + "Launch " + str(item[0][1]) + " ascent " + str("%.2f" % ascent_rate) + "<br/><br/>\n"
     
