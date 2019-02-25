@@ -1,22 +1,22 @@
-# path_cache needs to be a list or tuple of (lat, long)
+# path_cache needs to be a list or tuple of (time, lat, long, alt)
 
 counter = 0
-def get_path_string(path_cache):
+def get_path_string(path_cache, color):
     global counter
     string =  "var flightPlanCoordinates" + str(counter) + " = [ \n"
     for pair in path_cache:
-        string = string + "{lat: " + str(pair[0]) + ", lng: " + str(pair[1]) + "},\n"
-    string = string + '''
+        string = string + "{lat: " + str(pair[1]) + ", lng: " + str(pair[2]) + "},\n"
+    string = string + """
         ];
-        var flightPath''' + str(counter) + ''' = new google.maps.Polyline({
-          path: flightPlanCoordinates'''+str(counter)+''',
+        var flightPath""" + str(counter) + """ = new google.maps.Polyline({
+          path: flightPlanCoordinates"""+str(counter)+""",
           geodesic: true,
-          strokeColor: '#FF0000',
+          strokeColor: '""" + color + """',
           strokeOpacity: 1.0,
           strokeWeight: 2
         });
 
-        flightPath'''+str(counter) + '''.setMap(map);'''
+        flightPath"""+str(counter) + """.setMap(map);"""
     
     counter = counter + 1
     return string
@@ -36,19 +36,22 @@ def get_marker_string(lat, lon, label, title):
 ## Usage: simulate.py path timestamp t_offset t_neighbors, t_interval, lat, lon, ascent_rate, ascent_rate_neighbors, ascent_var, timestep_s, stop_alt
  #           0           1       2       3           4           5       6   7       8               9                    10         11          12
 
-def get_setting_string(args):
+def get_setting_string(y, mo, d, h, mi, tn, ti, asc, var, an, alt, desc, max_h, step):
     return '''<script>
-    document.getElementById("lat").value = ''' + args[6] + ''';
-    document.getElementById("lon").value = ''' + args[7] + ''';
-    document.getElementById("timestamp").value = ''' + args[2] + ''';
-    document.getElementById("offset").value = ''' + args[3] + ''';
-    document.getElementById("rate").value = ''' + args[8] + ''';
-    document.getElementById("alt").value = ''' + args[12] + ''';
-    document.getElementById("tn").value = ''' + args[4] + ''';
-    document.getElementById("ti").value = ''' + args[5] + ''';
-    document.getElementById("var").value = ''' + args[10] + ''';
-    document.getElementById("an").value = ''' + args[9] + ''';
-    document.getElementById("step").value = ''' + args[11] + ''';
+    document.getElementById("y").value = ''' + str(y) +''';
+    document.getElementById("mo").value = ''' + str(mo)+ ''';
+    document.getElementById("d").value = ''' + str(d) +''';
+    document.getElementById("h").value = ''' + str(h)+ ''';
+    document.getElementById("mi").value = ''' + str(mi)+ ''';
+    document.getElementById("tn").value = ''' + str(tn)+ ''';
+    document.getElementById("ti").value = ''' + str(ti) +''';
+    document.getElementById("asc").value = ''' + str(asc)+ ''';
+    document.getElementById("var").value = ''' + str(var) +''';
+    document.getElementById("an").value = ''' + str(an) +''';
+    document.getElementById("alt").value = ''' + str(alt) +''';
+    document.getElementById("desc").value = ''' + str(desc) +''';
+    document.getElementById("max_h").value = ''' + str(max_h)+ ''';
+    document.getElementById("step").value = ''' + str(step) +''';
     </script>'''
     
     
@@ -71,6 +74,7 @@ part1 = '''
         width:20%;
         height:100%;
         overflow-y: scroll;
+        overflow-x: scroll;
         bottom:0px;
         right:0px;
         top:0px;
@@ -151,33 +155,37 @@ part2 = ''' ),
 ''' 
 part3 = '''
         </script>
-<div id="map_canvas" style="width:80%; height:100%"></div>
+    <div id="map_canvas" style="width:80%; height:100%"></div>
     <div id="info" style="padding-left:2ch; padding-right: 2ch">
+
       <div>
-         <h2>Launch a balloon from the past.</h2>
-        Date range supported: 2018, all timestamps <br/>
-        Locations supported: NW quadrant<br/>
+        <h2>Launch a balloon from the past.</h2>
+        Date range supported: 2018, all timestamps. <br/>
+        Locations supported: NW quadrant.<br/>
         <form>
         Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
         Lon: <input id="lon" type="text" size="8" name="lon"> <br/>
         Click to select coordinates. <br/></br>
         
-            If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
-            Timestamp: <input id = "timestamp" type="text" size="12" name="timestamp"><br/> yyyymmddhh (hh = 00, 06, 12, 18) + <input id="offset" type="text" size="4" name="offset">mins <br/><br/>
-            Time variability: <input id = "tn" type = "text" size = "2" name = "tn"> neighbors on each side. <br/> 
-            Interval <input id = "ti" type = "text" size = "2" name = "ti"> hours.<br/> <br/> 
-            
-            
-            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/><br/>
-        
-            Ascent rate: <input id="rate" type="text" size="4" name="rate"> +/- <input id="var" type="text" size="4" name="var"> m/s<br/>
-            <input id = "an" type = "text" size = "2" name = "an"> neighbors on each side, normally distributed. <br/>
-
+        If your launch location is in the continental US, the launch altitude will be the ground elevation. Otherwise, it will be 0m. <br/><br/>
+            Date: <input id = "y" type="text" size="2" name="y">/<input id = "mo" type="text" size="1" name="mo">/<input id = "d" type="text" size="1" name="d"> (yyyy/mm/dd) <br/>
+            Time (UTC): <input id = "h" type="text" size="1" name="h">:<input id = "mi" type="text" size="1" name="mi"><br/>
             <br/>
+            Time variability: <input id = "tn" type = "text" size = "1" name = "tn"> neighbors on each side. <br/> 
+            Interval <input id = "ti" type = "text" size = "1" name = "ti"> hours.<br/> <br/> 
+            
+            Ascent rate: <input id="asc" type="text" size="2" name="asc"> &pm; <input id="var" type="text" size="1" name="var"> m/s with
+            <input id = "an" type = "text" size = "1" name = "an"> neighbors on each side, normally distributed. <br/>
+            <br/>
+            Stop alt: <input id = "alt" type = "text" size = "4" name = "alt">m <br/><br/>
+            
+            Descent rate: <input id = "desc" type = "text" size = "2" name = "desc">m/s<br/><br/>
+
+            Simulate for <input id = "max_h" type = "text" size = "2" name = "max_h"> hours. <br/><br/>
+            
             Step: <input id="step" type="text" size="4" name="step">s <br/>
-      
 	    <button formaction="https://web.stanford.edu/~bjing/cgi-bin/hist_batch.php" method = "get">Simulate</button>
-        </form>
+	    </form>
         <br/><br/>
         Output: <br/>
 '''

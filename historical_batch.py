@@ -31,74 +31,81 @@ max_t_h = float(sys.argv[17])
 ### Establish global constants ###
 lon_offset = 180
 points_per_degree = 2
+set_constants(points_per_degree, lon_offset)
+
+data_step_hours = 6
+
 suffix = ".npy"
 data_step = timedelta(hours = 6)
+
+
+text_output = ""
+
+markercache = ""
 
 ### Load all the data ###
 
 coretime = datetime(y, mo, d, h, mi)
 t_var_step = timedelta(hours = t_interval_hours)
 time_set_que = [(coretime + i * t_var_step) for i in range(-t_neighbors, t_neighbors + 1)]
+tque_with_basetime = list()
 
 for timestamp in time_set_que:
     try:
-        load_filecache(timestamp, max_t_h, 6, path, suffix)
+        basetime = load_filecache(timestamp, max_t_h, data_step_hours, path, suffix)
+        tque_with_basetime.append((basetime, timestamp))
     except (IOError, ValueError):
-        text = text + "Error loading for " + str(timestamp)
+        text_output = text_output + "Error loading for " + str(timestamp)
 
 ### Prepare the run queue ###
 run_queue = list()
 
 ascent_queue = [norm.ppf(i/2.0/(ascent_neighbors+1), loc = ascent_rate, scale = ascent_var) for i in range(1,ascent_neighbors*2+2)]
 for rate in ascent_queue:
-    for timestamp in time_set_que:
+    for timestamp in tque_with_basetime:
         run_queue.append((timestamp, rate))
 
+print(part1 + str(lat) + "," + str(lon))
+print(part2)
 
 
+for item in run_queue:
+    (basetime, launchtime), rate = item
+    rise, fall, coast = simulate(basetime, launchtime, lat, lon, rate, timestep_s, stop_alt, descent_rate, max_t_h)
 
-print
 
-    '''
-    biginfocache = "Timestamp=" + str(argv[2]) + "<br/>" + \
-        "Offset=" + str(argv[3]) + "<br/>" + \
-            "Time neighbors=" + str(argv[4]) + "<br/>" + \
-                "Time interval=" + str(argv[5]) + "<br/>" + \
-                    "Lat=" + str(argv[6]) + "<br/>" + \
-                        "Lon=" + str(argv[7]) + "<br/>" + \
-                            "Ascent rate=" + str(argv[8]) + "<br/>" + \
-                            "Ascent rate neighbors=" + str(argv[9]) + "<br/>" + \
-                            "Ascent variation=" + str(argv[10]) + "<br/>" + \
-                            "Timestep=" + str(argv[11]) + "<br/>" + \
-                                "Stop altitude=" + str(argv[12]) + "<br/>"
+    last = None
+    if len(coast) > 0:
+        last = coast[-1]
+    elif len(fall) > 0:
+        last = fall[-1]
+    else:
+        last = rise[-1]
+
+    __, lat, lon, __ = last
+
+    print(get_marker_string(lat, lon, "", str(rate) + "," + str(launchtime)))
+
+    text_output = text_output + "Launch " + str(item[0][1]) + " ascent " + str("%.2f" % ascent_rate) + "<br/><br/>\n"
     
-    '''
-   
-    run_queue = get_run_set(timestamp, float(argv[3]), int(argv[4]), float(argv[5]), float(argv[8]), int(argv[9]), float(argv[10]))
+    totalpath = rise + fall + coast
+    pathcache = ""
+    for (time, lat, lon, alt) in totalpath:
+        pathcache = pathcache + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+"<br>\n"
     
-    for item in run_queue:
-        try:
-            if item[1] < 0:
-                pass
-            pathcache, infocache, final_lat, final_lon = simulate(item[0][0], item[0][1], float(sys.argv[6]), float(sys.argv[7]), item[1], \
-                float(sys.argv[11]), float(argv[12]))
-            bigpathcache = bigpathcache + get_path_string(pathcache) + get_marker_string(final_lat, final_lon,"", str(item))
-            biginfocache = biginfocache + infocache
-        except (IOError, ValueError):
-            biginfocache = biginfocache + "<br/>Error:" + str(item) + "<br/>"
-    result = part1 + str(sys.argv[6]) + "," + str(sys.argv[7]) + part2 
-    result = result + bigpathcache + part3 + biginfocache + part4 + get_setting_string(sys.argv) + part5
-    print(result)
-    
-main()
+    text_output = text_output + pathcache + "<br/><br/>"
+
+    fall.insert(0, rise[-1])
+    coast.insert(0, fall[-1])
+    print(get_path_string(rise, "#FF0000"))
+    print(get_path_string(fall, "#00FF00"))
+    print(get_path_string(coast, "#000000"))
 
 
 
 
-
-"""
-infocache = ''' <br/><br/>
-    
-    Timestamp=''' + str(timestamp) + ", offset=" + str(t_offset_mins) + ", ascent rate=" + str("%.2f" % ascent_rate) + ''' <br/> 
-    Time='''+ str(time) + "," + str(lat) + "," + str(lon) + ",alt=" + str(alt) + "<br/>\n"
-"""
+print(part3)
+print(text_output)
+print(part4)
+print(get_setting_string(y, mo, d, h, mi, t_neighbors, t_interval_hours, ascent_rate, ascent_var, ascent_neighbors, stop_alt, descent_rate, max_t_h, timestep_s))
+print(part5)

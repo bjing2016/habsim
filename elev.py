@@ -1,7 +1,8 @@
 import numpy
 
 def getElevation(lat, lon):
-
+    ### return 0
+    ### Comment above line out ###
     rLat = int(round(-(lat - 50) * 240 - 1))
     rLon = int(round((lon - (-150)) * 240))
 
