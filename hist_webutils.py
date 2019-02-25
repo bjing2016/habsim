@@ -38,8 +38,8 @@ def get_marker_string(lat, lon, label, title):
 
 def get_setting_string(lat, lon, y, mo, d, h, mi, tn, ti, asc, var, an, alt, desc, max_h, step):
     return '''<script>
-    document.getElementById("lat").value = ''' + str(lat) +''';
-    document.getElementById("lon").value = ''' + str(lon) +''';
+    document.getElementById("lat").value = ''' + str("%.5f" % lat) +''';
+    document.getElementById("lon").value = ''' + str("%.5f" % lon) +''';
     document.getElementById("y").value = ''' + str(y) +''';
     document.getElementById("mo").value = ''' + str(mo)+ ''';
     document.getElementById("d").value = ''' + str(d) +''';
