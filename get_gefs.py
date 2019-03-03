@@ -4,7 +4,16 @@ import urllib.request
 import os.path
 import sys
 import h5py
+import time
 from datetime import datetime, timedelta
+
+###
+northlat = 60
+southlat = 0
+
+westlon = 180
+eastlon = 270
+
 
 levels = [10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
@@ -14,14 +23,15 @@ levels = [10, 20, 30, 50, 70,\
 def complete_run(y, m, d, h, path):
 
     for n in range(1, 20):
-        for t in range(0, 384, 3):
+        for t in range(0, 384, 6):
             single_run(y,m,d,h,t,n, path)
 
 def single_run(y,m,d,h,t,n, path):
     
-   # url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2{}"\
-    #    .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(n).zfill(2))
-    url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20190302/00/pgrb2/gep01.t00z.pgrb2f12"
+    url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
+        .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
+    print(url)
+    ## url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20190302/00/pgrb2/gep01.t00z.pgrb2f12"
     base = datetime(y, m, d, h)
     basestring = base.strftime("%Y%m%d%H")    
     pred = base + timedelta(hours=3)
@@ -53,12 +63,13 @@ def grb2_to_array(filename):
     grbs = pygrib.open(filename + ".grb2")
     
     
-    dataset = np.zeros((2, len(levels), 91, 91))
+    dataset = np.zeros((2, len(levels), 181, 360))
 
     ### Thanks to KMarshland for pointers on using PyGrib ###
     for i in range(len(levels)):
-        
+        ### [lat, lat, lon, lon]
         for grb in grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels[i]):
+            print(time.time())
             dataset[0][i] = grb.data()[0]
 
     for i in range(len(levels)):
