@@ -4,6 +4,7 @@ import elev
 from datetime import datetime, timedelta
 import math
 from scipy.stats import norm
+import time
 
 EARTH_RADIUS = 6.371e6
 
@@ -14,17 +15,24 @@ GFSANL = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
 
+GEFS = [10, 20, 30, 50, 70,\
+          100, 150, 200, 250, 300, 350, 400, 450,\
+          500, 550, 600, 650, 700, 750, 800, 850,\
+          900, 925, 950, 975, 1000]
+
 ### Will be populated by get_filecache ###
 
 ### Client must directly populate via the method below ###
 points_per_degree = None
 lon_offset = None
+lat_start = None
 data_step = None
 step_hours = None
 
-def set_constants(ppd, lo, hrs, lvls, pth, sffx):
+def set_constants(ppd, lo, lat, hrs, lvls, pth, sffx):
     global points_per_degree
     global lon_offset
+    global lat_start
     global step_hours
     global data_step
     global levels
@@ -32,6 +40,7 @@ def set_constants(ppd, lo, hrs, lvls, pth, sffx):
     global suffix
     points_per_degree = ppd
     lon_offset = lo
+    lat_start = lat
     step_hours = hrs
     data_step = timedelta(hours = step_hours)
     levels = lvls
@@ -43,8 +52,8 @@ def reset():
     filecache = {}
 
 
-def get_basetime(simtime):
-    return datetime(simtime.year, simtime.month, simtime.date, math.floor(simtime.hour / step_hours) * step_hours)
+def get_basetime(simtime, hrs):
+    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / hrs) * hrs))
 
 ### Cache of datacubes and files. ###
 ### Must be reset for each ensemble member ##
@@ -57,6 +66,7 @@ datacache = {}
 
 def get_file(timestamp):
     if timestamp not in filecache.keys():
+
         name = timestamp.strftime("%Y%m%d%H")
         filecache[timestamp] = np.load(path + "/" + name + suffix)
     return filecache[timestamp]
@@ -68,6 +78,7 @@ def get_or_fetch(timestamp , lat_index, lon_index):
     if (timestamp, lat_index, lon_index) not in datacache.keys():
         data = get_file(timestamp)
         datacache[(timestamp, lat_index, lon_index)] = data[:,:,lat_index:lat_index+2,lon_index:lon_index+2]
+
    
     return datacache[(timestamp,lat_index,lon_index)]
 
@@ -109,21 +120,25 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     lat_res, lon_res, pressure_res = None, None, None
 
     pressure = alt_to_hpa(alt)
-    for i in range(len(levels)):
-        if pressure<=levels[i]:
-            fraction = (levels[i]-pressure)/(levels[i]-levels[i-1])
-            pressure_res = (i - 1, fraction)
-            break;
+    if pressure <= levels[0]:
+        pressure_res = 0, 1
+    else:
+        for i in range(1, len(levels)):
+            if pressure<=levels[i]:
+                fraction = (levels[i]-pressure)/(levels[i]-levels[i-1])
+                pressure_res = (i - 1, fraction)
+                break
         pressure_res = i-1, 0
     
-    lat = (lat + 90) * points_per_degree
-    lat = 360 - lat
+    lat = 90 - lat
+    lat = lat - lat_start
+    lat = lat * points_per_degree
     lat_res = (int(math.floor(lat)), 1 - lat % 1)
 
     lon = ((lon % 360) - lon_offset) * points_per_degree
     lon_res = (int(math.floor(lon)), 1 - lon % 1)
     
-    base_timestamp = get_basetime(sim_timestamp)
+    base_timestamp = get_basetime(sim_timestamp, step_hours)
     offset = sim_timestamp - base_timestamp
   ##  if offset >= data_step:
   ##      base_timestamp = base_timestamp + data_step
@@ -166,7 +181,7 @@ def single_step(simtime, lat, lon, alt, ascent_rate, step):
     lon = lon + dlon * step
     simtime = simtime + timedelta(seconds = step)
 
-    return simtime, lat, lon, alt
+    return simtime, lat, lon, alt, u, v
 
 def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration):
     
@@ -176,26 +191,25 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
 
     end = starttime + timedelta(hours=max_duration)
 
-    pathcache = (list(), list(), list())
-    pathcache[0].append((starttime, lat, lon, alt))
+    rise, fall, coast = list(), list(), list()
+    rise.append((starttime, lat, lon, alt, 0, 0))
     
     while alt < stop_alt and simtime < end:
-        simtime, lat, lon, alt = single_step(simtime, lat, lon, alt, ascent_rate, step)
-        pathcache[0].append((simtime, lat, lon, alt))
-
-    index = 1
+        simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, alt, ascent_rate, step)
+        rise.append((simtime, lat, lon, alt, u, v))
 
     while simtime < end:
         
-        simtime, lat, lon, alt = single_step(simtime, lat, lon, alt, -descent_rate, step)
-        pathcache[index].append((simtime, lat, lon, alt))
+        simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, alt, -descent_rate, step)
+        fall.append((simtime, lat, lon, alt, u, v))
         groundelev = elev.getElevation(lat, lon)
         if alt <= groundelev:
-            if groundelev <= 0:
-                descent_rate = 0
-                index = 2
-                alt = 0
-            else:
-                break
+            break
 
-    return pathcache ### (rise, fall, coast)
+    if groundelev <= 0:
+        while simtime < end:
+            simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step)
+            coast.append((simtime, lat, lon, 0, u, v))
+          
+
+    return rise, fall, coast ### (rise, fall, coast)

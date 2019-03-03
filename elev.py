@@ -1,5 +1,8 @@
 import numpy
 
+west = numpy.load("30N150W_20101117_gmted_mea150.npy")
+central = numpy.load("30N120W_20101117_gmted_mea150.npy")
+east = numpy.load("30N090W_20101117_gmted_mea150.npy")
 def getElevation(lat, lon):
     ### return 0
     ### Comment above line out ###
@@ -13,12 +16,12 @@ def getElevation(lat, lon):
     if rLon < 0:
         return 0
     elif rLon < 7200:
-        region = numpy.load("30N150W_20101117_gmted_mea150.npy")
+        region = west
     elif rLon < 7200 * 2:
-        region = numpy.load("30N120W_20101117_gmted_mea150.npy")
+        region = central
         rLon = rLon - 7200
     elif rLon < 7200 * 3:
-        region = numpy.load("30N090W_20101117_gmted_mea150.npy")
+        region = east
         rLon = rLon - 7200 * 2
     else:
         return 0

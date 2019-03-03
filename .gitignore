@@ -3,3 +3,6 @@ __pycache__
 *.tif
 *.npy
 *.grb2
+test.html
+localtest
+*grb2*

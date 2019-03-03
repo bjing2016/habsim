@@ -30,12 +30,13 @@ max_t_h = float(sys.argv[17])
 
 ### Establish global constants ###
 lon_offset = 180
+lat_start = 90
 points_per_degree = 2
 hrs = 6
 mylvls = GFSANL
 suffix = ".npy"
 
-set_constants(points_per_degree, lon_offset, hrs, mylvls, mypath, suffix)
+set_constants(points_per_degree, lon_offset, lat_start, hrs, mylvls, mypath, suffix)
 
 ### data_step_hours = 6
 
@@ -74,8 +75,7 @@ print(part2)
 for item in run_queue:
     launchtime, rate = item
     rise, fall, coast = simulate(launchtime, slat, slon, rate, timestep_s, stop_alt, descent_rate, max_t_h)
-
-
+    
     last = None
     if len(coast) > 0:
         last = coast[-1]
@@ -84,16 +84,17 @@ for item in run_queue:
     else:
         last = rise[-1]
 
-    __, mlat, mlon, __ = last
+    __, mlat, mlon, __, __, __ = last
 
     print(get_marker_string(mlat, mlon, "", str(rate) + "," + str(launchtime)))
 
-    text_output = text_output + "Launch " + str(item[0][1]) + " ascent " + str("%.2f" % ascent_rate) + "<br/><br/>\n"
+    text_output = text_output + "Launch " + str(launchtime) + " ascent " + str("%.2f" % ascent_rate) + "<br/><br/>\n"
     
     totalpath = rise + fall + coast
     pathcache = ""
-    for (time, lat, lon, alt) in totalpath:
-        pathcache = pathcache + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+"<br>\n"
+    for (time, lat, lon, alt, u, v) in totalpath:
+        pathcache = pathcache + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+ \
+             ",u=" + str("%.3f" % u)+ ",v=" + str("%.3f" % v)+  "<br>\n"
     
     text_output = text_output + pathcache + "<br/><br/>"
 
