@@ -116,3 +116,5 @@ def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
     f.write(part3short)
     f.write(text_output)
     f.write(part4 + part5)
+
+main()
