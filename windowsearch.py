@@ -63,7 +63,7 @@ def generate_html(pathcache, filename):
     __, slat, slon, __, __, __ = pathcache[0][0][0]
 
     path = "~/afs-home/WWW/res/spaceshot/" + filename
-    f = open(path, "w")
+    f = open(path, "w+")
 
     f.write(part1 + str(slat) + "," + str(slon))
     f.write(part2)
