@@ -21,8 +21,10 @@ def main(y, m, d, h):
     model_time = datetime(y,m,d,h)
     for name, lat, lon in spaceshot_locations:
         try:
+            print(name)
             spaceshot_search(name, model_time, lat, lon)
         except (IOError, IndexError):
+            print(name + " failed")
             continue
 
 ### Establish global constants ###
@@ -55,6 +57,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
 
         path = "/home/bjing/afs-home/WWW/res/spaceshot/" + filename
         if os.path.exists(path):
+            print(filename + "exists, continuing")
             continue
 
         for n in range(1, 21):
