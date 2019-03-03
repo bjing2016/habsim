@@ -45,7 +45,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
-    for t in range(0, 384+6, 6):
+    for t in range(0, 385, 6):
         launchtime = model_time + timedelta(hours = t)
 
         sim_timestamp = launchtime.strftime("%Y%m%d%H")
@@ -55,8 +55,8 @@ def spaceshot_search(location_name, model_time, slat, slon):
         filename = location_name + model_timestamp + "_" + sim_timestamp
 
 
-        path = "/home/bjing/afs-home/WWW/res/spaceshot/" + filename
-        if os.path.exists(path):
+        path = "/home/bjing/afs-home/WWW/res/spaceshot/"
+        if os.path.exists(path+filename):
             print(filename + "exists, continuing")
             continue
 
