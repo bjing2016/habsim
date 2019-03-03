@@ -6,7 +6,7 @@ import math
 from scipy.stats import norm
 import time
 
-EARTH_RADIUS = 6.371e6
+EARTH_RADIUS = float(6.371e6)
 
 levels = None
 
@@ -53,7 +53,7 @@ def reset():
 
 
 def get_basetime(simtime, hrs):
-    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / hrs) * hrs))
+    return datetime(simtime.year, simtime.month, simtime.day, math.floor(simtime.hour / hrs) * hrs)
 
 ### Cache of datacubes and files. ###
 ### Must be reset for each ensemble member ##
@@ -127,7 +127,7 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     else:
         for i in range(1, len(levels)):
             if pressure<=levels[i]:
-                fraction = (levels[i]-pressure)/(levels[i]-levels[i-1])
+                fraction = (levels[i]-pressure)/float(levels[i]-levels[i-1])
                 pressure_res = (i - 1, fraction)
                 break
             
@@ -145,7 +145,7 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
   ##      base_timestamp = base_timestamp + data_step
   ##      offset = offset - data_step
 
-    time_f = 1-offset.seconds/data_step.seconds
+    time_f = 1-float(offset.seconds)/data_step.seconds
 
     time_res = (base_timestamp, time_f)
 
