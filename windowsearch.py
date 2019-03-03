@@ -26,7 +26,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
-    for t in range(0, 384, 6):
+    for t in range(24, 384+6, 6):
         launchtime = model_time + timedelta(hours = t)
 
         sim_timestamp = launchtime.strftime("%Y%m%d%H")
@@ -39,6 +39,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
             message = str(t) + "hours,member " + str(n)
             print(message)
             reset()
+            
             set_constants(points_per_degree, lon_offset, lat_start, hrs, mylvls, path, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
             #try:

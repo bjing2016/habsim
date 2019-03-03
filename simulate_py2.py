@@ -65,6 +65,8 @@ def get_file(timestamp):
     if timestamp not in filecache.keys():
 
         name = timestamp.strftime("%Y%m%d%H")
+
+        print("Temp trace: " + path + "/" + prefix + name + suffix)
         filecache[timestamp] = np.load(path + "/" + prefix + name + suffix)
     return filecache[timestamp]
 

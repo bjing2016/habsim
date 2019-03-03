@@ -15,7 +15,7 @@ levels = [10, 20, 30, 50, 70,\
 def complete_run(y, m, d, h, path):
 
     for n in range(1, 21):
-        for t in range(0, 384, 6):
+        for t in range(24, 384+6, 6):
             single_run(y,m,d,h,t,n, path)
 
 def single_run(y,m,d,h,t,n, path):
