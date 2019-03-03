@@ -41,7 +41,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
             
             set_constants(points_per_degree, lon_offset, hrs, mylvls, path, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
-            try:
+            try: 
                 rise, fall, coast = simulate(launchtime, slat, slon, asc_rate, timestep_s, stop_alt, 0, max_t_h)
                 pathcache.append((rise, fall, coast))
                 print("success")

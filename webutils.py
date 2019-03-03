@@ -66,7 +66,7 @@ part1 = '''
 <html>
     <head>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
-        <title>Historical Batch Ascent</title>
+        <title>HABSIM</title>
          <style type="text/css">
  		html { height: 100% }
 	      body { height: 100%; margin: 0; padding: 0 }
