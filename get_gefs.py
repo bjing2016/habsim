@@ -15,10 +15,12 @@ levels = [10, 20, 30, 50, 70,\
 def complete_run(y, m, d, h, path):
 
     for n in range(1, 21):
-        for t in range(24, 384+6, 6):
+        for t in range(0, 384+6, 6):
             single_run(y,m,d,h,t,n, path)
 
 def single_run(y,m,d,h,t,n, path):
+    
+
     
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
@@ -30,6 +32,9 @@ def single_run(y,m,d,h,t,n, path):
 
     predstring = pred.strftime("%Y%m%d%H")
     savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
+
+    if os.path.exists(path+'/'+savename+".npy"):
+        return
 
     print("Downloading " + savename)
 
@@ -70,4 +75,6 @@ def grb2_to_array(filename):
 
 
 
+year, month, day, hour = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 
+complete_run(year, month, day, hour, "../gefs")

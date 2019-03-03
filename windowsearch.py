@@ -7,6 +7,23 @@ import numpy as np
 from datetime import datetime, timedelta
 
 
+spaceshot_locations = {
+    ("LostCoast", 40.44, -124.4),
+    ("BigSur", 36.305, -121.9),
+    ("PointBlanco", 42.84, -124.55),
+    ("Tillamook", 45.84, -124.95),
+    ("Olympic", 48.3, -124.6)
+}
+
+
+def main(y, m, d, h):
+    model_time = datetime(y,m,d,h)
+    for name, lat, lon in spaceshot_locations:
+        try:
+            spaceshot_search(name, model_time, lat, lon)
+        except IOError:
+            continue
+
 ### Establish global constants ###
 lon_offset = 0
 points_per_degree = 1
@@ -25,7 +42,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
-    for t in range(24, 384+6, 6):
+    for t in range(0, 384+6, 6):
         launchtime = model_time + timedelta(hours = t)
 
         sim_timestamp = launchtime.strftime("%Y%m%d%H")
@@ -49,17 +66,16 @@ def spaceshot_search(location_name, model_time, slat, slon):
                 print("fail")
                 
             
-        generate_html(pathcache, filename, sim_timestamp)
+        generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     #    resultcache.append(spaceshot_evaluate(pathcache))
     
     #print_html(resultcache)
-
     
 def spaceshot_evaluate(fall):
     pass
 
-def generate_html(pathcache, filename, sim_timestamp):
-    launchtime, slat, slon, __, __, __ = pathcache[0][0][0]
+def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
+    __, slat, slon, __, __, __ = pathcache[0][0][0]
 
     path = "/home/bjing/afs-home/WWW/res/spaceshot/" + filename
     f = open(path, "w")
@@ -67,7 +83,7 @@ def generate_html(pathcache, filename, sim_timestamp):
     f.write(part1 + str(slat) + "," + str(slon))
     f.write(part2)
 
-    text_output = "Model time: " + sim_timestamp + ", launchtime: " + launchtime.strftime("%Y%m%d%H") + "<br/><br/>"
+    text_output = "Model time: " + model_timestamp + ", launchtime: " + sim_timestamp + "<br/><br/>"
 
     pathstring = ""
     for i in range(len(pathcache)):
