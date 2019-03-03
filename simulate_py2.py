@@ -122,14 +122,15 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     pressure = alt_to_hpa(alt)
     if pressure <= levels[0]:
         pressure_res = 0, 1
+    elif pressure >= levels[len(levels)-1]:
+        pressure_res = len(levels)-2, 0
     else:
         for i in range(1, len(levels)):
             if pressure<=levels[i]:
                 fraction = (levels[i]-pressure)/(levels[i]-levels[i-1])
                 pressure_res = (i - 1, fraction)
                 break
-        pressure_res = i-1, 0
-    
+            
     lat = 90 - lat
     lat = lat - lat_start
     lat = lat * points_per_degree
