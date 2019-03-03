@@ -41,12 +41,12 @@ def spaceshot_search(location_name, model_time, slat, slon):
             reset()
             set_constants(points_per_degree, lon_offset, lat_start, hrs, mylvls, path, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
-            try:
-                rise, fall, coast = simulate(launchtime, slat, slon, asc_rate, timestep_s, stop_alt, 0, max_t_h)
-            except IOError:
-                pass
+            #try:
+            rise, fall, coast = simulate(launchtime, slat, slon, asc_rate, timestep_s, stop_alt, 0, max_t_h)
             pathcache.append((rise, fall, coast))
-
+            #except IOError:
+             #   pass
+            
         generate_html(pathcache, filename)
     #    resultcache.append(spaceshot_evaluate(pathcache))
     
