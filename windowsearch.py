@@ -68,8 +68,7 @@ def generate_html(pathcache, filename):
 
     text_output = ""
 
-    markercache = ""
-
+    pathstring = ""
     for path in pathcache:
         rise, fall, coast = path
         last = None
@@ -86,10 +85,10 @@ def generate_html(pathcache, filename):
     
         totalpath = rise + fall + coast
         for (time, lat, lon, alt, u, v) in totalpath:
-            pathcache = pathcache + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+ \
+            pathstring = pathstring + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+ \
              ",u=" + str("%.3f" % u)+ ",v=" + str("%.3f" % v)+  "<br>\n"
     
-        text_output = text_output + pathcache + "<br/><br/>"
+        text_output = text_output + pathstring + "<br/><br/>"
 
         fall.insert(0, rise[-1])
         coast.insert(0, fall[-1])
