@@ -68,7 +68,7 @@ def generate_html(pathcache, filename):
 
     markercache = ""
 
-    for path in pathcache
+    for path in pathcache:
         rise, fall, coast = path
         last = None
         if len(coast) > 0:
@@ -80,7 +80,7 @@ def generate_html(pathcache, filename):
 
         __, mlat, mlon, __, __, __ = last
 
-        f.write(get_marker_string(mlat, mlon, "","")
+        f.write(get_marker_string(mlat, mlon, "",""))
     
         totalpath = rise + fall + coast
         for (time, lat, lon, alt, u, v) in totalpath:
@@ -93,7 +93,7 @@ def generate_html(pathcache, filename):
         coast.insert(0, fall[-1])
         f.write(get_path_string(rise, "#FF0000"))
         f.write(get_path_string(fall, "#008000"))
-        f.writeget_path_string(coast, "#000000"))
+        f.write(get_path_string(coast, "#000000"))
 
     f.write(part3short)
     f.write(text_output)
