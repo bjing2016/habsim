@@ -7,24 +7,44 @@ from scipy.stats import norm
 
 EARTH_RADIUS = 6.371e6
 
-levels = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
+levels = None
+
+GFSANL = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
 
-### Will be populate by get_filecache ###
-data_step = None
+### Will be populated by get_filecache ###
 
 ### Client must directly populate via the method below ###
 points_per_degree = None
 lon_offset = None
+data_step = None
+step_hours = None
 
-def set_constants(ppd, lo):
+def set_constants(ppd, lo, hrs, lvls, pth, sffx):
     global points_per_degree
     global lon_offset
+    global step_hours
+    global data_step
+    global levels
+    global path
+    global suffix
     points_per_degree = ppd
     lon_offset = lo
+    step_hours = hrs
+    data_step = timedelta(hours = step_hours)
+    levels = lvls
+    path = pth
+    suffix = sffx
 
+def reset():
+    global filecache
+    filecache = {}
+
+
+def get_basetime(simtime):
+    return datetime(simtime.year, simtime.month, simtime.date, math.floor(simtime.hour / step_hours) * step_hours)
 
 ### Cache of datacubes and files. ###
 ### Must be reset for each ensemble member ##
@@ -35,12 +55,18 @@ filecache = {}
 ### Cache is in the form (datetime, lower_lat_index, lower_lon_index) ###
 datacache = {}
 
+def get_file(timestamp):
+    if timestamp not in filecache.keys():
+        name = timestamp.strftime("%Y%m%d%H")
+        filecache[timestamp] = np.load(path + "/" + name + suffix)
+    return filecache[timestamp]
+
 ### Extracts datacube from cache ###
 def get_or_fetch(timestamp , lat_index, lon_index):
     global datacache
     
     if (timestamp, lat_index, lon_index) not in datacache.keys():
-        data = filecache[timestamp]
+        data = get_file(timestamp)
         datacache[(timestamp, lat_index, lon_index)] = data[:,:,lat_index:lat_index+2,lon_index:lon_index+2]
    
     return datacache[(timestamp,lat_index,lon_index)]
@@ -48,7 +74,7 @@ def get_or_fetch(timestamp , lat_index, lon_index):
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###
 ### Handles file and cache import ###
 
-def get_wind(lat_res, lon_res, level_res, time_res):
+def get_wind_helper(lat_res, lon_res, level_res, time_res):
     lat_i, lat_f = lat_res
     lon_i, lon_f = lon_res
     level_i, level_f = level_res
@@ -79,7 +105,7 @@ def get_wind(lat_res, lon_res, level_res, time_res):
 
 ## Note: this returns bounds as array indices ##
 ###     return lat_res, lon_res, pressure_res, time_res ###
-def get_bounds_and_fractions (lat, lon, alt, base_timestamp, sim_timestamp):
+def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     lat_res, lon_res, pressure_res = None, None, None
 
     pressure = alt_to_hpa(alt)
@@ -96,10 +122,12 @@ def get_bounds_and_fractions (lat, lon, alt, base_timestamp, sim_timestamp):
 
     lon = ((lon % 360) - lon_offset) * points_per_degree
     lon_res = (int(math.floor(lon)), 1 - lon % 1)
+    
+    base_timestamp = get_basetime(sim_timestamp)
     offset = sim_timestamp - base_timestamp
-    if offset >= data_step:
-        base_timestamp = base_timestamp + data_step
-        offset = offset - data_step
+  ##  if offset >= data_step:
+  ##      base_timestamp = base_timestamp + data_step
+  ##      offset = offset - data_step
 
     time_f = 1-offset.seconds/data_step.seconds
 
@@ -121,25 +149,27 @@ def lin_to_angular_velocities(lat, lon, u, v):
     dlon = math.degrees(u / (EARTH_RADIUS * math.cos(math.radians(lat))))
     return dlat, dlon
 
-def single_step(basetime, simtime, lat, lon, alt, ascent_rate, step):
-    bounds = get_bounds_and_fractions(lat, lon, alt, basetime, simtime)
-    
-    basetime = bounds[3][0]
-    
-    u, v = get_wind(*bounds)
+
+def get_wind(simtime, lat, lon, alt):
+    bounds = get_bounds_and_fractions(lat, lon, alt, simtime)
+        
+    u, v = get_wind_helper(*bounds)
+
+    return u, v
+
+def single_step(simtime, lat, lon, alt, ascent_rate, step):
+    u, v = get_wind(simtime, lat, lon, alt)
     dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
-    
     
     alt = alt + step * ascent_rate
     lat = lat + dlat * step
     lon = lon + dlon * step
     simtime = simtime + timedelta(seconds = step)
 
-    return basetime, simtime, lat, lon, alt
+    return simtime, lat, lon, alt
 
-def simulate(basetime, starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration):
+def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration):
     
-
     lat, lon = slat, slon
     alt = elev.getElevation(lat,lon)
     simtime = starttime
@@ -149,37 +179,23 @@ def simulate(basetime, starttime, slat, slon, ascent_rate, step, stop_alt, desce
     pathcache = (list(), list(), list())
     pathcache[0].append((starttime, lat, lon, alt))
     
-    while alt < stop_alt:
-        basetime, simtime, lat, lon, alt = single_step(basetime, simtime, lat, lon, alt, ascent_rate, step)
+    while alt < stop_alt and simtime < end:
+        simtime, lat, lon, alt = single_step(simtime, lat, lon, alt, ascent_rate, step)
         pathcache[0].append((simtime, lat, lon, alt))
 
+    index = 1
+
     while simtime < end:
-        index = 1
-        basetime, simtime, lat, lon, alt = single_step(basetime, simtime, lat, lon, alt, -descent_rate, step)
+        
+        simtime, lat, lon, alt = single_step(simtime, lat, lon, alt, -descent_rate, step)
         pathcache[index].append((simtime, lat, lon, alt))
         groundelev = elev.getElevation(lat, lon)
-        if alt < groundelev:
+        if alt <= groundelev:
             if groundelev <= 0:
                 descent_rate = 0
                 index = 2
+                alt = 0
             else:
                 break
 
-    return pathcache
-
-def load_filecache(simtime, duration_hours, step_hours, path, suffix):
-    global filecache
-    global data_step
-    data_step = timedelta(hours = step_hours)
-    y, mo, d, h = simtime.year, simtime.month, simtime.day, simtime.hour
-
-    basetime = datetime(y, mo, d,  step_hours * int(h / step_hours))
-    endtime = basetime + int(math.ceil(duration_hours / step_hours) + 1) * data_step
-    loadtime = basetime
-    while loadtime <= endtime:
-        if loadtime not in filecache.keys():
-            name = loadtime.strftime("%Y%m%d%H")
-            filecache[loadtime] = np.load(path + "/" + name + suffix)
-        loadtime = loadtime + data_step
-    
-    return basetime
+    return pathcache ### (rise, fall, coast)

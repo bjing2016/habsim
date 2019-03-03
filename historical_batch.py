@@ -7,7 +7,7 @@ import numpy as np
 from scipy.stats import norm
 from datetime import datetime
 
-path = sys.argv[1]
+mypath = sys.argv[1]
 y = int(sys.argv[2])
 mo = int(sys.argv[3])
 d = int(sys.argv[4])
@@ -31,12 +31,15 @@ max_t_h = float(sys.argv[17])
 ### Establish global constants ###
 lon_offset = 180
 points_per_degree = 2
-set_constants(points_per_degree, lon_offset)
-
-data_step_hours = 6
-
+hrs = 6
+mylvls = GFSANL
 suffix = ".npy"
-data_step = timedelta(hours = 6)
+
+set_constants(points_per_degree, lon_offset, hrs, mylvls, mypath, suffix)
+
+### data_step_hours = 6
+
+###data_step = timedelta(hours = 6)
 
 
 text_output = ""
@@ -48,21 +51,20 @@ markercache = ""
 coretime = datetime(y, mo, d, h, mi)
 t_var_step = timedelta(hours = t_interval_hours)
 time_set_que = [(coretime + i * t_var_step) for i in range(-t_neighbors, t_neighbors + 1)]
-tque_with_basetime = list()
 
-for timestamp in time_set_que:
-    try:
-        basetime = load_filecache(timestamp, max_t_h, data_step_hours, path, suffix)
-        tque_with_basetime.append((basetime, timestamp))
-    except (IOError, ValueError):
-        text_output = text_output + "Error loading for " + str(timestamp)
+## for timestamp in time_set_que:
+##    try:
+##       basetime = load_filecache(timestamp, max_t_h, data_step_hours, path, suffix)
+##      tque_with_basetime.append((basetime, timestamp))
+##   except (IOError, ValueError):
+##        text_output = text_output + "Error loading for " + str(timestamp)
 
 ### Prepare the run queue ###
 run_queue = list()
 
 ascent_queue = [norm.ppf(i/2.0/(ascent_neighbors+1), loc = ascent_rate, scale = ascent_var) for i in range(1,ascent_neighbors*2+2)]
 for rate in ascent_queue:
-    for timestamp in tque_with_basetime:
+    for timestamp in time_set_que:
         run_queue.append((timestamp, rate))
 
 print(part1 + str(slat) + "," + str(slon))
@@ -70,8 +72,8 @@ print(part2)
 
 
 for item in run_queue:
-    (basetime, launchtime), rate = item
-    rise, fall, coast = simulate(basetime, launchtime, slat, slon, rate, timestep_s, stop_alt, descent_rate, max_t_h)
+    launchtime, rate = item
+    rise, fall, coast = simulate(launchtime, slat, slon, rate, timestep_s, stop_alt, descent_rate, max_t_h)
 
 
     last = None
@@ -98,7 +100,7 @@ for item in run_queue:
     fall.insert(0, rise[-1])
     coast.insert(0, fall[-1])
     print(get_path_string(rise, "#FF0000"))
-    print(get_path_string(fall, "#00FF00"))
+    print(get_path_string(fall, "#008000"))
     print(get_path_string(coast, "#000000"))
 
 
