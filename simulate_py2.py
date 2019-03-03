@@ -24,10 +24,9 @@ GEFS = [10, 20, 30, 50, 70,\
 
 ### Client must directly populate via the method below ###
 
-def set_constants(ppd, lo, lat, hrs, lvls, pth, prfx, sffx):
+def set_constants(ppd, lo, hrs, lvls, pth, prfx, sffx):
     global points_per_degree
     global lon_offset
-    global lat_start
     global step_hours
     global data_step
     global levels
@@ -36,7 +35,6 @@ def set_constants(ppd, lo, lat, hrs, lvls, pth, prfx, sffx):
     global suffix
     points_per_degree = ppd
     lon_offset = lo
-    lat_start = lat
     step_hours = hrs
     data_step = timedelta(hours = step_hours)
     levels = lvls
@@ -132,7 +130,6 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
                 break
             
     lat = 90 - lat
-    lat = lat - lat_start
     lat = lat * points_per_degree
     lat_res = (int(math.floor(lat)), 1 - lat % 1)
 
@@ -140,6 +137,7 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     lon_res = (int(math.floor(lon)), 1 - lon % 1)
     
     base_timestamp = get_basetime(sim_timestamp, step_hours)
+    
     offset = sim_timestamp - base_timestamp
   ##  if offset >= data_step:
   ##      base_timestamp = base_timestamp + data_step

@@ -30,13 +30,12 @@ max_t_h = float(sys.argv[17])
 
 ### Establish global constants ###
 lon_offset = 180
-lat_start = 90
 points_per_degree = 2
 hrs = 6
 mylvls = GFSANL
 suffix = ".npy"
 
-set_constants(points_per_degree, lon_offset, lat_start, hrs, mylvls, mypath, "", suffix)
+set_constants(points_per_degree, lon_offset, hrs, mylvls, mypath, "", suffix)
 
 ### data_step_hours = 6
 

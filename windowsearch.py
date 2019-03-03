@@ -9,7 +9,6 @@ from datetime import datetime, timedelta
 
 ### Establish global constants ###
 lon_offset = 0
-lat_start = 90
 points_per_degree = 1
 hrs = 6
 path = "../gefs"
@@ -40,7 +39,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
             print(message)
             reset()
             
-            set_constants(points_per_degree, lon_offset, lat_start, hrs, mylvls, path, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
+            set_constants(points_per_degree, lon_offset, hrs, mylvls, path, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
             try:
                 rise, fall, coast = simulate(launchtime, slat, slon, asc_rate, timestep_s, stop_alt, 0, max_t_h)
@@ -50,7 +49,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
                 print("fail")
                 
             
-        generate_html(pathcache, filename)
+        generate_html(pathcache, filename, sim_timestamp)
     #    resultcache.append(spaceshot_evaluate(pathcache))
     
     #print_html(resultcache)
@@ -59,8 +58,8 @@ def spaceshot_search(location_name, model_time, slat, slon):
 def spaceshot_evaluate(fall):
     pass
 
-def generate_html(pathcache, filename):
-    __, slat, slon, __, __, __ = pathcache[0][0][0]
+def generate_html(pathcache, filename, sim_timestamp):
+    launchtime, slat, slon, __, __, __ = pathcache[0][0][0]
 
     path = "/home/bjing/afs-home/WWW/res/spaceshot/" + filename
     f = open(path, "w")
@@ -68,7 +67,7 @@ def generate_html(pathcache, filename):
     f.write(part1 + str(slat) + "," + str(slon))
     f.write(part2)
 
-    text_output = ""
+    text_output = "Model time: " + sim_timestamp + ", launchtime: " + launchtime.strftime("%Y%m%d%H") + "<br/><br/>"
 
     pathstring = ""
     for i in range(len(pathcache)):
@@ -83,14 +82,14 @@ def generate_html(pathcache, filename):
 
         __, mlat, mlon, __, __, __ = last
 
-        f.write(get_marker_string(mlat, mlon, "",str(i)))
+        f.write(get_marker_string(mlat, mlon, "",str(i+1)))
     
         totalpath = rise + fall + coast
         for (time, lat, lon, alt, u, v) in totalpath:
             pathstring = pathstring + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+ \
              ",u=" + str("%.3f" % u)+ ",v=" + str("%.3f" % v)+  "<br>\n"
     
-        text_output = text_output + "Model number: " + str (i) + "<br/>" + pathstring + "<br/><br/>"
+        text_output = text_output + "Model number: " + str (i+1) + "<br/>" + pathstring + "<br/><br/>"
 
         fall.insert(0, rise[-1])
         coast.insert(0, fall[-1])
