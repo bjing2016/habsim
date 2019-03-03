@@ -57,9 +57,9 @@ def spaceshot_evaluate(fall):
     pass
 
 def generate_html(pathcache, filename):
-    __, slat, slon, __, __, __ = pathcache[0][0]
+    __, slat, slon, __, __, __ = pathcache[0][0][0]
 
-    path = "~/afs-home/WWW/res/" + filename
+    path = "~/afs-home/WWW/res/spaceshot/" + filename
     f = open(filename, "w")
 
     f.write(part1 + str(slat) + "," + str(slon))
