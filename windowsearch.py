@@ -23,7 +23,7 @@ def main(y, m, d, h):
         try:
             print(name)
             spaceshot_search(name, model_time, lat, lon)
-        except (IOError, IndexError):
+        except IndexError:
             print(name + " failed")
             continue
 
@@ -72,7 +72,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
                 rise, fall, coast = simulate(launchtime, slat, slon, asc_rate, timestep_s, stop_alt, 0, max_t_h)
                 pathcache.append((rise, fall, coast))
                 print("success")
-            except IOError:
+            except IOError, FileNotFoundError:
                 print("fail")
                 
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
