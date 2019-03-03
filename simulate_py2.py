@@ -46,7 +46,9 @@ def set_constants(ppd, lo, lat, hrs, lvls, pth, prfx, sffx):
 
 def reset():
     global filecache
+    global datacache
     filecache = {}
+    datacache = {}
 
 
 def get_basetime(simtime, hrs):
@@ -66,7 +68,6 @@ def get_file(timestamp):
 
         name = timestamp.strftime("%Y%m%d%H")
 
-        print("Temp trace: " + path + "/" + prefix + name + suffix)
         filecache[timestamp] = np.load(path + "/" + prefix + name + suffix)
     return filecache[timestamp]
 
