@@ -33,10 +33,11 @@ def spaceshot_search(location_name, model_time, slat, slon):
 
         pathcache = list()
 
-        filename = launchid + model_timestamp + "_" + sim_timestamp
+        filename = location_name + model_timestamp + "_" + sim_timestamp
 
         for n in range(1, 21):
             message = str(t) + "hours,member " + str(n)
+            print(message)
             reset()
             set_constants(points_per_degree, lon_offset, lat_start, hrs, mylvls, path, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
