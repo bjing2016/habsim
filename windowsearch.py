@@ -3,6 +3,7 @@ from simulate_py2 import *
 from webutils import *
 import elev
 import math
+import os
 import numpy as np
 from datetime import datetime, timedelta
 
@@ -21,7 +22,7 @@ def main(y, m, d, h):
     for name, lat, lon in spaceshot_locations:
         try:
             spaceshot_search(name, model_time, lat, lon)
-        except IOError:
+        except (IOError, ValueError):
             continue
 
 ### Establish global constants ###
@@ -34,7 +35,7 @@ mylvls = GEFS
 def spaceshot_search(location_name, model_time, slat, slon):
     
     asc_rate = 3.7
-    timestep_s = 30
+    timestep_s = 60
     stop_alt = 29000
     max_t_h = 6
 
@@ -51,7 +52,14 @@ def spaceshot_search(location_name, model_time, slat, slon):
 
         filename = location_name + model_timestamp + "_" + sim_timestamp
 
+
+        path = "/home/bjing/afs-home/WWW/res/spaceshot/" + filename
+        if os.path.exists(path):
+            continue
+
         for n in range(1, 21):
+            
+            
             message = str(t) + "hours,member " + str(n)
             print(message)
             reset()
