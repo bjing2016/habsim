@@ -31,7 +31,7 @@ def main(y, m, d, h):
 lon_offset = 0
 points_per_degree = 1
 hrs = 6
-path = "../gefs"
+sourcepath = "../gefs"
 mylvls = GEFS
 
 def spaceshot_search(location_name, model_time, slat, slon):
@@ -54,9 +54,8 @@ def spaceshot_search(location_name, model_time, slat, slon):
 
         filename = location_name + model_timestamp + "_" + sim_timestamp
 
-
-        path = "/home/bjing/afs-home/WWW/res/spaceshot/"
-        if os.path.exists(path+filename):
+        savepath = "/home/bjing/afs-home/WWW/res/spaceshot/"
+        if os.path.exists(savepath+filename):
             print(filename + "exists, continuing")
             continue
 
@@ -67,7 +66,7 @@ def spaceshot_search(location_name, model_time, slat, slon):
             print(message)
             reset()
             
-            set_constants(points_per_degree, lon_offset, hrs, mylvls, path, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
+            set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
             try: 
                 rise, fall, coast = simulate(launchtime, slat, slon, asc_rate, timestep_s, stop_alt, 0, max_t_h)
