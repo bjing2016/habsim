@@ -191,6 +191,16 @@ part3 = '''
         <br/><br/>
         Output: <br/>
 '''
+
+part3short = '''
+        </script>
+    <div id="map_canvas" style="width:80%; height:100%"></div>
+    <div id="info" style="padding-left:2ch; padding-right: 2ch">
+
+      <div>
+   
+'''
+
 part4 = '''
 
       </div>
