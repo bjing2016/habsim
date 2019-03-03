@@ -53,7 +53,7 @@ def reset():
 
 
 def get_basetime(simtime, hrs):
-    return datetime(simtime.year, simtime.month, simtime.day, math.floor(simtime.hour / hrs) * hrs)
+    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / hrs) * hrs))
 
 ### Cache of datacubes and files. ###
 ### Must be reset for each ensemble member ##
