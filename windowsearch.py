@@ -22,7 +22,7 @@ def main(y, m, d, h):
     for name, lat, lon in spaceshot_locations:
         try:
             spaceshot_search(name, model_time, lat, lon)
-        except (IOError, ValueError):
+        except (IOError, IndexError):
             continue
 
 ### Establish global constants ###
@@ -73,7 +73,6 @@ def spaceshot_search(location_name, model_time, slat, slon):
             except IOError:
                 print("fail")
                 
-            
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     #    resultcache.append(spaceshot_evaluate(pathcache))
     
