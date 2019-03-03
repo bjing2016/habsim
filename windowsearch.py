@@ -117,4 +117,4 @@ def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
     f.write(text_output)
     f.write(part4 + part5)
 
-main(sys.argv[1], sys.argv[2],sys.argv[3],sys.argv[4])
+main(int(sys.argv[1]), int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4]))
