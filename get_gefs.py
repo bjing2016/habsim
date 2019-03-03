@@ -54,7 +54,7 @@ def grb2_to_array(filename):
     grbs = pygrib.open(filename + ".grb2")
     
     
-    dataset = np.zeros((2, len(levels), 180, 361))
+    dataset = np.zeros((2, len(levels), 181, 360))
 
     ### Thanks to KMarshland for pointers on using PyGrib ###
     for i in range(len(levels)):
