@@ -63,18 +63,18 @@ def grb2_to_array(filename):
     grbs = pygrib.open(filename + ".grb2")
     
     
-    dataset = np.zeros((2, len(levels), 181, 360))
+    dataset = np.zeros((2, len(levels), 10, 10))
 
     ### Thanks to KMarshland for pointers on using PyGrib ###
     for i in range(len(levels)):
         ### [lat, lat, lon, lon]
         for grb in grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels[i]):
             print(time.time())
-            dataset[0][i] = grb.data()[0]
+            dataset[0][i] = grb.data(0,9,0,9)[0]
 
     for i in range(len(levels)):
         for grb in grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels[i]):
-            dataset[1][i] = grb.data()[0]
+            dataset[1][i] = grb.data(0,9,0,9)[0]
 
     return dataset
 
