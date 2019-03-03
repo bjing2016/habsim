@@ -36,7 +36,7 @@ hrs = 6
 mylvls = GFSANL
 suffix = ".npy"
 
-set_constants(points_per_degree, lon_offset, lat_start, hrs, mylvls, mypath, suffix)
+set_constants(points_per_degree, lon_offset, lat_start, hrs, mylvls, mypath, "", suffix)
 
 ### data_step_hours = 6
 

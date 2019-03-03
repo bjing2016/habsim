@@ -23,13 +23,8 @@ GEFS = [10, 20, 30, 50, 70,\
 ### Will be populated by get_filecache ###
 
 ### Client must directly populate via the method below ###
-points_per_degree = None
-lon_offset = None
-lat_start = None
-data_step = None
-step_hours = None
 
-def set_constants(ppd, lo, lat, hrs, lvls, pth, sffx):
+def set_constants(ppd, lo, lat, hrs, lvls, pth, prfx, sffx):
     global points_per_degree
     global lon_offset
     global lat_start
@@ -37,6 +32,7 @@ def set_constants(ppd, lo, lat, hrs, lvls, pth, sffx):
     global data_step
     global levels
     global path
+    global prefix
     global suffix
     points_per_degree = ppd
     lon_offset = lo
@@ -44,6 +40,7 @@ def set_constants(ppd, lo, lat, hrs, lvls, pth, sffx):
     step_hours = hrs
     data_step = timedelta(hours = step_hours)
     levels = lvls
+    prefix = prfx
     path = pth
     suffix = sffx
 
@@ -68,7 +65,7 @@ def get_file(timestamp):
     if timestamp not in filecache.keys():
 
         name = timestamp.strftime("%Y%m%d%H")
-        filecache[timestamp] = np.load(path + "/" + name + suffix)
+        filecache[timestamp] = np.load(path + "/" + prefix + name + suffix)
     return filecache[timestamp]
 
 ### Extracts datacube from cache ###
