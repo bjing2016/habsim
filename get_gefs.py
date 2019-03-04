@@ -75,6 +75,6 @@ def grb2_to_array(filename):
 
 
 
-year, month, day, hour = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+year, month, day, hour = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
 
 complete_run(year, month, day, hour, "../gefs")
