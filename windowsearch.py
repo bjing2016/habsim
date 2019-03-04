@@ -90,7 +90,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
             except (IOError, FileNotFoundError):
                 print("fail")
                 
-        resultfile.write(spaceshot_evaluate(pathcache) + "\n")
+        resultfile.write(str(spaceshot_evaluate(pathcache)) + "\n")
     
     resultfile.write("\n")
 
