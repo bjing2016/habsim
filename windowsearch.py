@@ -27,7 +27,9 @@ def main(y, m, d, h):
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
-    os.mkdir("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp)
+    if not os.path.exists("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp):
+
+        os.mkdir("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp)
 
     resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "a")
 
