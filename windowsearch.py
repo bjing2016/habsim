@@ -103,9 +103,9 @@ def spaceshot_evaluate(pathcache):
     result = 0.0
 
     for i in range(len(pathcache)):
-        result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold) / i
+        result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold)
 
-    return result
+    return result / len(pathcache)
 
 def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhold):
 
