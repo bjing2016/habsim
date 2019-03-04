@@ -51,13 +51,13 @@ mylvls = GEFS
 def spaceshot_search(location_name, model_time, slat, slon, resultfile):
     
     asc_rate = 3.7
-    timestep_s = 60
     stop_alt = 29000
     max_t_h = 6
 
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
+    print("Writing to resultfile")
     resultfile.write(location_name)
 
     for t in range(0, 385, 6):
@@ -74,7 +74,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
             print(filename + "exists, continuing")
             continue
 
-
+        print("Writing to resultfile")
         resultfile.write("/n" + sim_timestamp + ": ")
 
         for n in range(1, 21):
@@ -90,8 +90,9 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
             except (IOError, FileNotFoundError):
                 print("fail")
 
-        print("Evaluate: ")        
-        print(str(spaceshot_evaluate(pathcache)))
+        
+        print("Writing to resultfile")
+        resultfile.write(str(spaceshot_evaluate(pathcache)))
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     
     resultfile.write("\n\n")
@@ -124,7 +125,7 @@ def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhol
         if (lon % 360) < (lon_threshhold % 360):
             npoints = npoints + 1
         
-    return max(1, npoints/point_number_threshhold)
+    return min(1, npoints/point_number_threshhold)
 
 def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
     __, slat, slon, __, __, __ = pathcache[0][0][0]
