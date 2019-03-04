@@ -12,17 +12,24 @@ spaceshot_locations = {
     ("LostCoast", 40.44, -124.4),
     ("BigSur", 36.305, -121.9),
     ("PointBlanco", 42.84, -124.55),
-    ("Tillamook", 45.84, -124.95),
+    ("Tillamook", 45.4, -123.95),
     ("Olympic", 48.3, -124.6)
 }
 
 
 def main(y, m, d, h):
     model_time = datetime(y,m,d,h)
+
+    model_timestamp = model_time.strftime("%Y%m%d%H")
+
+    os.mkdir("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp)
+
+    resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "a")
+
     for name, lat, lon in spaceshot_locations:
         try:
             print(name)
-            spaceshot_search(name, model_time, lat, lon)
+            spaceshot_search(name, model_time, lat, lon, resultfile)
         except IndexError:
             print(name + " failed")
             continue
@@ -34,16 +41,17 @@ hrs = 6
 sourcepath = "../gefs"
 mylvls = GEFS
 
-def spaceshot_search(location_name, model_time, slat, slon):
+def spaceshot_search(location_name, model_time, slat, slon, resultfile):
     
     asc_rate = 3.7
     timestep_s = 60
     stop_alt = 29000
     max_t_h = 6
 
-    resultcache = {}
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
+
+    resultfile.write(location_name + "\n")
 
     for t in range(0, 385, 6):
         launchtime = model_time + timedelta(hours = t)
@@ -54,18 +62,18 @@ def spaceshot_search(location_name, model_time, slat, slon):
 
         filename = location_name + model_timestamp + "_" + sim_timestamp
 
-        savepath = "/home/bjing/afs-home/WWW/res/spaceshot/"
+        savepath = "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp
         if os.path.exists(savepath+filename):
             print(filename + "exists, continuing")
             continue
 
+
+        resultfile.write(sim_timestamp + ": ")
+
         for n in range(1, 21):
-            
-            
             message = str(t) + "hours,member " + str(n)
             print(message)
             reset()
-            
             set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
             try: 
@@ -75,13 +83,12 @@ def spaceshot_search(location_name, model_time, slat, slon):
             except (IOError, FileNotFoundError):
                 print("fail")
                 
-        generate_html(pathcache, filename, model_timestamp, sim_timestamp)
-    #    resultcache.append(spaceshot_evaluate(pathcache))
+        resultfile.write(spaceshot_evaluate(pathcache) + "\n")
     
-    #print_html(resultcache)
-    
-def spaceshot_evaluate(fall):
-    pass
+    resultfile.write("\n")
+
+def spaceshot_evaluate(pathcache):
+    pass       
 
 def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
     __, slat, slon, __, __, __ = pathcache[0][0][0]
