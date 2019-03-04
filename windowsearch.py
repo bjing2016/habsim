@@ -58,7 +58,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
-    resultfile.write(location_name + "\n")
+    resultfile.write(location_name)
 
     for t in range(0, 385, 6):
         launchtime = model_time + timedelta(hours = t)
@@ -75,7 +75,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
             continue
 
 
-        resultfile.write(sim_timestamp + ": ")
+        resultfile.write("/n" + sim_timestamp + ": ")
 
         for n in range(1, 21):
             message = str(t) + "hours,member " + str(n)
@@ -90,10 +90,10 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
             except (IOError, FileNotFoundError):
                 print("fail")
                 
-        resultfile.write(str(spaceshot_evaluate(pathcache)) + "\n")
+        resultfile.write(str(spaceshot_evaluate(pathcache)))
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     
-    resultfile.write("\n")
+    resultfile.write("\n\n")
 
 def spaceshot_evaluate(pathcache):
     __, __, lon, __, __, ___ = pathcache[0][0][0]
@@ -101,7 +101,11 @@ def spaceshot_evaluate(pathcache):
     lon_threshhold = lon - SPACESHOT_DISTANCE_THRESHHOLD
     point_number_threshhold = SPACESHOT_TIME_THRESHHOLD * 3600.0 / SPACESHOT_TIMESTEP_S
 
+    print(lon_threshhold, point_number_threshhold)
+
     result = 0.0
+
+
 
     for i in range(len(pathcache)):
         result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold)
