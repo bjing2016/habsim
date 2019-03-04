@@ -75,7 +75,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
             continue
 
         print("Writing to resultfile")
-        resultfile.write("/n" + sim_timestamp + ": ")
+        resultfile.write("\n" + sim_timestamp + ": ")
 
         for n in range(1, 21):
             message = str(t) + "hours,member " + str(n)
@@ -95,7 +95,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
         resultfile.write(str(spaceshot_evaluate(pathcache)))
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     
-    resultfile.write("\n\n")
+    resultfile.write("\n \n")
 
 def spaceshot_evaluate(pathcache):
     __, __, lon, __, __, ___ = pathcache[0][0][0]
