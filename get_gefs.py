@@ -48,7 +48,7 @@ def single_run(y,m,d,h,t,n, path):
         try:
             urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
             break
-        except TimeoutError, ConnectionResetError:
+        except (TimeoutError, ConnectionResetError):
             print("Error, trying again in 10s")
             time.sleep(10)
             pass
