@@ -16,6 +16,11 @@ spaceshot_locations = {
     ("Olympic", 48.3, -124.6)
 }
 
+### How far west does the balloon need to go?
+### How long does it need to stay there?
+SPACESHOT_DISTANCE_THRESHHOLD = 0.5 ## degrees
+SPACESHOT_TIME_THRESHHOLD = 1 ## hours
+SPACESHOT_TIMESTEP_S = 60
 
 def main(y, m, d, h):
     model_time = datetime(y,m,d,h)
@@ -77,7 +82,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
             set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
             try: 
-                rise, fall, coast = simulate(launchtime, slat, slon, asc_rate, timestep_s, stop_alt, 0, max_t_h)
+                rise, fall, coast = simulate(launchtime, slat, slon, asc_rate, SPACESHOT_TIMESTEP_S, stop_alt, 0, max_t_h)
                 pathcache.append((rise, fall, coast))
                 print("success")
             except (IOError, FileNotFoundError):
@@ -88,7 +93,30 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
     resultfile.write("\n")
 
 def spaceshot_evaluate(pathcache):
-    pass       
+    __, __, lon, __, __, ___ = pathcache[0][0][0]
+
+    lon_threshhold = lon - SPACESHOT_DISTANCE_THRESHHOLD
+    point_number_threshhold = SPACESHOT_TIME_THRESHHOLD * 3600.0 / SPACESHOT_TIMESTEP_S
+
+    result = 0.0
+
+    for i in range(len(pathcache)):
+        result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold) / i
+
+    return result
+
+def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhold):
+
+    __, path, __ = singlepath
+
+    npoints = 0
+
+    for point in path:
+        __, __, lon, __, __, __ = point
+        if (lon % 360) < (lon_threshhold % 360):
+            npoints = npoints + 1
+        
+    return max(1, npoints/point_number_threshhold)
 
 def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
     __, slat, slon, __, __, __ = pathcache[0][0][0]
