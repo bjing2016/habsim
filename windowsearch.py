@@ -70,7 +70,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
         filename = location_name + model_timestamp + "_" + sim_timestamp
 
         savepath = "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp
-        if os.path.exists(savepath+filename):
+        if os.path.exists(savepath+"/"+filename):
             print(filename + "exists, continuing")
             continue
 
@@ -124,7 +124,7 @@ def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhol
 def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
     __, slat, slon, __, __, __ = pathcache[0][0][0]
 
-    path = "/home/bjing/afs-home/WWW/res/spaceshot/" + filename
+    path = "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "/" + filename
     f = open(path, "w")
 
     f.write(part1 + str(slat) + "," + str(slon))
