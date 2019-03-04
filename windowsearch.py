@@ -32,7 +32,7 @@ def main(y, m, d, h):
         os.mkdir("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp)
 
     resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "a")
-
+    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master")
     for name, lat, lon in spaceshot_locations:
         try:
             print(name)
@@ -91,6 +91,7 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
                 print("fail")
                 
         resultfile.write(str(spaceshot_evaluate(pathcache)) + "\n")
+        generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     
     resultfile.write("\n")
 
