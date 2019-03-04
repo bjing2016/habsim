@@ -89,8 +89,9 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
                 print("success")
             except (IOError, FileNotFoundError):
                 print("fail")
-                
-        resultfile.write(str(spaceshot_evaluate(pathcache)))
+
+        print("Evaluate: ")        
+        print(str(spaceshot_evaluate(pathcache)))
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     
     resultfile.write("\n\n")
