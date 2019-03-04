@@ -8,16 +8,18 @@ import numpy as np
 from datetime import datetime, timedelta
 
 
+EAST = 1
+WEST = 0
+
 spaceshot_locations = {
-    ("LostCoast", 40.44, -124.4),
-    ("BigSur", 36.305, -121.9),
-    ("PointBlanco", 42.84, -124.55),
-    ("Tillamook", 45.4, -123.95),
-    ("Olympic", 48.3, -124.6)
-
+    ("LostCoast", 40.44, -124.4, WEST),
+    ("BigSur", 36.305, -121.9, WEST),
+    ("PointBlanco", 42.84, -124.55, WEST),
+    ("Tillamook", 45.4, -123.95, WEST),
+    ("Olympic", 48.3, -124.6, WEST),
+    ("SouthTX", 27, -97.38, EAST),
+    ("Georgia", 30.9, -81.41, EAST)
     
-
-
 ### Brownsville and Georgia also ###
 
 }
@@ -41,10 +43,10 @@ def main(y, m, d, h):
 
     resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "w")
     print("Writing to master file " + "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master")
-    for name, lat, lon in spaceshot_locations:
+    for name, lat, lon, coast in spaceshot_locations:
         try:
             print(name)
-            spaceshot_search(name, model_time, lat, lon, resultfile)
+            spaceshot_search(name, coast, model_time, lat, lon, resultfile)
             resultfile.write("\n")
         except IndexError:
             print(name + " failed")
@@ -57,7 +59,7 @@ hrs = 6
 sourcepath = "../gefs"
 mylvls = GEFS
 
-def spaceshot_search(location_name, model_time, slat, slon, resultfile):
+def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
     
     asc_rate = 3.7
     stop_alt = 29000
@@ -101,16 +103,22 @@ def spaceshot_search(location_name, model_time, slat, slon, resultfile):
 
         
         print("Writing to resultfile")
-        resultfile.write(str(spaceshot_evaluate(pathcache)))
+        resultfile.write(str(spaceshot_evaluate(pathcache, coast)))
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     
     resultfile.write("\n \n")
 
-def spaceshot_evaluate(pathcache):
+def spaceshot_evaluate(pathcache, coast):
     __, lat, lon, __, __, ___ = pathcache[0][0][0]
 
 
-    lon_threshhold = lon - math.degrees(SPACESHOT_DISTANCE_THRESHHOLD / (EARTH_RADIUS * math.cos(math.radians(lat))))
+    lon_range = math.degrees(SPACESHOT_DISTANCE_THRESHHOLD / (EARTH_RADIUS * math.cos(math.radians(lat))))
+
+    lon_threshhold = 0
+    if coast == WEST:
+        lon = lon-lon_range
+    else:
+        lon = lon + lon_range
     point_number_threshhold = SPACESHOT_TIME_THRESHHOLD * 3600.0 / SPACESHOT_TIMESTEP_S
 
     print(lon_threshhold, point_number_threshhold)
@@ -118,20 +126,26 @@ def spaceshot_evaluate(pathcache):
     result = 0.0
 
     for i in range(len(pathcache)):
-        result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold)
+        result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold, coast)
 
     return result / len(pathcache)
 
-def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhold):
+def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhold, coast):
 
     __, path, __ = singlepath
 
     npoints = 0
 
-    for point in path:
-        __, __, lon, __, __, __ = point
-        if (lon % 360) < (lon_threshhold % 360):
-            npoints = npoints + 1
+    if coast == WEST:
+        for point in path:
+            __, __, lon, __, __, __ = point
+            if (lon % 360) < (lon_threshhold % 360):
+                npoints = npoints + 1
+    else:
+        for point in path:
+            __, __, lon, __, __, __ = point
+            if (lon % 360) > (lon_threshhold % 360):
+                npoints = npoints + 1
         
     return min(1, npoints/point_number_threshhold)
 

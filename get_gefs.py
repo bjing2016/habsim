@@ -43,7 +43,12 @@ def single_run(y,m,d,h,t,n, path):
 
     print("Downloading " + savename)
 
-    urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
+    while true:
+        try:
+            urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
+            break
+        except TimeoutError:
+            pass
             
     print("Unpacking " + savename)
 
