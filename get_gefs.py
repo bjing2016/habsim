@@ -12,6 +12,11 @@ levels = [10, 20, 30, 50, 70,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
 
+
+## One-indexed positions of the above levels in the result of grbs.select
+
+order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
+
 def complete_run(y, m, d, h, path):
 
     for t in range(0, 384+6, 6):
@@ -61,15 +66,25 @@ def grb2_to_array(filename):
     
     dataset = np.zeros((2, len(levels), 181, 360))
 
-    ### Thanks to KMarshland for pointers on using PyGrib ###
-    for i in range(len(levels)):
-        ### [lat, lat, lon, lon]
-        for grb in grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels[i]):
-            dataset[0][i] = grb.data()[0]
+
+
+    u = grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels)
+    v = grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels)
 
     for i in range(len(levels)):
-        for grb in grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels[i]):
-            dataset[1][i] = grb.data()[0]
+        print(i)
+        dataset[0][i] = u[order[i]-1].data()[0]
+        dataset[1][i] = v[order[i]-1].data()[0]
+
+    ### Thanks to KMarshland for pointers on using PyGrib ###
+    #for i in range(len(levels)):
+        ### [lat, lat, lon, lon]
+     #   for grb in grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels[i]):
+      #      dataset[0][i] = grb.data()[0]
+
+    #for i in range(len(levels)):
+     #   for grb in grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels[i]):
+      #      dataset[1][i] = grb.data()[0]
 
     return dataset
 
