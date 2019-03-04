@@ -43,7 +43,7 @@ def single_run(y,m,d,h,t,n, path):
 
     print("Downloading " + savename)
 
-    while true:
+    while True:
         try:
             urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
             break
