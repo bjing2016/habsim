@@ -72,7 +72,7 @@ def grb2_to_array(filename):
     v = grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels)
 
     for i in range(len(levels)):
-        print(i)
+        #print(i)
         dataset[0][i] = u[order[i]-1].data()[0]
         dataset[1][i] = v[order[i]-1].data()[0]
 
