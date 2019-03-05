@@ -65,6 +65,7 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
     stop_alt = 29000
     max_t_h = 6
 
+    print("at top of spaceshot search, coast is " + str(coast))
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
@@ -115,6 +116,7 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
 def spaceshot_evaluate(pathcache, coast):
     __, lat, lon, __, __, ___ = pathcache[0][0][0]
 
+    print("at top of evaluate, coast is " + str(coast))
 
     lon_range = math.degrees(SPACESHOT_DISTANCE_THRESHHOLD / (EARTH_RADIUS * math.cos(math.radians(lat))))
 
