@@ -68,7 +68,6 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
-    print("Writing to resultfile")
     resultfile.write(location_name)
 
     for t in range(0, 384, 6):
@@ -85,7 +84,6 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
             print(filename + "exists, continuing")
             continue
 
-        print("Writing to resultfile")
         resultfile.write("\n" + sim_timestamp + ": ")
 
         for n in range(1, 21):
@@ -102,8 +100,14 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
                 print("fail")
 
         
-        print("Writing to resultfile")
-        resultfile.write(str(spaceshot_evaluate(pathcache, coast)))
+        print("Evaluating ensemble")
+        
+        result = spaceshot_evaluate(pathcache, coast))
+
+        resultfile.write(result)
+
+        print(result)
+
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     
     resultfile.write("\n")
@@ -114,6 +118,7 @@ def spaceshot_evaluate(pathcache, coast):
 
     lon_range = math.degrees(SPACESHOT_DISTANCE_THRESHHOLD / (EARTH_RADIUS * math.cos(math.radians(lat))))
 
+    print("lon range is " + str(lon_range))
     lon_threshhold = 0
     if coast == WEST:
         lon_threshhold = lon-lon_range
@@ -128,9 +133,7 @@ def spaceshot_evaluate(pathcache, coast):
 
     for i in range(len(pathcache)):
         result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold, coast)
-    print("result for this ensemble:")
-    print(result)
-
+    
     return result / len(pathcache)
 
 def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhold, coast):
