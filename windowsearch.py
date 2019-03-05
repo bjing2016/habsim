@@ -104,7 +104,7 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
         
         result = spaceshot_evaluate(pathcache, coast)
 
-        resultfile.write(result)
+        resultfile.write(str(result))
 
         print(result)
 
