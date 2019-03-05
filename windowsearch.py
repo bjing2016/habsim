@@ -122,7 +122,7 @@ def spaceshot_evaluate(pathcache, whichcoast):
 
     print("lon range is " + str(lon_range))
     lon_threshhold = 0
-    if coast == WEST:
+    if whichcoast == WEST:
         lon_threshhold = lon-lon_range
     else:
         lon_threshhold = lon + lon_range
