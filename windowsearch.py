@@ -102,7 +102,7 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
         
         print("Evaluating ensemble")
         
-        result = spaceshot_evaluate(pathcache, coast))
+        result = spaceshot_evaluate(pathcache, coast)
 
         resultfile.write(result)
 
