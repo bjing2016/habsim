@@ -43,10 +43,10 @@ def main(y, m, d, h):
 
     resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "w")
     print("Writing to master file " + "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master")
-    for name, lat, lon, coast in spaceshot_locations:
+    for name, lat, lon, whichcoast in spaceshot_locations:
         try:
             print(name)
-            spaceshot_search(name, coast, model_time, lat, lon, resultfile)
+            spaceshot_search(name, whichcoast, model_time, lat, lon, resultfile)
             resultfile.write("\n")
         except IndexError:
             print(name + " failed")
@@ -59,13 +59,13 @@ hrs = 6
 sourcepath = "../gefs"
 mylvls = GEFS
 
-def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
+def spaceshot_search(location_name, whichcoast, model_time, slat, slon, resultfile):
     
     asc_rate = 3.7
     stop_alt = 29000
     max_t_h = 6
 
-    print("at top of spaceshot search, coast is " + str(coast))
+    print("at top of spaceshot search, coast is " + str(whichcoast))
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
@@ -103,7 +103,7 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
         
         print("Evaluating ensemble")
         
-        result = spaceshot_evaluate(pathcache, coast)
+        result = spaceshot_evaluate(pathcache, whichcoast)
 
         resultfile.write(str(result))
 
@@ -113,10 +113,10 @@ def spaceshot_search(location_name, coast, model_time, slat, slon, resultfile):
     
     resultfile.write("\n")
 
-def spaceshot_evaluate(pathcache, coast):
+def spaceshot_evaluate(pathcache, whichcoast):
     __, lat, lon, __, __, ___ = pathcache[0][0][0]
 
-    print("at top of evaluate, coast is " + str(coast))
+    print("at top of evaluate, coast is " + str(whichcoast))
 
     lon_range = math.degrees(SPACESHOT_DISTANCE_THRESHHOLD / (EARTH_RADIUS * math.cos(math.radians(lat))))
 
@@ -134,17 +134,17 @@ def spaceshot_evaluate(pathcache, coast):
     result = 0.0
 
     for i in range(len(pathcache)):
-        result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold, coast)
+        result = result + spaceshot_single_evaluate(pathcache[i], lon_threshhold, point_number_threshhold, whichcoast)
     
     return result / len(pathcache)
 
-def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhold, coast):
+def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhold, whichcoast):
 
     __, path, __ = singlepath
 
     npoints = 0
 
-    if coast == WEST:
+    if whichcoast == WEST:
         for point in path:
             __, __, lon, __, __, __ = point
             if (lon % 360) < (lon_threshhold % 360):
