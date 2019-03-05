@@ -18,10 +18,11 @@ spaceshot_locations = {
     ("Tillamook", 45.4, -123.95, WEST),
     ("Olympic", 48.3, -124.6, WEST),
     ("SouthTX", 27, -97.38, EAST),
-    ("Georgia", 30.9, -81.41, EAST)
-    
-### Brownsville and Georgia also ###
-
+    ("Georgia", 30.9, -81.41, EAST),
+    ("Hollister", 36.8492, -121.432, WEST),
+    ("Vandenberg", 34.6, -120.6, WEST),
+    ("Pendleton", 33.4, -117.5, WEST),
+    ("PointReyes", 38, -123, WEST)
 }
 
 ### How far west does the balloon need to go?

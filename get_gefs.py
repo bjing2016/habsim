@@ -3,6 +3,7 @@ import pygrib
 import urllib.request
 import os.path
 import time
+import urllib
 import sys
 from datetime import datetime, timedelta
 
@@ -48,7 +49,7 @@ def single_run(y,m,d,h,t,n, path):
         try:
             urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
             break
-        except (TimeoutError, ConnectionResetError):
+        except (TimeoutError, urllib.error.URLError, ConnectionResetError):
             print("Error, trying again in 10s")
             time.sleep(10)
             pass
