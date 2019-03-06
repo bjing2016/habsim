@@ -135,7 +135,8 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
             
             max_hours = maxtime - launchtime
-            print(max_hours)
+            print(maxtime)
+            print(launchtime)
             max_hours = max_hours.seconds / 3600
 
             for n in range(1, 21):
@@ -145,7 +146,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
                 set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
                 try: 
-                    rise, fall, coast = simulate(launchtime, slat, slon, CYCLOON_RATE, CYCLOON_TIMESTEP_S, alt, 0, min(max_t_h,max_hours))
+                    rise, fall, coast = simulate(launchtime, slat, slon, CYCLOON_RATE, CYCLOON_TIMESTEP_S, alt, CYCLOON_RATE, min(max_t_h,max_hours))
                     pathcache.append((rise, fall, coast))
                     print("success")
                 except (IOError, FileNotFoundError):
@@ -220,9 +221,9 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
         filename = location_name + model_timestamp + "_" + sim_timestamp
 
         savepath = "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp
-        if os.path.exists(savepath+"/"+filename):
-            print(filename + "exists, continuing")
-            continue
+ #       if os.path.exists(savepath+"/"+filename):
+  #          print(filename + "exists, continuing")
+   #         continue
 
         resultfile.write("\n" + sim_timestamp + ": ")
 
