@@ -248,7 +248,7 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
 
         print("Proability: " + str(result))
 
-        generate_html(pathcache, "spaceshot" filename, model_timestamp, sim_timestamp)
+        generate_html(pathcache, "spaceshot", filename, model_timestamp, sim_timestamp)
     
     resultfile.write("\n")
 
