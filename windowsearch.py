@@ -183,7 +183,7 @@ def cycloon_evaluate(pathcache, max_hours):
             flighthours = length * CYCLOON_TIMESTEP_S / 3600
             if flighthours > hour:
                 num_surviving = num_surviving + 1
-                longitudes.append(path[int(hour * 3600 / CYCLOON_TIMESTEP_S)][2])
+                longitudes.append(totalpath[int(hour * 3600 / CYCLOON_TIMESTEP_S)][2])
     
         resultstring = resultstring + str(num_surviving) + ","
         
