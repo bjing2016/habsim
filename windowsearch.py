@@ -185,7 +185,7 @@ def cycloon_evaluate(pathcache, max_hours):
                 num_surviving = num_surviving + 1
                 longitudes.append(path[int(hour * 3600 / CYCLOON_TIMESTEP_S)][2])
     
-        resultstring = resultstring + str(num_surviving + ",")
+        resultstring = resultstring + str(num_surviving) + ","
         
         if (num_surviving == 0):
             resultstring = resultstring + "; "
