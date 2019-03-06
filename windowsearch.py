@@ -141,8 +141,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
             
                 try: 
                     rise, fall, coast = simulate(launchtime, slat, slon, CYCLOON_RATE, CYCLOON_TIMESTEP_S, alt, 0, max_t_h)
-                    totalpath = rise + fall + coast
-                    pathcache.append(totalpath)
+                    pathcache.append((rise, fall, coast))
                     print("success")
                 except (IOError, FileNotFoundError):
                     print("fail")
@@ -163,7 +162,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
 
 
-def cycloon_evaluate(totalpath, max_hours):
+def cycloon_evaluate(pathcache, max_hours):
     
     resultstring = ""
 
@@ -176,7 +175,8 @@ def cycloon_evaluate(totalpath, max_hours):
         num_surviving = 0
         longitudes = []
 
-        for path in totalpath:
+        for rise, fall, coast in pathcache:
+            totalpath = rise+fall+coast
             length = len(totalpath)
             flighthours = length * CYCLOON_TIMESTEP_S / 3600
             if flighthours > hour:
