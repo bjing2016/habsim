@@ -97,7 +97,7 @@ def main(y, m, d, h):
 
 def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
-    sunset = 3 ## AM UTC ### + 24
+    sunset = 3 + 24 ## AM UTC ### 
 
     cycloon_hours = [4, 3, 2] ## Rising 4, 3, 2 hours
 
@@ -165,6 +165,8 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 def cycloon_evaluate(pathcache, max_hours):
     resultstring = ""
 
+    print(max_hours)
+    print(len(pathcache))
     hours_to_evaluate = [24, 48, 96]
     
     for hour in hours_to_evaluate:
