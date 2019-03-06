@@ -97,7 +97,7 @@ def main(y, m, d, h):
 
 def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
-    sunset = 3 ## AM UTC
+    sunset = 3 ## AM UTC ### + 24
 
     cycloon_hours = [4, 3, 2] ## Rising 4, 3, 2 hours
 
@@ -114,8 +114,8 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
     cycloon_queue = list()
 
     for hours in cycloon_hours:
-        launch_hour = (sunset - cycloon_hours) % 24
-        alt = hours * 2600 * CYCLOON_RATE
+        launch_hour = sunset - hours
+        alt = hours * 3600 * CYCLOON_RATE
         cycloon_queue.append((launch_hour, alt))
     
     for d in range(15):
