@@ -191,7 +191,7 @@ def cycloon_evaluate(pathcache, max_hours):
             resultstring = resultstring + "; "
         else:
             longitude_mean = np.mean(longitudes)
-            resultstring = resultstring + str("%.1f" % longitude_mean)
+            resultstring = resultstring + str("%.1f" % longitude_mean) + "; "
     
     return resultstring
 
