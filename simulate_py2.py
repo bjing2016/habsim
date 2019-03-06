@@ -202,6 +202,7 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
     rise, fall, coast = list(), list(), list()
     rise.append((starttime, lat, lon, alt, 0, 0))
     
+    groundelev = alt
     while simtime is not None and alt < stop_alt and simtime < end:
         simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, alt, ascent_rate, step)
         rise.append((simtime, lat, lon, alt, u, v))
@@ -214,7 +215,6 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
         if alt <= groundelev:
             break
 
-    groundelev = elev.getElevation(lat, lon)
     if groundelev <= 0:
         while simtime is not None and simtime < end:
             simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step)
