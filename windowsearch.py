@@ -74,7 +74,7 @@ def main(y, m, d, h):
             continue
 
     ### Spaceshot
-'''
+
     if not os.path.exists("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp):
 
         os.mkdir("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp)
@@ -90,10 +90,6 @@ def main(y, m, d, h):
         except IndexError:
             print(name + " failed")
             continue
-
-
-'''
-
 
 def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
