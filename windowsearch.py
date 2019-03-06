@@ -163,8 +163,6 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
 
 def cycloon_evaluate(pathcache, max_hours):
-    print("MAx hours")
-    print(max_hours)
     resultstring = ""
 
     hours_to_evaluate = [24, 48, 96]
