@@ -65,10 +65,8 @@ def get_file(timestamp):
     if timestamp not in filecache.keys():
 
         name = timestamp.strftime("%Y%m%d%H")
-        try:
-            filecache[timestamp] = np.load(path + "/" + prefix + name + suffix)
-        except (IOError, FileNotFoundError):
-            return
+        filecache[timestamp] = np.load(path + "/" + prefix + name + suffix)
+        
     return filecache[timestamp]
 
 ### Extracts datacube from cache ###
@@ -76,9 +74,7 @@ def get_or_fetch(timestamp , lat_index, lon_index):
     global datacache
     
     if (timestamp, lat_index, lon_index) not in datacache.keys():
-        get_file(timestamp)
-        if (timestamp, lat_index, lon_index) not in datacache.keys():
-            return None
+        data = get_file(timestamp)
         datacache[(timestamp, lat_index, lon_index)] = data[:,:,lat_index:lat_index+2,lon_index:lon_index+2]
 
    
@@ -93,8 +89,7 @@ def get_wind_helper(lat_res, lon_res, level_res, time_res):
     level_i, level_f = level_res
     timestamp, time_f = time_res
     get_or_fetch(timestamp, lat_i, lon_i)
-    if get_or_fetch((timestamp + data_step), lat_i, lon_i) == None:
-        return None, None
+    get_or_fetch(timestamp+data_step, lat_i, lon_i)
     
     data1 = datacache[(timestamp, lat_i, lon_i)]
     data2 = datacache[(timestamp + data_step), lat_i, lon_i]
@@ -174,14 +169,10 @@ def get_wind(simtime, lat, lon, alt):
         
     u, v = get_wind_helper(*bounds)
 
-    if u == None:
-        return None, None
     return u, v
 
 def single_step(simtime, lat, lon, alt, ascent_rate, step):
     u, v = get_wind(simtime, lat, lon, alt)
-    if u == None:
-        return None, None, None, None, None, None
     dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
     
     alt = alt + step * ascent_rate
@@ -203,11 +194,11 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
     rise.append((starttime, lat, lon, alt, 0, 0))
     
     groundelev = alt
-    while simtime is not None and alt < stop_alt and simtime < end:
+    while alt < stop_alt and simtime < end:
         simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, alt, ascent_rate, step)
         rise.append((simtime, lat, lon, alt, u, v))
 
-    while simtime is not None and simtime < end:
+    while simtime < end:
         
         simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, alt, -descent_rate, step)
         fall.append((simtime, lat, lon, alt, u, v))
@@ -216,7 +207,7 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
             break
 
     if groundelev <= 0:
-        while simtime is not None and simtime < end:
+        while simtime < end:
             simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step)
             groundelev = elev.getElevation(lat, lon)
             coast.append((time, lat, lon, 0, u, v))
