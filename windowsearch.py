@@ -103,11 +103,11 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
     CYCLOON_RATE = 1.5
 
-    max_t_h = 100
+    max_t_h = 96
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
-    maxtime = model_time + timedelta(hours = 376)
+    maxtime = model_time + timedelta(hours = 375)
 
     resultfile.write(location_name)
 
@@ -126,10 +126,6 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
             pathcache = list()
             filename = location_name + model_timestamp + "_" + sim_timestamp
 
-            savepath = "/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp
-            if os.path.exists(savepath+"/"+filename):
-                print(filename + "exists, continuing")
-                continue
 
             resultfile.write("\n" + sim_timestamp + ": ")
 
@@ -137,7 +133,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
             max_hours = maxtime - launchtime
             print(maxtime)
             print(launchtime)
-            max_hours = max_hours.seconds / 3600
+            max_hours = max_hours.seconds / 3600 + max_hours.days * 24
 
             for n in range(1, 21):
                 message = str(launchtime) + "hours,member " + str(n)
@@ -220,7 +216,7 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
 
         filename = location_name + model_timestamp + "_" + sim_timestamp
 
-        savepath = "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp
+   #     savepath = "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp
  #       if os.path.exists(savepath+"/"+filename):
   #          print(filename + "exists, continuing")
    #         continue
