@@ -11,47 +11,34 @@ from datetime import datetime, timedelta
 EAST = 1
 WEST = 0
 
-spaceshot_locations = {
-    ("LostCoast", 40.44, -124.4, WEST),
-    ("BigSur", 36.305, -121.9, WEST),
-    ("PointBlanco", 42.84, -124.55, WEST),
-    ("Tillamook", 45.4, -123.95, WEST),
-    ("Olympic", 48.3, -124.6, WEST),
-    ("SouthTX", 27, -97.38, EAST),
-    ("Georgia", 30.9, -81.41, EAST),
-    ("Hollister", 36.8492, -121.432, WEST),
-    ("Vandenberg", 34.6, -120.6, WEST),
-    ("Pendleton", 33.4, -117.5, WEST),
-    ("PointReyes", 38, -123, WEST)
-}
 
 ### How far west does the balloon need to go?
 ### How long does it need to stay there?
-SPACESHOT_DISTANCE_THRESHHOLD = 22 ## km
-SPACESHOT_TIME_THRESHHOLD = .5 ## hours
+SPACESHOT_DEFAULT_THRESHHOLD = 22 ## km
+SPACESHOT_TIME_THRESHHOLD = .5 ## hours 
 SPACESHOT_TIMESTEP_S = 60
 
-EARTH_RADIUS = float(6.371e3) ##km
+CYCLOON_TIMESTEP_S = 240
 
-def main(y, m, d, h):
-    model_time = datetime(y,m,d,h)
+spaceshot_locations = [
+    ("LostCoast", 40.44, -124.4, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("BigSur", 36.305, -121.9, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("PointBlanco", 42.84, -124.55, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("Tillamook", 45.4, -123.95, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("Olympic", 48.3, -124.6, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("SouthTX", 27, -97.38, EAST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("Georgia", 30.9, -81.41, EAST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("Hollister", 36.8492, -121.432, WEST, SPACESHOT_DEFAULT_THRESHHOLD + 55),
+    ("Vandenberg", 34.6, -120.6, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("Pendleton", 33.4, -117.5, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("PointReyes", 38, -123, WEST, SPACESHOT_DEFAULT_THRESHHOLD)
+]
 
-    model_timestamp = model_time.strftime("%Y%m%d%H")
+cycloon_locations = [
+    ("Hollister", 36.8492, -121.432),
+    ("Pescadero", 37.24, -122.4)
+]
 
-    if not os.path.exists("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp):
-
-        os.mkdir("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp)
-
-    resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "w")
-    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master")
-    for name, lat, lon, whichcoast in spaceshot_locations:
-        try:
-            print(name)
-            spaceshot_search(name, whichcoast, model_time, lat, lon, resultfile)
-            resultfile.write("\n")
-        except IndexError:
-            print(name + " failed")
-            continue
 
 ### Establish global constants ###
 lon_offset = 0
@@ -60,7 +47,153 @@ hrs = 6
 sourcepath = "../gefs"
 mylvls = GEFS
 
-def spaceshot_search(location_name, whichcoast, model_time, slat, slon, resultfile):
+
+
+EARTH_RADIUS = float(6.371e3) ##km
+
+def main(y, m, d, h):
+    model_time = datetime(y,m,d,h)
+
+    model_timestamp = model_time.strftime("%Y%m%d%H")
+    ### Cycloon
+
+
+    if not os.path.exists("/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp):
+
+        os.mkdir("/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp)
+
+    resultfile = open("/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp + "master", "w")
+    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp + "master")
+    for name, lat, lon in cycloon_locations:
+        try:
+            print(name)
+            cycloon_search(name, model_time, lat, lon, resultfile)
+            resultfile.write("\n")
+        except IndexError:
+            print(name + " failed")
+            continue
+
+    ### Spaceshot
+'''
+    if not os.path.exists("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp):
+
+        os.mkdir("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp)
+
+    resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "w")
+    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master")
+    resultfile.write("Trajectories surviving, average latitude of surviving @ hrs 24, 48, 96")
+    for name, lat, lon, whichcoast, distance in spaceshot_locations:
+        try:
+            print(name)
+            spaceshot_search(name, whichcoast, distance, model_time, lat, lon, resultfile)
+            resultfile.write("\n")
+        except IndexError:
+            print(name + " failed")
+            continue
+
+
+'''
+
+
+def cycloon_search(location_name, model_time, slat, slon, resultfile):
+    
+    sunset = 3 ## AM UTC
+
+    cycloon_hours = [4, 3, 2] ## Rising 4, 3, 2 hours
+
+    CYCLOON_RATE = 1.5
+
+    max_t_h = 100
+
+    model_timestamp = model_time.strftime("%Y%m%d%H")
+
+    maxtime = model_time + timedelta(hours = 376)
+
+    resultfile.write(location_name)
+
+    cycloon_queue = list()
+
+    for hours in cycloon_hours:
+        launch_hour = (sunset - cycloon_hours) % 24
+        alt = hours * 2600 * CYCLOON_RATE
+        cycloon_queue.append((launch_hour, alt))
+    
+    for d in range(15):
+        for launch_hour, alt in cycloon_queue:
+            launchtime = model_time + timedelta(days=d, hours=launch_hour)
+
+            sim_timestamp = launchtime.strftime("%Y%m%d%H")
+            pathcache = list()
+            filename = location_name + model_timestamp + "_" + sim_timestamp
+
+            savepath = "/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp
+            if os.path.exists(savepath+"/"+filename):
+                print(filename + "exists, continuing")
+                continue
+
+            resultfile.write("\n" + sim_timestamp + ": ")
+
+            for n in range(1, 21):
+                message = str(launchtime) + "hours,member " + str(n)
+                print(message)
+                reset()
+                set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
+            
+                try: 
+                    rise, fall, coast = simulate(launchtime, slat, slon, CYCLOON_RATE, CYCLOON_TIMESTEP_S, alt, 0, max_t_h)
+                    totalpath = rise + fall + coast
+                    pathcache.append(totalpath)
+                    print("success")
+                except (IOError, FileNotFoundError):
+                    print("fail")
+
+        
+            print("Evaluating ensemble")
+            max_hours = maxtime - launchtime
+            max_hours = max_hours.seconds / 3600
+            result = cycloon_evaluate(pathcache, max_hours)
+
+            resultfile.write(result)
+
+            print(result)
+
+            generate_html(pathcache, filename, model_timestamp, sim_timestamp)
+    
+    resultfile.write("\n")
+
+
+
+def cycloon_evaluate(totalpath, max_hours):
+    
+    resultstring = ""
+
+    hours_to_evaluate = [24, 48, 96]
+    
+    for hour in hours_to_evaluate:
+        if hour > max_hours:
+            break
+        
+        num_surviving = 0
+        longitudes = []
+
+        for path in totalpath:
+            length = len(totalpath)
+            flighthours = length * CYCLOON_TIMESTEP_S / 3600
+            if flighthours > hour:
+                num_surviving = num_surviving + 1
+                longitudes.append(path[int(hour * 3600 / CYCLOON_TIMESTEP_S)][2])
+    
+        resultstring = resultstring + str(num_surviving + ",")
+        
+        if (num_surviving == 0):
+            resultstring = resultstring + "; "
+        else:
+            longitude_mean = np.mean(longitudes)
+            resultstring = resultstring + str("%.1f" % longitude_mean)
+    
+    return resultstring
+
+def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon, resultfile):
     
     asc_rate = 3.7
     stop_alt = 29000
@@ -104,22 +237,22 @@ def spaceshot_search(location_name, whichcoast, model_time, slat, slon, resultfi
         
         print("Evaluating ensemble")
         
-        result = spaceshot_evaluate(pathcache, whichcoast)
+        result = spaceshot_evaluate(pathcache, whichcoast, distance)
 
         resultfile.write(str(result))
 
-        print(result)
+        print("Proability: " + str(result))
 
         generate_html(pathcache, filename, model_timestamp, sim_timestamp)
     
     resultfile.write("\n")
 
-def spaceshot_evaluate(pathcache, whichcoast):
+def spaceshot_evaluate(pathcache, whichcoast, distance):
     __, lat, lon, __, __, ___ = pathcache[0][0][0]
 
     print("at top of evaluate, coast is " + str(whichcoast))
 
-    lon_range = math.degrees(SPACESHOT_DISTANCE_THRESHHOLD / (EARTH_RADIUS * math.cos(math.radians(lat))))
+    lon_range = math.degrees(distance / (EARTH_RADIUS * math.cos(math.radians(lat))))
 
     print("lon range is " + str(lon_range))
     lon_threshhold = 0
