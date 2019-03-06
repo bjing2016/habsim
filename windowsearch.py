@@ -320,6 +320,8 @@ def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
     
         totalpath = rise + fall + coast
         for (time, lat, lon, alt, u, v) in totalpath:
+            if time == None:
+                break
             pathstring = pathstring + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+ \
              ",u=" + str("%.3f" % u)+ ",v=" + str("%.3f" % v)+  "<br>\n"
     
