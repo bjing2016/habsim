@@ -99,7 +99,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
     CYCLOON_RATE = 1.5
 
-    max_t_h = 96
+    max_t_h = 120
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
@@ -164,7 +164,7 @@ def cycloon_evaluate(pathcache, max_hours):
 
     print(max_hours)
     print(len(pathcache))
-    hours_to_evaluate = [24, 48, 96]
+    hours_to_evaluate = [24, 48, 72, 96, 120]
     
     for hour in hours_to_evaluate:
         if hour > max_hours:
