@@ -158,8 +158,9 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
             resultfile.write(result)
 
             print(result)
-
-            generate_html(pathcache, filename, model_timestamp, sim_timestamp)
+        
+            generate_html(pathcache, "cycloon", filename, model_timestamp, sim_timestamp)
+    
     
     resultfile.write("\n")
 
@@ -247,7 +248,7 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
 
         print("Proability: " + str(result))
 
-        generate_html(pathcache, filename, model_timestamp, sim_timestamp)
+        generate_html(pathcache, "spaceshot" filename, model_timestamp, sim_timestamp)
     
     resultfile.write("\n")
 
@@ -296,10 +297,10 @@ def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhol
     
     return min(1, npoints/point_number_threshhold)
 
-def generate_html(pathcache, filename, model_timestamp, sim_timestamp):
+def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp):
     __, slat, slon, __, __, __ = pathcache[0][0][0]
 
-    path = "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "/" + filename
+    path = "/home/bjing/afs-home/WWW/res/"+ folder + "/" + model_timestamp + "/" + filename
     f = open(path, "w")
 
     f.write(part1 + str(slat) + "," + str(slon))
