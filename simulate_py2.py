@@ -68,7 +68,7 @@ def get_file(timestamp):
         try:
             filecache[timestamp] = np.load(path + "/" + prefix + name + suffix)
         except (IOError, FileNotFoundError):
-            return 0
+            return None
     return filecache[timestamp]
 
 ### Extracts datacube from cache ###
@@ -77,7 +77,7 @@ def get_or_fetch(timestamp , lat_index, lon_index):
     
     if (timestamp, lat_index, lon_index) not in datacache.keys():
         data = get_file(timestamp)
-        if data == 0:
+        if data.any() == None:
             return None
         datacache[(timestamp, lat_index, lon_index)] = data[:,:,lat_index:lat_index+2,lon_index:lon_index+2]
 
