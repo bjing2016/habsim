@@ -296,7 +296,7 @@ def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, m
         f.write(get_marker_string(mlat, mlon, "",str(i+1)))
     
         totalpath = rise + fall + coast
-        for j in range(len(totalpath)) in totalpath:
+        for j in range(len(totalpath)):
             time, lat, lon, alt, u, v = totalpath[i]
             if i % marker_interval_in_waypoints == 0:
                 f.write(get_marker_string(lat, lon, "",str(i+1)))
