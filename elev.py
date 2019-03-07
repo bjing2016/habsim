@@ -27,3 +27,12 @@ def getElevation(lat, lon):
         return 0
   
     return region[rLat][rLon]
+
+def distance_from_land():
+    pass
+
+    ## Implement using haversine, argwhere, argmin
+    ### Approximate -- find closest index based on coordinate diff
+    ### Evaluates true distance
+
+

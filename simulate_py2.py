@@ -210,7 +210,7 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
         while simtime < end:
             simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step)
             groundelev = elev.getElevation(lat, lon)
-            coast.append((time, lat, lon, 0, u, v))
+            coast.append((simtime, lat, lon, 0, u, v))
             if groundelev > 0:
                 break
             

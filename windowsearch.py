@@ -25,13 +25,14 @@ spaceshot_locations = [
     ("BigSur", 36.305, -121.9, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("PointBlanco", 42.84, -124.55, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("Tillamook", 45.4, -123.95, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
-    ("Olympic", 48.3, -124.6, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+   # ("Olympic", 48.3, -124.6, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("SouthTX", 27, -97.38, EAST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("Georgia", 30.9, -81.41, EAST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("Hollister", 36.8492, -121.432, WEST, SPACESHOT_DEFAULT_THRESHHOLD + 55),
     ("Vandenberg", 34.6, -120.6, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
-    ("Pendleton", 33.4, -117.5, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
-    ("PointReyes", 38, -123, WEST, SPACESHOT_DEFAULT_THRESHHOLD)
+   # ("Pendleton", 33.4, -117.5, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("PointReyes", 38, -123, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+    ("MartinsBeach", 37.3843098, -122.3928558, WEST, SPACESHOT_DEFAULT_THRESHHOLD)
 ]
 
 cycloon_locations = [
@@ -81,7 +82,6 @@ def main(y, m, d, h):
 
     resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "w")
     print("Writing to master file " + "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master")
-    resultfile.write("Trajectories surviving, average latitude of surviving @ hrs 24, 48, 96")
     for name, lat, lon, whichcoast, distance in spaceshot_locations:
         try:
             print(name)
@@ -99,7 +99,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
     CYCLOON_RATE = 1.5
 
-    max_t_h = 120
+    max_t_h = 240
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
@@ -145,14 +145,13 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
                     print("fail")
 
         
-            print("Evaluating ensemble")
             result = cycloon_evaluate(pathcache, max_hours)
 
             resultfile.write(result)
 
-            print(result)
-        
-            generate_html(pathcache, "cycloon", filename, model_timestamp, sim_timestamp)
+            print("Evaluating ensemble: " + result)
+            
+            generate_html(pathcache, "cycloon", filename, model_timestamp, sim_timestamp, 24)
     
     
     resultfile.write("\n")
@@ -162,9 +161,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 def cycloon_evaluate(pathcache, max_hours):
     resultstring = ""
 
-    print(max_hours)
-    print(len(pathcache))
-    hours_to_evaluate = [24, 48, 72, 96, 120]
+    hours_to_evaluate = [24, 48, 72, 96, 120, 144, 168, 192, 216, 240]
     
     for hour in hours_to_evaluate:
         if hour > max_hours:
@@ -197,26 +194,15 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
     stop_alt = 29000
     max_t_h = 6
 
-    print("at top of spaceshot search, coast is " + str(whichcoast))
-
     model_timestamp = model_time.strftime("%Y%m%d%H")
 
     resultfile.write(location_name)
 
     for t in range(0, 384, 6):
         launchtime = model_time + timedelta(hours = t)
-
         sim_timestamp = launchtime.strftime("%Y%m%d%H")
-
         pathcache = list()
-
         filename = location_name + model_timestamp + "_" + sim_timestamp
-
-   #     savepath = "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp
- #       if os.path.exists(savepath+"/"+filename):
-  #          print(filename + "exists, continuing")
-   #         continue
-
         resultfile.write("\n" + sim_timestamp + ": ")
 
         for n in range(1, 21):
@@ -232,36 +218,24 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
             except (IOError, FileNotFoundError):
                 print("fail")
 
-        
-        print("Evaluating ensemble")
-        
         result = spaceshot_evaluate(pathcache, whichcoast, distance)
-
         resultfile.write(str(result))
-
         print("Proability: " + str(result))
-
-        generate_html(pathcache, "spaceshot", filename, model_timestamp, sim_timestamp)
+        generate_html(pathcache, "spaceshot", filename, model_timestamp, sim_timestamp, 6)
     
     resultfile.write("\n")
 
 def spaceshot_evaluate(pathcache, whichcoast, distance):
     __, lat, lon, __, __, ___ = pathcache[0][0][0]
 
-    print("at top of evaluate, coast is " + str(whichcoast))
-
     lon_range = math.degrees(distance / (EARTH_RADIUS * math.cos(math.radians(lat))))
 
-    print("lon range is " + str(lon_range))
     lon_threshhold = 0
     if whichcoast == WEST:
         lon_threshhold = lon-lon_range
     else:
         lon_threshhold = lon + lon_range
     point_number_threshhold = SPACESHOT_TIME_THRESHHOLD * 3600.0 / SPACESHOT_TIMESTEP_S
-
-    print("Lon threshhold, point number threshhold")
-    print(lon_threshhold, point_number_threshhold)
 
     result = 0.0
 
@@ -290,7 +264,8 @@ def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhol
     
     return min(1, npoints/point_number_threshhold)
 
-def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp):
+def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, marker_interval):
+    ## As hours --- only works if time_step goes evenly into one hour
     __, slat, slon, __, __, __ = pathcache[0][0][0]
 
     path = "/home/bjing/afs-home/WWW/res/"+ folder + "/" + model_timestamp + "/" + filename
@@ -301,6 +276,9 @@ def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp):
 
     text_output = "Model time: " + model_timestamp + ", launchtime: " + sim_timestamp + "<br/><br/>"
 
+    timestep = (pathcache[0][0][1][0] - pathcache[0][0][0][0]).seconds
+
+    marker_interval_in_waypoints = marker_interval * 3600 / timestep
     
     for i in range(len(pathcache)):
         pathstring = ""
@@ -318,7 +296,10 @@ def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp):
         f.write(get_marker_string(mlat, mlon, "",str(i+1)))
     
         totalpath = rise + fall + coast
-        for (time, lat, lon, alt, u, v) in totalpath:
+        for j in range(len(totalpath)) in totalpath:
+            time, lat, lon, alt, u, v = totalpath[i]
+            if i % marker_interval_in_waypoints == 0:
+                f.write(get_marker_string(lat, lon, "",str(i+1)))
             pathstring = pathstring + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+ \
              ",u=" + str("%.3f" % u)+ ",v=" + str("%.3f" % v)+  "<br>\n"
     
