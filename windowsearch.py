@@ -283,23 +283,12 @@ def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, m
     for i in range(len(pathcache)):
         pathstring = ""
         rise, fall, coast = pathcache[i]
-        last = None
-        if len(coast) > 0:
-            last = coast[-1]
-        elif len(fall) > 0:
-            last = fall[-1]
-        else:
-            last = rise[-1]
-
-        __, mlat, mlon, __, __, __ = last
-
-        f.write(get_marker_string(mlat, mlon, "",str(i+1)))
-    
+        
         totalpath = rise + fall + coast
         for j in range(len(totalpath)):
             time, lat, lon, alt, u, v = totalpath[j]
-            if j % marker_interval_in_waypoints == 0 and j != 0 and j != len(totalpath):
-                f.write(get_marker_string(lat, lon, "",str(i+1)))
+            if (j % marker_interval_in_waypoints == 0 and j != 0) or j == len(totalpath):
+                f.write(get_marker_string(lat, lon, str(i+1), str(time)))
             pathstring = pathstring + time.strftime("%H:%M:%S") + "Alt=" + str("%.0f" % alt)+ ",Loc=" + str("%.5f" % lat)+ "," + str("%.5f" % lon)+ \
              ",u=" + str("%.3f" % u)+ ",v=" + str("%.3f" % v)+  "<br>\n"
     
