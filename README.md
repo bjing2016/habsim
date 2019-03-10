@@ -5,7 +5,8 @@ This is a collection of tools and utilities developed for the Stanford Space Ini
 
 ## Fully implemented features
 -Historical batch simulator supporting standard, ZPB, and cycloon profile flights, variation in launch time, and ascent rate: https://web.stanford.edu/~bjing/hist
--GFS ensemble-based, full 384-hour launch window search with probabilistic outputs: https://web.stanford.edu/~bjing/
+
+-GFS ensemble-based, full 384-hour launch window search with probabilistic outputs: https://web.stanford.edu/~bjing/res
 
 ## Modules
 
