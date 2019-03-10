@@ -94,17 +94,12 @@ def main(y, m, d, h):
 def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
     sunset = 3 + 24 ## AM UTC ### 
-
     cycloon_hours = [4, 3, 2] ## Rising 4, 3, 2 hours
-
     CYCLOON_RATE = 1.5
-
     max_t_h = 240
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
-
     maxtime = model_time + timedelta(hours = 375)
-
     resultfile.write(location_name)
 
     cycloon_queue = list()
@@ -146,7 +141,6 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
         
             result = cycloon_evaluate(pathcache, max_hours)
-
             resultfile.write(result)
 
             print("Evaluating ensemble: " + result)
