@@ -36,7 +36,7 @@ files = [
 
 ### 
 cache = list()
-for i in range(10*120, 90*120): 
+for i in range(10*120, 70*120): 
     print("Outer loop, i = " + str(i))
     for j in range(-180*120, 0):
         lat, lon = i/120, j/120
