@@ -54,6 +54,7 @@ for (slat, slon) in files:
     result = numpy.zeros((2400, 3600))
 
     for i in range(0, 2400): ## lat range
+        print(i)
         for j in range(0, 3600): ## lon range
             lat = slat + (2400 - i - 1) * 120
             lon = slon + j * 120
