@@ -102,3 +102,8 @@ def grb2_to_array(filename):
 year, month, day, hour = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
 
 complete_run(year, month, day, hour, "../gefs")
+
+yesterday = datetime(year, month, day-1)
+yesterday_string = yesterday.strftime("%Y%m%d")
+
+os.system("rm ../gefs/" + yesterday_string + "*")

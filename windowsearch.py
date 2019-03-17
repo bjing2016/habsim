@@ -26,18 +26,18 @@ spaceshot_locations = [
     ("PointBlanco", 42.84, -124.55, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("Tillamook", 45.4, -123.95, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
    # ("Olympic", 48.3, -124.6, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
-    ("SouthTX", 27, -97.38, EAST, SPACESHOT_DEFAULT_THRESHHOLD),
-    ("Georgia", 30.9, -81.41, EAST, SPACESHOT_DEFAULT_THRESHHOLD),
+   # ("SouthTX", 27, -97.38, EAST, SPACESHOT_DEFAULT_THRESHHOLD),
+   # ("Georgia", 30.9, -81.41, EAST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("Hollister", 36.8492, -121.432, WEST, SPACESHOT_DEFAULT_THRESHHOLD + 55),
     ("Vandenberg", 34.6, -120.6, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
    # ("Pendleton", 33.4, -117.5, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
-    ("PointReyes", 38, -123, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
+   # ("PointReyes", 38, -123, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("MartinsBeach", 37.3843098, -122.3928558, WEST, SPACESHOT_DEFAULT_THRESHHOLD)
 ]
 
 cycloon_locations = [
-    ("Hollister", 36.8492, -121.432),
-    ("Pescadero", 37.24, -122.4)
+    ("Pescadero", 37.24, -122.4),
+    ("Hollister", 36.8492, -121.432)
 ]
 
 
@@ -50,7 +50,7 @@ mylvls = GEFS
 
 
 
-EARTH_RADIUS = float(6.371e3) ##km
+EARTH_RADIUS_IN_KM = float(6.371e3) ##km
 
 def main(y, m, d, h):
     model_time = datetime(y,m,d,h)
@@ -222,7 +222,7 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
 def spaceshot_evaluate(pathcache, whichcoast, distance):
     __, lat, lon, __, __, ___ = pathcache[0][0][0]
 
-    lon_range = math.degrees(distance / (EARTH_RADIUS * math.cos(math.radians(lat))))
+    lon_range = math.degrees(distance / (EARTH_RADIUS_IN_KM * math.cos(math.radians(lat))))
 
     lon_threshhold = 0
     if whichcoast == WEST:

@@ -3,7 +3,7 @@ import math
 import elev
 from datetime import datetime, timedelta
 import math
-from scipy.stats import norm
+# from scipy.stats import norm
 import time
 
 EARTH_RADIUS = float(6.371e6)
@@ -182,10 +182,13 @@ def single_step(simtime, lat, lon, alt, ascent_rate, step):
 
     return simtime, lat, lon, alt, u, v
 
-def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration):
+def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration, start_alt = None):
     
     lat, lon = slat, slon
-    alt = elev.getElevation(lat,lon)
+    if start_alt == None:
+        alt = elev.getElevation(lat,lon)
+    else:
+        alt = start_alt
     simtime = starttime
 
     end = starttime + timedelta(hours=max_duration)
