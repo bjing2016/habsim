@@ -94,8 +94,9 @@ def main(y, m, d, h):
 def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
     sunset = 3 + 24 ## AM UTC ### 
-    cycloon_hours = [4, 3, 2] ## Rising 4, 3, 2 hours
-    CYCLOON_RATE = 1.5
+    cycloon_hours = [10, 8, 6] ### Not actually meant to be hours, just elevation optimization #[4, 3, 2] ## Rising 4, 3, 2 hours
+    CYCLOON_RISE_RATE = 0.5
+    CYCLOON_FALL_RATE = 2.0
     max_t_h = 240
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
@@ -106,7 +107,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
     for hours in cycloon_hours:
         launch_hour = sunset - hours
-        alt = hours * 3600 * CYCLOON_RATE
+        alt = hours * 3600 * CYCLOON_RISE_RATE
         cycloon_queue.append((launch_hour, alt))
     
     for d in range(15):
@@ -133,7 +134,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
                 set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
                 try: 
-                    rise, fall, coast = simulate(launchtime, slat, slon, CYCLOON_RATE, CYCLOON_TIMESTEP_S, alt, CYCLOON_RATE, min(max_t_h,max_hours))
+                    rise, fall, coast = simulate(launchtime, slat, slon, CYCLOON_RISE_RATE, CYCLOON_TIMESTEP_S, alt, CYCLOON_FALL_RATE, min(max_t_h,max_hours))
                     pathcache.append((rise, fall, coast))
                     print("success")
                 except (IOError, FileNotFoundError):
