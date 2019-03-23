@@ -21,6 +21,7 @@ SPACESHOT_TIMESTEP_S = 60
 CYCLOON_TIMESTEP_S = 240
 
 spaceshot_locations = [
+    ("PigeonPoint", 37.185, -122.393, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("LostCoast", 40.44, -124.4, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("BigSur", 36.305, -121.9, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
     ("PointBlanco", 42.84, -124.55, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
@@ -32,11 +33,11 @@ spaceshot_locations = [
     ("Vandenberg", 34.6, -120.6, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
    # ("Pendleton", 33.4, -117.5, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
    # ("PointReyes", 38, -123, WEST, SPACESHOT_DEFAULT_THRESHHOLD),
-    ("MartinsBeach", 37.3843098, -122.3928558, WEST, SPACESHOT_DEFAULT_THRESHHOLD)
+   # ("MartinsBeach", 37.3843098, -122.3928558, WEST, SPACESHOT_DEFAULT_THRESHHOLD)
 ]
 
 cycloon_locations = [
-    ("Pescadero", 37.24, -122.4),
+    ("PigeonPoint", 37.185, -122.393),
     ("Hollister", 36.8492, -121.432)
 ]
 
@@ -93,10 +94,9 @@ def main(y, m, d, h):
 
 def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
-    sunset = 3 + 24 ## AM UTC ### 
-    cycloon_hours = [10, 8, 6] ### Not actually meant to be hours, just elevation optimization #[4, 3, 2] ## Rising 4, 3, 2 hours
-    CYCLOON_RISE_RATE = 0.5
-    CYCLOON_FALL_RATE = 2.0
+    sunset = 3 + 24 ## UTC ### 
+    launch_hour = 19 ###
+    cycloon_rates = [1.0,2.0]
     max_t_h = 240
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
@@ -105,18 +105,17 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
     cycloon_queue = list()
 
-    for hours in cycloon_hours:
-        launch_hour = sunset - hours
-        alt = hours * 3600 * CYCLOON_RISE_RATE
-        cycloon_queue.append((launch_hour, alt))
+    for rate in cycloon_rates:
+        alt = (sunset - launch_hour) * 3600 * rate ## rising 8 hours
+        cycloon_queue.append((rate, alt))
     
     for d in range(15):
-        for launch_hour, alt in cycloon_queue:
+        for rate, alt in cycloon_queue:
             launchtime = model_time + timedelta(days=d, hours=launch_hour)
 
             sim_timestamp = launchtime.strftime("%Y%m%d%H")
             pathcache = list()
-            filename = location_name + model_timestamp + "_" + sim_timestamp
+            filename = location_name + model_timestamp + "_" + sim_timestamp + str(rate);
 
 
             resultfile.write("\n" + sim_timestamp + ": ")
@@ -134,7 +133,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
                 set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
                 try: 
-                    rise, fall, coast = simulate(launchtime, slat, slon, CYCLOON_RISE_RATE, CYCLOON_TIMESTEP_S, alt, CYCLOON_FALL_RATE, min(max_t_h,max_hours))
+                    rise, fall, coast = simulate(launchtime, slat, slon, rate, CYCLOON_TIMESTEP_S, alt, 2, min(max_t_h,max_hours))
                     pathcache.append((rise, fall, coast))
                     print("success")
                 except (IOError, FileNotFoundError):
