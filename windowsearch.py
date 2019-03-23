@@ -96,7 +96,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
     sunset = 3 + 24 ## UTC ### 
     launch_hour = 19 ###
-    cycloon_rates = [1.0,2.0]
+    cycloon_rates = [0.5,1.0]
     max_t_h = 240
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
