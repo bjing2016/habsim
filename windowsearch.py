@@ -192,7 +192,7 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
 
     resultfile.write(location_name)
 
-    for t in range(0, 384, 6):
+    for t in range(18, 384, 24):
         launchtime = model_time + timedelta(hours = t)
         sim_timestamp = launchtime.strftime("%Y%m%d%H")
         pathcache = list()
