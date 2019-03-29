@@ -37,6 +37,15 @@ def main():
     ### Cycloon
 
     model_time = datetime(2018,1,1)
+    if not os.path.exists("/home/bjing/afs-home/WWW/res/floatloon/2018"):
+
+        os.mkdir("/home/bjing/afs-home/WWW/res/floatloon/2018")
+
+    resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/2018master")
+    print("Floatloon")
+    floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
+    resultfile.write("\n")
+
 '''
     if not os.path.exists("/home/bjing/afs-home/WWW/res/cycloon/2018"):
 
@@ -53,15 +62,6 @@ def main():
             print(name + " failed")
             continue
 '''
-
-    if not os.path.exists("/home/bjing/afs-home/WWW/res/floatloon/2018"):
-
-        os.mkdir("/home/bjing/afs-home/WWW/res/floatloon/2018")
-
-    resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/2018master")
-    print("Floatloon")
-    floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
-    resultfile.write("\n")
 
 
 def floatloon_search(location_name, model_time, slat, slon, resultfile):
