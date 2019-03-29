@@ -67,12 +67,9 @@ def main(y, m, d, h):
 
     resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master", "w")
     print("Writing to master file " + "/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master")
-    try:
-        print("Floatloon")
-        floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
-        resultfile.write("\n")
-    except IndexError:
-        print("failed")
+    print("Floatloon")
+    floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
+    resultfile.write("\n")
     
     ### Cycloon
 
