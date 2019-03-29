@@ -71,7 +71,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
     for d in range(364):
         for rate, alt in cycloon_queue:
-            print("d = " + d)
+            print("d = " + str(d))
         
             launchtime = model_time + timedelta(days=d, hours=launch_hour)
 
