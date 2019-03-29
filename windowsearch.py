@@ -135,7 +135,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
             sim_timestamp = launchtime.strftime("%Y%m%d%H")
             pathcache = list()
-            filename = location_name + model_timestamp + "_" + sim_timestamp;
+            filename = location_name + model_timestamp + "_" + sim_timestamp + "_" + str(rate);
 
 
             resultfile.write("\n" + sim_timestamp + ": ")
@@ -186,7 +186,7 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
 
         sim_timestamp = launchtime.strftime("%Y%m%d%H")
         pathcache = list()
-        filename = location_name + model_timestamp + "_" + sim_timestamp + "_" + str(rate);
+        filename = location_name + model_timestamp + "_" + sim_timestamp
 
 
         resultfile.write("\n" + sim_timestamp + ": ")
