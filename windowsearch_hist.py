@@ -67,7 +67,7 @@ def main():
 def floatloon_search(location_name, model_time, slat, slon, resultfile):
     
     launch_hour = 7 ###
-    max_t_h = 144
+    max_t_h = 240
 
     maxtime = datetime(2019,1,1,0)
     resultfile.write(location_name)
