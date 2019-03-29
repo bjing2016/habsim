@@ -42,6 +42,13 @@ cycloon_locations = [
 ]
 
 
+
+
+floatloon_locations = [
+    ("PigeonPoint",  37.179, -122.39),
+    ("Hollister", 36.8492, -121.432)
+]
+
 ### Establish global constants ###
 lon_offset = 0
 points_per_degree = 1
