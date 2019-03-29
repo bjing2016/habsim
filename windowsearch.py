@@ -72,7 +72,7 @@ def main(y, m, d, h):
         floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
         resultfile.write("\n")
     except IndexError:
-        print(name + " failed")
+        print("failed")
     
     ### Cycloon
 
@@ -135,7 +135,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
             sim_timestamp = launchtime.strftime("%Y%m%d%H")
             pathcache = list()
-            filename = location_name + model_timestamp + "_" + sim_timestamp + "_" + str(rate);
+            filename = location_name + model_timestamp + "_" + sim_timestamp;
 
 
             resultfile.write("\n" + sim_timestamp + ": ")
