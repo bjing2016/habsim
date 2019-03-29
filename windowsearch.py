@@ -114,7 +114,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
     sunset = 3 + 24 ## UTC ### 
     launch_hour = 19 ###
     cycloon_rates = [0.5,1.0]
-    max_t_h = 240
+    max_t_h = 144
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
     maxtime = model_time + timedelta(hours = 375)
@@ -162,7 +162,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
             print("Evaluating ensemble: " + result)
             
-            generate_html(pathcache, "cycloon", filename, model_timestamp, sim_timestamp, 24)
+            generate_html(pathcache, "cycloon", filename, model_timestamp, sim_timestamp, 24, CYCLOON_TIMESTEP_S)
     
     
     resultfile.write("\n")
@@ -172,7 +172,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 def floatloon_search(location_name, model_time, slat, slon, resultfile):
     
     launch_hour = 7 ###
-    max_t_h = 240
+    max_t_h = 144
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
     maxtime = model_time + timedelta(hours = 375)
@@ -206,7 +206,6 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
                 print("success")
             except (IOError, FileNotFoundError):
                 print("fail")
-
     
         result = cycloon_evaluate(pathcache, max_hours)
         resultfile.write(result)
@@ -214,7 +213,7 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
         print("Evaluating ensemble: " + result)
         
         try:
-            generate_html(pathcache, "floatloon", filename, model_timestamp, sim_timestamp, 24)
+            generate_html(pathcache, "floatloon", filename, model_timestamp, sim_timestamp, 24, CYCLOON_TIMESTEP_S)
         except IndexError:
             continue
     
@@ -225,7 +224,7 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
 def cycloon_evaluate(pathcache, max_hours):
     resultstring = ""
 
-    hours_to_evaluate = [24, 48, 72, 96, 120, 144, 168, 192, 216, 240]
+    hours_to_evaluate = [24, 48, 72, 96, 120, 144]
     
     for hour in hours_to_evaluate:
         if hour > max_hours:
@@ -285,7 +284,7 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
         result = spaceshot_evaluate(pathcache, whichcoast, distance)
         resultfile.write(str(result))
         print("Proability: " + str(result))
-        generate_html(pathcache, "spaceshot", filename, model_timestamp, sim_timestamp, 6)
+        generate_html(pathcache, "spaceshot", filename, model_timestamp, sim_timestamp, 6, SPACESHOT_TIMESTEP_S)
     
     resultfile.write("\n")
 
@@ -328,7 +327,7 @@ def spaceshot_single_evaluate(singlepath, lon_threshhold, point_number_threshhol
     
     return min(1, npoints/point_number_threshhold)
 
-def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, marker_interval):
+def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, marker_interval, timestep):
     ## As hours --- only works if time_step goes evenly into one hour
     __, slat, slon, __, __, __ = pathcache[0][0][0]
 
@@ -339,8 +338,6 @@ def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, m
     f.write(part2)
 
     text_output = "Model time: " + model_timestamp + ", launchtime: " + sim_timestamp + "<br/><br/>"
-
-    timestep = (pathcache[0][0][1][0] - pathcache[0][0][0][0]).seconds
 
     marker_interval_in_waypoints = marker_interval * 3600 / timestep
     
