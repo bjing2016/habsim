@@ -48,7 +48,7 @@ def main():
             print(name)
             cycloon_search(name, model_time, lat, lon, resultfile)
             resultfile.write("\n")
-        except ValueError:
+        except IndexError:
             print(name + " failed")
             continue
 
@@ -98,15 +98,18 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
                     rise, fall, coast = simulate(launchtime, slat, slon, rate, CYCLOON_TIMESTEP_S, alt, 2, min(max_t_h,max_hours))
                     pathcache.append((rise, fall, coast))
                     print("success")
-                except (IOError, FileNotFoundError, IndexError):
+                except (IOError, FileNotFoundError):
                     print("fail")
             
-            result = cycloon_evaluate(pathcache, max_hours)
-            resultfile.write(result)
+            try:
+                result = cycloon_evaluate(pathcache, max_hours)
+                resultfile.write(result)
 
-            print("Evaluating ensemble: " + result)
+                print("Evaluating ensemble: " + result)
             
-            generate_html(pathcache, "cycloon", filename, "2018", sim_timestamp, 24)
+                generate_html(pathcache, "cycloon", filename, "2018", sim_timestamp, 24)
+            except IndexError:
+                print("Error, moving to next")
     
     
     resultfile.write("\n")
