@@ -37,7 +37,7 @@ spaceshot_locations = [
 ]
 
 cycloon_locations = [
-    ("PigeonPoint", 37.185, -122.393)#,
+    ("PigeonPoint", 37.185, -122.393),
     ("Hollister", 36.8492, -121.432)
 ]
 
@@ -57,6 +57,23 @@ def main(y, m, d, h):
     model_time = datetime(y,m,d,h)
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
+    
+    ### Floatloon
+
+
+    if not os.path.exists("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp):
+
+        os.mkdir("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp)
+
+    resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master", "w")
+    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master")
+    try:
+        print("Floatloon")
+        floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
+        resultfile.write("\n")
+    except IndexError:
+        print(name + " failed")
+    
     ### Cycloon
 
 
@@ -75,21 +92,7 @@ def main(y, m, d, h):
             print(name + " failed")
             continue
 
-     ### Floatloon
-
-
-    if not os.path.exists("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp):
-
-        os.mkdir("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp)
-
-    resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master", "w")
-    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master")
-    try:
-        print("Floatloon")
-        floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
-        resultfile.write("\n")
-    except IndexError:
-        print(name + " failed")
+     
         
 
     ### Spaceshot
