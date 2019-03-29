@@ -202,13 +202,12 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
         rise.append((simtime, lat, lon, alt, u, v))
 
     while simtime < end:
-        
+        if alt <= groundelev:
+            break
         simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, alt, -descent_rate, step)
         fall.append((simtime, lat, lon, alt, u, v))
         groundelev = elev.getElevation(lat, lon)
-        if alt <= groundelev:
-            break
-
+        
     if groundelev <= 0:
         while simtime < end:
             simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step)
