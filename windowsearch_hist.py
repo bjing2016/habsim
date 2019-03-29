@@ -48,7 +48,7 @@ def main():
             print(name)
             cycloon_search(name, model_time, lat, lon, resultfile)
             resultfile.write("\n")
-        except IndexError:
+        except ValueError:
             print(name + " failed")
             continue
 
@@ -77,7 +77,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
             sim_timestamp = launchtime.strftime("%Y%m%d%H")
             pathcache = list()
-            filename = location_name + sim_timestamp + "_" + str(rate);
+            filename = location_name + sim_timestamp + "_" + str(rate)
 
 
             resultfile.write("\n" + sim_timestamp + ": ")
