@@ -71,6 +71,8 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
     for d in range(364):
         for rate, alt in cycloon_queue:
+            print("d = " + d)
+        
             launchtime = model_time + timedelta(days=d, hours=launch_hour)
 
             sim_timestamp = launchtime.strftime("%Y%m%d%H")
@@ -98,8 +100,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
                     print("success")
                 except (IOError, FileNotFoundError):
                     print("fail")
-
-        
+            
             result = cycloon_evaluate(pathcache, max_hours)
             resultfile.write(result)
 
