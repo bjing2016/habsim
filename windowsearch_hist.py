@@ -41,7 +41,7 @@ def main():
 
         os.mkdir("/home/bjing/afs-home/WWW/res/floatloon/2018")
 
-    resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/2018master")
+    resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/2018master", "w")
     print("Floatloon")
     floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
     resultfile.write("\n")
