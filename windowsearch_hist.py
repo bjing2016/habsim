@@ -88,7 +88,7 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
         print(launchtime)
         max_hours = max_hours.seconds / 3600 + max_hours.days * 24
 
-        for n in range(1, 21):
+        for n in range(1):
             message = str(launchtime) + "hours,member " + str(n)
             print(message)
             reset()
