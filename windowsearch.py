@@ -213,7 +213,10 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
 
         print("Evaluating ensemble: " + result)
         
-        generate_html(pathcache, "floatloon", filename, model_timestamp, sim_timestamp, 24)
+        try:
+            generate_html(pathcache, "floatloon", filename, model_timestamp, sim_timestamp, 24)
+        except IndexError:
+            continue
     
     
     resultfile.write("\n")
