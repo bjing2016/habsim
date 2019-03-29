@@ -37,7 +37,7 @@ spaceshot_locations = [
 ]
 
 cycloon_locations = [
-    ("PigeonPoint", 37.185, -122.393),
+    ("PigeonPoint", 37.185, -122.393)#,
     ("Hollister", 36.8492, -121.432)
 ]
 
@@ -74,6 +74,23 @@ def main(y, m, d, h):
         except IndexError:
             print(name + " failed")
             continue
+
+     ### Floatloon
+
+
+    if not os.path.exists("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp):
+
+        os.mkdir("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp)
+
+    resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master", "w")
+    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master")
+    try:
+        print("Floatloon")
+        floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
+        resultfile.write("\n")
+    except IndexError:
+        print(name + " failed")
+        
 
     ### Spaceshot
 
@@ -150,6 +167,56 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
     resultfile.write("\n")
 
+
+
+def floatloon_search(location_name, model_time, slat, slon, resultfile):
+    
+    launch_hour = 7 ###
+    max_t_h = 240
+
+    model_timestamp = model_time.strftime("%Y%m%d%H")
+    maxtime = model_time + timedelta(hours = 375)
+    resultfile.write(location_name)
+
+    for d in range(15):
+        launchtime = model_time + timedelta(days=d, hours=launch_hour)
+
+        sim_timestamp = launchtime.strftime("%Y%m%d%H")
+        pathcache = list()
+        filename = location_name + model_timestamp + "_" + sim_timestamp + "_" + str(rate);
+
+
+        resultfile.write("\n" + sim_timestamp + ": ")
+
+        
+        max_hours = maxtime - launchtime
+        print(maxtime)
+        print(launchtime)
+        max_hours = max_hours.seconds / 3600 + max_hours.days * 24
+
+        for n in range(1, 21):
+            message = str(launchtime) + "hours,member " + str(n)
+            print(message)
+            reset()
+            set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
+        
+            try: 
+                rise, fall, coast = simulate(launchtime, slat, slon, 1, CYCLOON_TIMESTEP_S, 0, 1, min(max_t_h,max_hours))
+                pathcache.append((rise, fall, coast))
+                print("success")
+            except (IOError, FileNotFoundError):
+                print("fail")
+
+    
+        result = cycloon_evaluate(pathcache, max_hours)
+        resultfile.write(result)
+
+        print("Evaluating ensemble: " + result)
+        
+        generate_html(pathcache, "floatloon", filename, model_timestamp, sim_timestamp, 24)
+    
+    
+    resultfile.write("\n")
 
 
 def cycloon_evaluate(pathcache, max_hours):

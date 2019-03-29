@@ -98,7 +98,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
                     rise, fall, coast = simulate(launchtime, slat, slon, rate, CYCLOON_TIMESTEP_S, alt, 2, min(max_t_h,max_hours))
                     pathcache.append((rise, fall, coast))
                     print("success")
-                except (IOError, FileNotFoundError):
+                except (IOError, ValueError, FileNotFoundError):
                     print("fail")
             
             try:
