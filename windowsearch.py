@@ -178,7 +178,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
 def floatloon_search(location_name, model_time, slat, slon, resultfile):
     
-    launch_hour = 7 ###
+    launch_hours = [0,6,12,18] ###
     max_t_h = 144
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
@@ -186,46 +186,47 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
     resultfile.write(location_name)
 
     for d in range(15):
-        launchtime = model_time + timedelta(days=d, hours=launch_hour)
+        for launch_hour in launch_hours:
+            launchtime = model_time + timedelta(days=d, hours=launch_hour)
 
-        sim_timestamp = launchtime.strftime("%Y%m%d%H")
-        pathcache = list()
-        filename = location_name + model_timestamp + "_" + sim_timestamp
+            sim_timestamp = launchtime.strftime("%Y%m%d%H")
+            pathcache = list()
+            filename = location_name + model_timestamp + "_" + sim_timestamp
 
 
-        resultfile.write("\n" + sim_timestamp + ": ")
+            resultfile.write("\n" + sim_timestamp + ": ")
 
+            
+            max_hours = maxtime - launchtime
+            print(maxtime)
+            print(launchtime)
+            max_hours = max_hours.seconds / 3600 + max_hours.days * 24
+
+            for n in range(1, 21):
+                message = str(launchtime) + "hours,member " + str(n)
+                print(message)
+                reset()
+                set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
+            
+                try: 
+                    rise, fall, coast = simulate(launchtime, slat, slon, 1, CYCLOON_TIMESTEP_S, 0, 1, min(max_t_h,max_hours))
+                    pathcache.append((rise, fall, coast))
+                    print("success")
+                except (IOError, FileNotFoundError):
+                    print("fail")
         
-        max_hours = maxtime - launchtime
-        print(maxtime)
-        print(launchtime)
-        max_hours = max_hours.seconds / 3600 + max_hours.days * 24
+            result = cycloon_evaluate(pathcache, max_hours)
+            resultfile.write(result)
 
-        for n in range(1, 21):
-            message = str(launchtime) + "hours,member " + str(n)
-            print(message)
-            reset()
-            set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
+            print("Evaluating ensemble: " + result)
+            
+            try:
+                generate_html(pathcache, "floatloon", filename, model_timestamp, sim_timestamp, 24, CYCLOON_TIMESTEP_S)
+            except IndexError:
+                continue
+            
         
-            try: 
-                rise, fall, coast = simulate(launchtime, slat, slon, 1, CYCLOON_TIMESTEP_S, 0, 1, min(max_t_h,max_hours))
-                pathcache.append((rise, fall, coast))
-                print("success")
-            except (IOError, FileNotFoundError):
-                print("fail")
-    
-        result = cycloon_evaluate(pathcache, max_hours)
-        resultfile.write(result)
-
-        print("Evaluating ensemble: " + result)
-        
-        try:
-            generate_html(pathcache, "floatloon", filename, model_timestamp, sim_timestamp, 24, CYCLOON_TIMESTEP_S)
-        except IndexError:
-            continue
-    
-    
-    resultfile.write("\n")
+        resultfile.write("\n")
 
 
 def cycloon_evaluate(pathcache, max_hours):
