@@ -178,7 +178,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
 def floatloon_search(location_name, model_time, slat, slon, resultfile):
     
-    launch_hours = [0,6,12,18] ###
+    launch_hours = [0,3,6,9,12,15,18,21] ###
     max_t_h = 144
 
     model_timestamp = model_time.strftime("%Y%m%d%H")
