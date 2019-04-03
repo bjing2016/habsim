@@ -171,13 +171,13 @@ def get_wind(simtime, lat, lon, alt):
 
     return u, v
 
-def single_step(simtime, lat, lon, alt, ascent_rate, step):
+def single_step(simtime, lat, lon, alt, ascent_rate, step, coefficient = 1):
     u, v = get_wind(simtime, lat, lon, alt)
     dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
     
     alt = alt + step * ascent_rate
-    lat = lat + dlat * step
-    lon = lon + dlon * step
+    lat = lat + dlat * step * coefficient
+    lon = lon + dlon * step * coefficient
     simtime = simtime + timedelta(seconds = step)
 
     return simtime, lat, lon, alt, u, v
@@ -210,7 +210,7 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
         
     if groundelev <= 0:
         while simtime < end:
-            simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step)
+            simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step, coefficient = 0.3)
             groundelev = elev.getElevation(lat, lon)
             coast.append((simtime, lat, lon, 0, u, v))
             if groundelev > 0:
