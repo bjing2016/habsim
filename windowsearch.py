@@ -164,7 +164,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
                 set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
                 try: 
-                    rise, fall, coast = simulate(launchtime, slat, slon, rate, CYCLOON_TIMESTEP_S, alt, 2, min(max_t_h,max_hours))
+                    rise, fall, coast = simulate(launchtime, slat, slon, rate, CYCLOON_TIMESTEP_S, alt, 2, min(max_t_h,max_hours), coefficient=FLOATING_COEFFICIENT)
                     pathcache.append((rise, fall, coast))
                     print("success")
                 except (IOError, FileNotFoundError):
@@ -216,7 +216,7 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
                 set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
                 try: 
-                    rise, fall, coast = simulate(launchtime, slat, slon, 1, CYCLOON_TIMESTEP_S, 0, 1, min(max_t_h,max_hours), FLOATING_COEFFICIENT)
+                    rise, fall, coast = simulate(launchtime, slat, slon, 1, CYCLOON_TIMESTEP_S, 0, 1, min(max_t_h,max_hours), coefficient=FLOATING_COEFFICIENT)
                     pathcache.append((rise, fall, coast))
                     print("success")
                 except (IOError, FileNotFoundError):
