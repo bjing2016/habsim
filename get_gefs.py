@@ -21,7 +21,7 @@ order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 
 
 def complete_run(y, m, d, h, path):
 
-    for t in range(0, 384+6, 6):
+    for t in range(54, 384+6, 6):
         for n in range(1, 21):
             single_run(y,m,d,h,t,n, path)
 

@@ -38,7 +38,7 @@ spaceshot_locations = [
 
 cycloon_locations = [
     ("PigeonPoint", 37.185, -122.393),
-    ("Hollister", 36.8492, -121.432)
+    ("AnoNuevo", 37.1046, -122.3249)
 ]
 
 
@@ -75,8 +75,10 @@ def main(y, m, d, h):
     resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master", "w")
     print("Writing to master file " + "/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master")
     print("Floatloon")
-    floatloon_search("PigeonPoint", model_time, 37.179, -122.39, resultfile)
-    resultfile.write("\n")
+
+    for (name, lat, lon) in floatloon_locations:
+        floatloon_search(name, model_time, lat, lon, resultfile)
+        resultfile.write("\n")
     
     ### Cycloon
 
