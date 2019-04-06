@@ -26,17 +26,10 @@ def complete_run(y, m, d, h, path):
             single_run(y,m,d,h,t,n, path)
 
 def single_run(y,m,d,h,t,n, path):
-    
 
-    
-    url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
-        .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
-    print(url)
-    ## url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20190302/00/pgrb2/gep01.t00z.pgrb2f12"
     base = datetime(y, m, d, h)
     basestring = base.strftime("%Y%m%d%H")    
     pred = base + timedelta(hours=t)
-
     predstring = pred.strftime("%Y%m%d%H")
     savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
 
@@ -44,6 +37,28 @@ def single_run(y,m,d,h,t,n, path):
         return
 
     print("Downloading " + savename)
+    download(y,m,d,h,t,n,path)            
+    
+    print("Unpacking " + savename)
+    data = grb2_to_array(path + "/" + savename)
+    data = np.float32(data)
+    
+    print("Saving " + savename)
+    np.save(path + "/" + savename + ".npy", data)
+    
+    print("Deleting " + savename)
+    os.remove(path + "/" + savename + ".grb2")
+
+def download(y,m,d,h,t,n,path):
+    url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
+        .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
+    print(url)
+    ## url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20190302/00/pgrb2/gep01.t00z.pgrb2f12"
+    base = datetime(y, m, d, h)
+    basestring = base.strftime("%Y%m%d%H")    
+    pred = base + timedelta(hours=t)
+    predstring = pred.strftime("%Y%m%d%H")
+    savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
 
     while True:
         try:
@@ -53,19 +68,7 @@ def single_run(y,m,d,h,t,n, path):
             print("Error, trying again in 10s")
             time.sleep(10)
             pass
-            
-    print("Unpacking " + savename)
-
-    data = grb2_to_array(path + "/" + savename)
-
-    print("Saving " + savename)
-
-    np.save(path + "/" + savename + ".npy", data)
-    print("Deleting " + savename)
-
-    os.remove(path + "/" + savename + ".grb2")
-
-
+    
 
 def grb2_to_array(filename): 
     ## Array format: array[u,v][Pressure][Lat][Lon] ##
@@ -74,8 +77,6 @@ def grb2_to_array(filename):
     
     
     dataset = np.zeros((2, len(levels), 181, 360))
-
-
 
     u = grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels)
     v = grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels)
@@ -98,12 +99,13 @@ def grb2_to_array(filename):
     return dataset
 
 
+if __name__ == "__main__":
 
-year, month, day, hour = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
+    year, month, day, hour = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
 
-complete_run(year, month, day, hour, "../gefs")
+    complete_run(year, month, day, hour, "../gefs")
 
-yesterday = datetime(year, month, day-1)
-yesterday_string = yesterday.strftime("%Y%m%d")
+    yesterday = datetime(year, month, day-1)
+    yesterday_string = yesterday.strftime("%Y%m%d")
 
-os.system("rm ../gefs/" + yesterday_string + "*")
+    os.system("rm ../gefs/" + yesterday_string + "*")

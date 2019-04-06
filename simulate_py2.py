@@ -7,8 +7,10 @@ import math
 import time
 
 EARTH_RADIUS = float(6.371e6)
+DATA_STEP = 6 # hrs
 
 levels = None
+
 
 GFSANL = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
@@ -49,8 +51,8 @@ def reset():
     datacache = {}
 
 
-def get_basetime(simtime, hrs):
-    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / hrs) * hrs))
+def get_basetime(simtime):
+    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / DATA_STEP) * DATA_STEP))
 
 ### Cache of datacubes and files. ###
 ### Must be reset for each ensemble member ##
@@ -65,7 +67,7 @@ def get_file(timestamp):
     if timestamp not in filecache.keys():
 
         name = timestamp.strftime("%Y%m%d%H")
-        filecache[timestamp] = np.load(path + "/" + prefix + name + suffix)
+        filecache[timestamp] = np.load(path + "/" + prefix + name + suffix, "r")
         
     return filecache[timestamp]
 
@@ -136,13 +138,9 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     lon = ((lon % 360) - lon_offset) * points_per_degree
     lon_res = (int(math.floor(lon)), 1 - lon % 1)
     
-    base_timestamp = get_basetime(sim_timestamp, step_hours)
+    base_timestamp = get_basetime(sim_timestamp)
     
     offset = sim_timestamp - base_timestamp
-  ##  if offset >= data_step:
-  ##      base_timestamp = base_timestamp + data_step
-  ##      offset = offset - data_step
-
     time_f = 1-float(offset.seconds)/data_step.seconds
 
     time_res = (base_timestamp, time_f)
