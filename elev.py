@@ -29,7 +29,7 @@ def load_elev(west_edge, south_edge):
     
     path = path + "_20101117_gmted_mea300.npy"
 
-    data = numpy.load(path, "r")
+    data = numpy.load(path)
     elev_cache[(west_edge, south_edge)] = data
     return data
 
