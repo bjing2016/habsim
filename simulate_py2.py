@@ -182,7 +182,7 @@ def single_step(simtime, lat, lon, alt, ascent_rate, step, coefficient = 1):
 
     return simtime, lat, lon, alt, u, v
 
-def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration, start_alt = None):
+def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration, start_alt = None, coefficient = 1):
     
     lat, lon = slat, slon
     if start_alt == None:
@@ -210,7 +210,7 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
         
     if groundelev <= 0:
         while simtime < end:
-            simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step, coefficient=1)
+            simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step, coefficient)
             groundelev = elev.getElevation(lat, lon)
             coast.append((simtime, lat, lon, 0, u, v))
             if groundelev > 0:

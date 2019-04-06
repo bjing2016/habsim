@@ -61,7 +61,7 @@ hrs = 6
 sourcepath = "../gefs"
 mylvls = GEFS
 
-
+FLOATING_COEFFICIENT = 0.5
 
 EARTH_RADIUS_IN_KM = float(6.371e3) ##km
 
@@ -215,7 +215,7 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
                 set_constants(points_per_degree, lon_offset, hrs, mylvls, sourcepath, model_timestamp + "_", "_" + str(n).zfill(2) + ".npy")
             
                 try: 
-                    rise, fall, coast = simulate(launchtime, slat, slon, 1, CYCLOON_TIMESTEP_S, 0, 1, min(max_t_h,max_hours))
+                    rise, fall, coast = simulate(launchtime, slat, slon, 1, CYCLOON_TIMESTEP_S, 0, 1, min(max_t_h,max_hours), FLOATING_COEFFICIENT)
                     pathcache.append((rise, fall, coast))
                     print("success")
                 except (IOError, FileNotFoundError):
