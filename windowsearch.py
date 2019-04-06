@@ -36,15 +36,16 @@ spaceshot_locations = [
    # ("MartinsBeach", 37.3843098, -122.3928558, WEST, SPACESHOT_DEFAULT_THRESHHOLD)
 ]
 
-cycloon_locations = [
-    ("PigeonPoint", 37.185, -122.393),
-    ("AnoNuevo", 37.1046, -122.3249)
+floatloon_locations = [
+    ("AnoNuevo", 37.1046, -122.3249),
+    ("PigeonPoint", 37.185, -122.393)
+    
 ]
 
 
 
 
-floatloon_locations = [
+cycloon_locations = [
     ("PigeonPoint",  37.179, -122.39),
     ("Hollister", 36.8492, -121.432)
 ]
@@ -148,7 +149,6 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
 
             
             max_hours = maxtime - launchtime
-            print(maxtime)
             print(launchtime)
             max_hours = max_hours.seconds / 3600 + max_hours.days * 24
 
