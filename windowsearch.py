@@ -46,6 +46,7 @@ floatloon_locations = [
 
 
 cycloon_locations = [
+    ("ElJarro", 37.0227, -122.222),
     ("PigeonPoint",  37.179, -122.39),
     ("Hollister", 36.8492, -121.432)
 ]
