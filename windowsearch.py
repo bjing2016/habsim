@@ -12,6 +12,8 @@ EAST = 1
 WEST = 0
 
 
+#destination = "/home/bjing/afs-home/WWW/res/"
+destination = "../"
 ### How far west does the balloon need to go?
 ### How long does it need to stay there?
 SPACESHOT_DEFAULT_THRESHHOLD = 22 ## km
@@ -74,12 +76,12 @@ def main(y, m, d, h):
     ### Floatloon
 
 
-    if not os.path.exists("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp):
+    if not os.path.exists(destination + "floatloon/" + model_timestamp):
 
-        os.mkdir("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp)
+        os.mkdir(destination + "floatloon/" + model_timestamp)
 
-    resultfile = open("/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master", "w")
-    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/floatloon/" + model_timestamp + "master")
+    resultfile = open(destination + "floatloon/" + model_timestamp + "master", "w")
+    print("Writing to master file " + model_timestamp + "master")
     print("Floatloon")
 
     for (name, lat, lon) in floatloon_locations:
@@ -89,12 +91,12 @@ def main(y, m, d, h):
     ### Cycloon
 
 
-    if not os.path.exists("/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp):
+    if not os.path.exists(destination + "cycloon/" + model_timestamp):
 
-        os.mkdir("/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp)
+        os.mkdir(destination + "cycloon/" + model_timestamp)
 
-    resultfile = open("/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp + "master", "w")
-    print("Writing to master file " + "/home/bjing/afs-home/WWW/res/cycloon/" + model_timestamp + "master")
+    resultfile = open(destination + "cycloon/" + model_timestamp + "master", "w")
+    print("Writing to master file "  + model_timestamp + "master")
     for name, lat, lon in cycloon_locations:
         try:
             print(name)
@@ -109,11 +111,11 @@ def main(y, m, d, h):
 
     ### Spaceshot
 
-    if not os.path.exists("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp):
+    if not os.path.exists(destination + "/spaceshot/" + model_timestamp):
 
-        os.mkdir("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp)
+        os.mkdir(destination + "spaceshot/" + model_timestamp)
 
-    resultfile = open("/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master", "w")
+    resultfile = open(destination + "spaceshot/" + model_timestamp + "master", "w")
     print("Writing to master file " + "/home/bjing/afs-home/WWW/res/spaceshot/" + model_timestamp + "master")
     for name, lat, lon, whichcoast, distance in spaceshot_locations:
         try:
@@ -346,7 +348,7 @@ def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, m
     ## As hours --- only works if time_step goes evenly into one hour
     __, slat, slon, __, __, __ = pathcache[0][0][0]
 
-    path = "/home/bjing/afs-home/WWW/res/"+ folder + "/" + model_timestamp + "/" + filename
+    path = destination+ folder + "/" + model_timestamp + "/" + filename
     f = open(path, "w")
 
     f.write(part1 + str(slat) + "," + str(slon))

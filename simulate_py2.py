@@ -67,7 +67,7 @@ def get_file(timestamp):
     if timestamp not in filecache.keys():
 
         name = timestamp.strftime("%Y%m%d%H")
-        filecache[timestamp] = np.load(path + "/" + prefix + name + suffix, "r")
+        filecache[timestamp] = np.load(path + "/" + prefix + name + suffix)
         
     return filecache[timestamp]
 
