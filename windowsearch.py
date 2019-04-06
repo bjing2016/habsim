@@ -12,8 +12,8 @@ EAST = 1
 WEST = 0
 
 
-#destination = "/home/bjing/afs-home/WWW/res/"
-destination = "../"
+destination = "/home/bjing/afs-home/WWW/res/"
+#destination = "../"
 ### How far west does the balloon need to go?
 ### How long does it need to stay there?
 SPACESHOT_DEFAULT_THRESHHOLD = 22 ## km
