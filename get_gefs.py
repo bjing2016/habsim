@@ -30,11 +30,11 @@ def worker():
 
 def complete_run(y, m, d, h, path):
     
-    for t in range(6, 12, 6):
+    for t in range(0, 384+6, 6):
         for n in range(1, 21):
             q.put((y,m,d,h,t,n,path))
             
-    for i in range(2):
+    for i in range(15):
         th = Thread(target=worker)
         th.start()
     
