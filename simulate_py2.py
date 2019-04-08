@@ -3,6 +3,7 @@ import math
 import elev
 from datetime import datetime, timedelta
 import math
+import bisect
 import time
 
 EARTH_RADIUS = float(6.371e6)
@@ -111,18 +112,12 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
 
 def get_pressure_bound(alt):
     pressure = alt_to_hpa(alt)
-    if pressure <= levels[0]:
-        pressure_res = 0, 1
-    elif pressure >= levels[len(levels)-1]:
-        pressure_res = len(levels)-2, 0
-    else:
-        for i in range(1, len(levels)):
-            if pressure<=levels[i]:
-                fraction = (levels[i]-pressure)/float(levels[i]-levels[i-1])
-                pressure_res = (i - 1, fraction)
-                break
-    return pressure_res
-
+    pressure_i = bisect.bisect_left(levels, pressure)
+    if pressure_i == len(levels):
+        return pressure_i-2, 0
+    if pressure_i == 0:
+        return 0, 1
+    return pressure_i - 1, (levels[pressure_i]-pressure)/float(levels[pressure_i] - levels[pressure_i-1])
 
 ## Credits to KMarshland ##
 def alt_to_hpa(altitude):
@@ -139,10 +134,8 @@ def lin_to_angular_velocities(lat, lon, u, v):
 
 
 def get_wind(simtime, lat, lon, alt):
-    bounds = get_bounds_and_fractions(lat, lon, alt, simtime)
-        
+    bounds = get_bounds_and_fractions(lat, lon, alt, simtime)  
     u, v = get_wind_helper(*bounds)
-
     return u, v
 
 def single_step(simtime, lat, lon, alt, ascent_rate, step, coefficient = 1):
@@ -153,7 +146,6 @@ def single_step(simtime, lat, lon, alt, ascent_rate, step, coefficient = 1):
     lat = lat + dlat * step * coefficient
     lon = lon + dlon * step * coefficient
     simtime = simtime + timedelta(seconds = step)
-
     return simtime, lat, lon, alt, u, v
 
 def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration, start_alt = None, coefficient = 1):

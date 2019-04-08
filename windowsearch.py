@@ -68,16 +68,7 @@ FLOATING_COEFFICIENT = 0.5
 
 EARTH_RADIUS_IN_KM = float(6.371e3) ##km
 
-
-
-def main(y, m, d, h):
-    model_time = datetime(y,m,d,h)
-
-    model_timestamp = model_time.strftime("%Y%m%d%H")
-    
-    ### Floatloon
-
-
+'''
     if not os.path.exists(destination + "floatloon/" + model_timestamp):
 
         os.mkdir(destination + "floatloon/" + model_timestamp)
@@ -92,7 +83,7 @@ def main(y, m, d, h):
     
     ### Cycloon
 
-'''
+
     if not os.path.exists(destination + "cycloon/" + model_timestamp):
 
         os.mkdir(destination + "cycloon/" + model_timestamp)
@@ -109,7 +100,16 @@ def main(y, m, d, h):
             continue
 
      
-        
+'''        
+
+def main(y, m, d, h):
+    model_time = datetime(y,m,d,h)
+
+    model_timestamp = model_time.strftime("%Y%m%d%H")
+    
+    ### Floatloon
+
+
 
     ### Spaceshot
 
@@ -124,10 +124,10 @@ def main(y, m, d, h):
             print(name)
             spaceshot_search(name, whichcoast, distance, model_time, lat, lon, resultfile)
             resultfile.write("\n")
-        except IndexError:
+        except ValueError:
             print(name + " failed")
             continue
-'''
+
 def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
     sunset = 3 + 24 ## UTC ### 
@@ -280,7 +280,7 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
 
     resultfile.write(location_name)
 
-    for t in range(18, 384, 24):
+    for t in range(0, 384, 24):
         launchtime = model_time + timedelta(hours = t)
         sim_timestamp = launchtime.strftime("%Y%m%d%H")
         pathcache = list()
@@ -298,12 +298,15 @@ def spaceshot_search(location_name, whichcoast, distance, model_time, slat, slon
                 pathcache.append((rise, fall, coast))
                 print("success")
             except (IOError, FileNotFoundError):
-                print("fail")
+                print("faillll")
 
-        result = spaceshot_evaluate(pathcache, whichcoast, distance)
-        resultfile.write(str(result))
-        print("Proability: " + str(result))
-        generate_html(pathcache, "spaceshot", filename, model_timestamp, sim_timestamp, 6, SPACESHOT_TIMESTEP_S)
+        try:
+            result = spaceshot_evaluate(pathcache, whichcoast, distance)
+            resultfile.write(str(result))
+            print("Proability: " + str(result))
+            generate_html(pathcache, "spaceshot", filename, model_timestamp, sim_timestamp, 6, SPACESHOT_TIMESTEP_S)
+        except (IndexError):
+            print("Failed")
     
     resultfile.write("\n")
 
