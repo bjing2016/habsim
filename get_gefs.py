@@ -10,21 +10,6 @@ from datetime import datetime, timedelta
 from threading import Thread
 import queue
 
-
-class Downloader(Thread):
-    def __init__(self, y,m,d,h,t,n,path):
-        super(Downloader, self).__init__()
-        self.y = y
-        self.m = m
-        self.d = d
-        self.h = h
-        self.t = t
-        self.n = n
-        self.path = path
-    def run(self):
-        single_run(self.y,self.m,self.d,self.h,self.t,self.n,self.path)
-
-
 levels = [10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
           500, 550, 600, 650, 700, 750, 800, 850,\
@@ -52,7 +37,6 @@ def complete_run(y, m, d, h, path):
 
     for i in range(15):
         t = Thread(target=worker)
-        t.daemon = True
         t.start()
     t.join()
 def single_run(y,m,d,h,t,n, path):
