@@ -37,7 +37,6 @@ def set_constants(ppd, lo, hrs, lvls, pth, prfx, sffx):
     path = pth
     suffix = sffx
 
-
 def reset():
     global filecache
     filecache = {}
@@ -53,10 +52,8 @@ filecache = {}
 
 def get_file(timestamp):
     if timestamp not in filecache.keys():
-
         name = timestamp.strftime("%Y%m%d%H")
         filecache[timestamp] = np.load(path + "/" + prefix + name + suffix, "r")
-        
     return filecache[timestamp]
 
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###
@@ -109,7 +106,6 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     pressure_res = get_pressure_bound(alt)
     return lat_res, lon_res, pressure_res, time_res
 
-
 def get_pressure_bound(alt):
     pressure = alt_to_hpa(alt)
     pressure_i = bisect.bisect_left(levels, pressure)
@@ -131,7 +127,6 @@ def lin_to_angular_velocities(lat, lon, u, v):
     dlat = math.degrees(v / EARTH_RADIUS)
     dlon = math.degrees(u / (EARTH_RADIUS * math.cos(math.radians(lat))))
     return dlat, dlon
-
 
 def get_wind(simtime, lat, lon, alt):
     bounds = get_bounds_and_fractions(lat, lon, alt, simtime)  

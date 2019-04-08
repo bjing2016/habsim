@@ -68,7 +68,14 @@ FLOATING_COEFFICIENT = 0.5
 
 EARTH_RADIUS_IN_KM = float(6.371e3) ##km
 
-'''
+
+def main(y, m, d, h):
+    model_time = datetime(y,m,d,h)
+
+    model_timestamp = model_time.strftime("%Y%m%d%H")
+    
+    ### Floatloon
+
     if not os.path.exists(destination + "floatloon/" + model_timestamp):
 
         os.mkdir(destination + "floatloon/" + model_timestamp)
@@ -97,17 +104,7 @@ EARTH_RADIUS_IN_KM = float(6.371e3) ##km
             resultfile.write("\n")
         except IndexError:
             print(name + " failed")
-            continue
-
-     
-'''        
-
-def main(y, m, d, h):
-    model_time = datetime(y,m,d,h)
-
-    model_timestamp = model_time.strftime("%Y%m%d%H")
-    
-    ### Floatloon
+            continue  
 
 
 
