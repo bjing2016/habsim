@@ -30,14 +30,17 @@ def worker():
 
 def complete_run(y, m, d, h, path):
     
-    for t in range(0, 384+6, 6):
+    for t in range(6, 12, 6):
         for n in range(1, 21):
-            q.put((y,m,d,h,t,n, path))
-
-    for i in range(50):
-        t = Thread(target=worker)
-        t.start()
+            q.put((y,m,d,h,t,n,path))
+            
+    for i in range(2):
+        th = Thread(target=worker)
+        th.start()
     
+    while not q.empty():
+        time.sleep(10)
+
 def single_run(y,m,d,h,t,n, path):
 
     base = datetime(y, m, d, h)
@@ -76,7 +79,6 @@ def download(y,m,d,h,t,n,path):
 
     while True:
         try:
-            
             urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
             break
         except (TimeoutError, urllib.error.URLError, ConnectionResetError):
