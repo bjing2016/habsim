@@ -17,7 +17,6 @@ levels = [10, 20, 30, 50, 70,\
 
 
 ## One-indexed positions of the above levels in the result of grbs.select
-
 order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
 
 q = queue.Queue()
@@ -35,7 +34,7 @@ def complete_run(y, m, d, h, path):
         for n in range(1, 21):
             q.put((y,m,d,h,t,n, path))
 
-    for i in range(15):
+    for i in range(50):
         t = Thread(target=worker)
         t.start()
     t.join()
@@ -48,6 +47,7 @@ def single_run(y,m,d,h,t,n, path):
     savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
 
     if os.path.exists(path+'/'+savename+".npy"):
+        print("Skipping " + savename)
         return
 
     print("Downloading " + savename)
@@ -82,7 +82,6 @@ def download(y,m,d,h,t,n,path):
         except (TimeoutError, urllib.error.URLError, ConnectionResetError):
             print("Error, trying again in 10s")
             time.sleep(10)
-            pass
     
 
 def grb2_to_array(filename): 
