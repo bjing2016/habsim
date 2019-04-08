@@ -3,14 +3,10 @@ import math
 import elev
 from datetime import datetime, timedelta
 import math
-# from scipy.stats import norm
 import time
 
 EARTH_RADIUS = float(6.371e6)
 DATA_STEP = 6 # hrs
-
-levels = None
-
 
 GFSANL = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
@@ -29,27 +25,21 @@ GEFS = [10, 20, 30, 50, 70,\
 def set_constants(ppd, lo, hrs, lvls, pth, prfx, sffx):
     global points_per_degree
     global lon_offset
-    global step_hours
-    global data_step
     global levels
     global path
     global prefix
     global suffix
     points_per_degree = ppd
     lon_offset = lo
-    step_hours = hrs
-    data_step = timedelta(hours = step_hours)
     levels = lvls
     prefix = prfx
     path = pth
     suffix = sffx
 
+
 def reset():
     global filecache
-    global datacache
     filecache = {}
-    datacache = {}
-
 
 def get_basetime(simtime):
     return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / DATA_STEP) * DATA_STEP))
@@ -60,9 +50,6 @@ def get_basetime(simtime):
 ### Filecache is in the form (datetime). ###
 filecache = {}
 
-### Cache is in the form (datetime, lower_lat_index, lower_lon_index) ###
-datacache = {}
-
 def get_file(timestamp):
     if timestamp not in filecache.keys():
 
@@ -70,17 +57,6 @@ def get_file(timestamp):
         filecache[timestamp] = np.load(path + "/" + prefix + name + suffix, "r")
         
     return filecache[timestamp]
-
-### Extracts datacube from cache ###
-def get_or_fetch(timestamp , lat_index, lon_index):
-    global datacache
-    
-    if (timestamp, lat_index, lon_index) not in datacache.keys():
-        data = get_file(timestamp)
-        datacache[(timestamp, lat_index, lon_index)] = data[:,:,lat_index:lat_index+2,lon_index:lon_index+2]
-
-   
-    return datacache[(timestamp,lat_index,lon_index)]
 
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###
 ### Handles file and cache import ###
@@ -90,18 +66,16 @@ def get_wind_helper(lat_res, lon_res, level_res, time_res):
     lon_i, lon_f = lon_res
     level_i, level_f = level_res
     timestamp, time_f = time_res
-    get_or_fetch(timestamp, lat_i, lon_i)
-    get_or_fetch(timestamp+data_step, lat_i, lon_i)
     
-    data1 = datacache[(timestamp, lat_i, lon_i)]
-    data2 = datacache[(timestamp + data_step), lat_i, lon_i]
+    data1 = get_file(timestamp)
+    data2 = get_file(timestamp + timedelta(hours=6))
 
     pressure_filter = np.array([level_f, 1-level_f]).reshape(1,2,1,1)
     lat_filter = np.array([lat_f, 1-lat_f]).reshape(1,1,2,1)
     lon_filter = np.array([lon_f, 1-lon_f]).reshape(1,1,1,2)
     
-    cube1 = data1[:,level_i:level_i+2]
-    cube2 = data2[:,level_i:level_i+2]
+    cube1 = data1[:,level_i:level_i+2,lat_i:lat_i+2, lon_i:lon_i+2]
+    cube2 = data2[:,level_i:level_i+2,lat_i:lat_i+2, lon_i:lon_i+2]
 
     u1 = np.sum(cube1[0] * pressure_filter * lat_filter * lon_filter)
     v1 = np.sum(cube1[1] * pressure_filter * lat_filter * lon_filter)
@@ -118,7 +92,24 @@ def get_wind_helper(lat_res, lon_res, level_res, time_res):
 ###     return lat_res, lon_res, pressure_res, time_res ###
 def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     lat_res, lon_res, pressure_res = None, None, None
+        
+    lat = 90 - lat
+    lat = lat * points_per_degree
+    lat_res = (int(math.floor(lat)), 1 - lat % 1)
 
+    lon = ((lon % 360) - lon_offset) * points_per_degree
+    lon_res = (int(math.floor(lon)), 1 - lon % 1)
+    
+    base_timestamp = get_basetime(sim_timestamp)
+    offset = sim_timestamp - base_timestamp
+    time_f = 1-float(offset.seconds)/(3600*6)
+    time_res = (base_timestamp, time_f)
+    
+    pressure_res = get_pressure_bound(alt)
+    return lat_res, lon_res, pressure_res, time_res
+
+
+def get_pressure_bound(alt):
     pressure = alt_to_hpa(alt)
     if pressure <= levels[0]:
         pressure_res = 0, 1
@@ -130,22 +121,7 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
                 fraction = (levels[i]-pressure)/float(levels[i]-levels[i-1])
                 pressure_res = (i - 1, fraction)
                 break
-            
-    lat = 90 - lat
-    lat = lat * points_per_degree
-    lat_res = (int(math.floor(lat)), 1 - lat % 1)
-
-    lon = ((lon % 360) - lon_offset) * points_per_degree
-    lon_res = (int(math.floor(lon)), 1 - lon % 1)
-    
-    base_timestamp = get_basetime(sim_timestamp)
-    
-    offset = sim_timestamp - base_timestamp
-    time_f = 1-float(offset.seconds)/data_step.seconds
-
-    time_res = (base_timestamp, time_f)
-
-    return lat_res, lon_res, pressure_res, time_res
+    return pressure_res
 
 
 ## Credits to KMarshland ##
@@ -213,7 +189,4 @@ def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, m
             coast.append((simtime, lat, lon, 0, u, v))
             if groundelev > 0:
                 break
-            
-
-
     return rise, fall, coast ### (rise, fall, coast)

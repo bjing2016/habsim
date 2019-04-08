@@ -12,8 +12,8 @@ EAST = 1
 WEST = 0
 
 
-destination = "/home/bjing/afs-home/WWW/res/"
-#destination = "../"
+#destination = "/home/bjing/afs-home/WWW/res/"
+destination = "../"
 ### How far west does the balloon need to go?
 ### How long does it need to stay there?
 SPACESHOT_DEFAULT_THRESHHOLD = 22 ## km
@@ -68,6 +68,8 @@ FLOATING_COEFFICIENT = 0.5
 
 EARTH_RADIUS_IN_KM = float(6.371e3) ##km
 
+
+
 def main(y, m, d, h):
     model_time = datetime(y,m,d,h)
 
@@ -90,7 +92,7 @@ def main(y, m, d, h):
     
     ### Cycloon
 
-
+'''
     if not os.path.exists(destination + "cycloon/" + model_timestamp):
 
         os.mkdir(destination + "cycloon/" + model_timestamp)
@@ -125,7 +127,7 @@ def main(y, m, d, h):
         except IndexError:
             print(name + " failed")
             continue
-
+'''
 def cycloon_search(location_name, model_time, slat, slon, resultfile):
     
     sunset = 3 + 24 ## UTC ### 
@@ -194,7 +196,7 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
     maxtime = model_time + timedelta(hours = 375)
     resultfile.write(location_name)
 
-    for d in range(15):
+    for d in range(2, 3): #15
         for launch_hour in launch_hours:
             launchtime = model_time + timedelta(days=d, hours=launch_hour)
 
@@ -348,7 +350,7 @@ def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, m
     ## As hours --- only works if time_step goes evenly into one hour
     __, slat, slon, __, __, __ = pathcache[0][0][0]
 
-    path = destination+ folder + "/" + model_timestamp + "/" + filename
+    path = destination+ folder + "/" + model_timestamp + "/" + filename + ".html"
     f = open(path, "w")
 
     f.write(part1 + str(slat) + "," + str(slon))
