@@ -22,7 +22,7 @@ order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 
 q = queue.Queue()
 
 def worker():
-    while True:
+    while not q.empty():
         item = q.get()
         single_run(*item)
         q.task_done()
@@ -37,7 +37,7 @@ def complete_run(y, m, d, h, path):
     for i in range(50):
         t = Thread(target=worker)
         t.start()
-    t.join()
+    
 def single_run(y,m,d,h,t,n, path):
 
     base = datetime(y, m, d, h)
