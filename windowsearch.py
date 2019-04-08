@@ -193,7 +193,7 @@ def floatloon_search(location_name, model_time, slat, slon, resultfile):
     maxtime = model_time + timedelta(hours = 375)
     resultfile.write(location_name)
 
-    for d in range(2, 3): #15
+    for d in range(15): #15
         for launch_hour in launch_hours:
             launchtime = model_time + timedelta(days=d, hours=launch_hour)
 
