@@ -7,6 +7,22 @@ import urllib
 import sys
 from datetime import datetime, timedelta
 
+from threading import Thread
+import queue
+
+
+class Downloader(Thread):
+    def __init__(self, y,m,d,h,t,n,path):
+        super(Downloader, self).__init__()
+        self.y = y
+        self.m = m
+        self.d = d
+        self.h = h
+        self.t = t
+        self.n = n
+        self.path = path
+    def run(self):
+        single_run(self.y,self.m,self.d,self.h,self.t,self.n,self.path)
 
 
 levels = [10, 20, 30, 50, 70,\
@@ -19,12 +35,26 @@ levels = [10, 20, 30, 50, 70,\
 
 order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
 
-def complete_run(y, m, d, h, path):
+q = queue.Queue()
 
+def worker():
+    while True:
+        item = q.get()
+        single_run(*item)
+        q.task_done()
+
+
+def complete_run(y, m, d, h, path):
+    
     for t in range(0, 384+6, 6):
         for n in range(1, 21):
-            single_run(y,m,d,h,t,n, path)
+            q.put((y,m,d,h,t,n, path))
 
+    for i in range(15):
+        t = Thread(target=worker)
+        t.daemon = True
+        t.start()
+    t.join()
 def single_run(y,m,d,h,t,n, path):
 
     base = datetime(y, m, d, h)
@@ -52,7 +82,7 @@ def single_run(y,m,d,h,t,n, path):
 def download(y,m,d,h,t,n,path):
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
-    print(url)
+    ##print(url)
     ## url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20190302/00/pgrb2/gep01.t00z.pgrb2f12"
     base = datetime(y, m, d, h)
     basestring = base.strftime("%Y%m%d%H")    
@@ -62,6 +92,7 @@ def download(y,m,d,h,t,n,path):
 
     while True:
         try:
+            
             urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
             break
         except (TimeoutError, urllib.error.URLError, ConnectionResetError):
