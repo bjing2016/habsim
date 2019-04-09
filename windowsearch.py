@@ -39,9 +39,9 @@ spaceshot_locations = [
 ]
 
 floatloon_locations = [
- 
+  ("MillCreek", 35.9832,-121.5),
  ("Limantour", 38.024,-122.88),
- ("MillCreek", 35.9832,-121.496),
+
 
 
  #   ("PointReyes", 37.982, -123.067),
