@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 from threading import Thread
 import queue
+import socket
 
 levels = [10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
@@ -20,6 +21,7 @@ levels = [10, 20, 30, 50, 70,\
 order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
 
 q = queue.Queue()
+socket.setdefaulttimeout(10)
 
 def worker():
     while not q.empty():
@@ -54,7 +56,22 @@ def single_run(y,m,d,h,t,n, path):
         return
 
     print("Downloading " + savename)
-    download(y,m,d,h,t,n,path)            
+
+
+
+    url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
+        .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
+    ##print(url)
+    ## url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20190302/00/pgrb2/gep01.t00z.pgrb2f12"
+    while True:
+        try:
+            urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
+            break
+        except (TimeoutError, urllib.error.URLError, ConnectionResetError, socket.timeout):
+            print("Error " + savename + ", trying again in 10s")
+            time.sleep(10)
+    
+     
     
     print("Unpacking " + savename)
     data = grb2_to_array(path + "/" + savename)
@@ -65,26 +82,6 @@ def single_run(y,m,d,h,t,n, path):
     
     print("Deleting " + savename)
     os.remove(path + "/" + savename + ".grb2")
-
-def download(y,m,d,h,t,n,path):
-    url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
-        .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
-    ##print(url)
-    ## url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20190302/00/pgrb2/gep01.t00z.pgrb2f12"
-    base = datetime(y, m, d, h)
-    basestring = base.strftime("%Y%m%d%H")    
-    pred = base + timedelta(hours=t)
-    predstring = pred.strftime("%Y%m%d%H")
-    savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
-
-    while True:
-        try:
-            urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
-            break
-        except (TimeoutError, urllib.error.URLError, ConnectionResetError):
-            print("Error, trying again in 10s")
-            time.sleep(10)
-    
 
 def grb2_to_array(filename): 
     ## Array format: array[u,v][Pressure][Lat][Lon] ##
