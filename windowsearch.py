@@ -39,10 +39,15 @@ spaceshot_locations = [
 ]
 
 floatloon_locations = [
-    ("PointReyes", 37.982, -123.067),
-    ("BigSur", 36.2988, -121.9035),
-    ("ElJarro", 37.0127, -122.222),
-    ("AnoNuevo", 37.1046, -122.3249),
+ 
+ ("Limantour", 38.024,-122.88),
+  ("MillCreek", 38.024,-122.88),
+
+
+ #   ("PointReyes", 37.982, -123.067),
+ #   ("BigSur", 36.2988, -121.9035),
+ #   ("ElJarro", 37.0127, -122.222),
+#    ("AnoNuevo", 37.1046, -122.3249),
     ("PigeonPoint",  37.179, -122.39)
 
     
