@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./:/home/run
+    tty: true
+    expose:
+      - 5000
+    ports:
+      - 5000:5000
+    environment:
+      - FLASK_DEBUG=1

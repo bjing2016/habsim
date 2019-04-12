@@ -389,4 +389,6 @@ def generate_html(pathcache, folder, filename, model_timestamp, sim_timestamp, m
     f.write(text_output)
     f.write(part4 + part5)
 
-main(int(sys.argv[1]), int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4]))
+if __name__ == "__main__":
+    
+    main(int(sys.argv[1]), int(sys.argv[2]),int(sys.argv[3]),int(sys.argv[4]))

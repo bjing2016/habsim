@@ -16,6 +16,8 @@ levels = [10, 20, 30, 50, 70,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
 
+## Array format: array[u,v][Pressure][Lat][Lon] ##
+## Currently [lat 90 to -90][lon 0 to 359]
 
 ## One-indexed positions of the above levels in the result of grbs.select
 order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
@@ -29,19 +31,15 @@ def worker():
         single_run(*item)
         q.task_done()
 
-
 def complete_run(y, m, d, h, path):
-    
     for t in range(0, 384+6, 6):
         for n in range(1, 21):
             q.put((y,m,d,h,t,n,path))
             
-    for i in range(15):
+    for i in range(1):
         th = Thread(target=worker)
         th.start()
-    
-    while not q.empty():
-        time.sleep(10)
+    q.join()
 
 def single_run(y,m,d,h,t,n, path):
 
@@ -56,22 +54,16 @@ def single_run(y,m,d,h,t,n, path):
         return
 
     print("Downloading " + savename)
-
-
-
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
-    ##print(url)
-    ## url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.20190302/00/pgrb2/gep01.t00z.pgrb2f12"
     while True:
         try:
-            urllib.request.urlretrieve (url, path + "/" + savename + ".grb2")
+            #os.system("wget " + url + " -O " + path + "/" + savename + ".grb2")
+            urllib.request.urlretrieve(url, path + "/" + savename + ".grb2")
             break
         except (TimeoutError, urllib.error.URLError, ConnectionResetError, socket.timeout):
             print("Error " + savename + ", trying again in 10s")
             time.sleep(10)
-    
-     
     
     print("Unpacking " + savename)
     data = grb2_to_array(path + "/" + savename)
@@ -88,14 +80,12 @@ def grb2_to_array(filename):
     ## Currently [lat 90 to -90][lon 0 to 359]
     grbs = pygrib.open(filename + ".grb2")
     
-    
     dataset = np.zeros((2, len(levels), 181, 360))
 
     u = grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels)
     v = grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels)
 
     for i in range(len(levels)):
-        #print(i)
         dataset[0][i] = u[order[i]-1].data()[0]
         dataset[1][i] = v[order[i]-1].data()[0]
 
@@ -111,14 +101,9 @@ def grb2_to_array(filename):
 
     return dataset
 
-
 if __name__ == "__main__":
-
     year, month, day, hour = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
-
     complete_run(year, month, day, hour, "../gefs")
-
     yesterday = datetime(year, month, day-1)
     yesterday_string = yesterday.strftime("%Y%m%d")
-
     os.system("rm ../gefs/" + yesterday_string + "*")
