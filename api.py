@@ -5,6 +5,12 @@ from datetime import datetime
 import simulate
 import os
 
+@app.route('/')
+def health_check():
+    return jsonify({
+        'up': True
+    })
+
 @app.route('/whichgefs')
 def whichgefs():
     f = open("whichgefs")
