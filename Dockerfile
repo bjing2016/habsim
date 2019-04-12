@@ -29,6 +29,9 @@ RUN mkdir -p /home/run
 WORKDIR /home/run
 EXPOSE 5000
 
+ADD elevinit.sh elevinit.sh
+RUN bash elevinit.sh
+
 ADD . .
 
 ENV FLASK_APP=api.py

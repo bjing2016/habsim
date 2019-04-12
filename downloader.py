@@ -37,7 +37,6 @@ def main():
     f.write("Running")
     f.close()
     
-    os.system("bash elevinit.sh")
     now = datetime.utcnow()
     timestamp = datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) - timedelta(hours=6)
     while True:
