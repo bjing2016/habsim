@@ -9,3 +9,6 @@ localtest
 gefs/
 elev/
 prev/
+
+.idea
+.vscode

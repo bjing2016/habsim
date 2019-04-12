@@ -29,6 +29,7 @@ RUN mkdir -p /home/run
 WORKDIR /home/run
 EXPOSE 5000
 
-ENV FLASK_DEBUG=1
+ADD . .
+
 ENV FLASK_APP=api.py
 CMD flask run --host=0.0.0.0
