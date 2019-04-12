@@ -38,12 +38,12 @@ def predict():
 @app.route('/elev')
 def elevation():
     lat, lon = float(request.args.get('lat')), float(request.args.get('lon'))
-    return jsonify(int(elev.getElevation(lat, lon)))
+    return str(elev.getElevation(lat, lon))
 
 @app.route('/ls')
 def ls():
     return jsonify(os.listdir('gefs'))
 
 import downloader
-from threading import Thread
-Thread(target=downloader.main).start()
+from multiprocessing import Process
+Process(target=downloader.main).start()
