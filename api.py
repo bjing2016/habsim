@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Flask, jsonify, request
 app = Flask(__name__)
 import elev
@@ -41,3 +42,14 @@ def ls():
 import downloader
 from threading import Thread
 Thread(target=downloader.main).start()
+=======
+from flask import Flask, jsonify
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return jsonify({
+        'test': True
+    })
+
+>>>>>>> 62ff688add0c0a64928a271253f6cffd68b6ed31
