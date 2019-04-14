@@ -4,29 +4,6 @@ import elev
 from datetime import datetime
 import simulate
 import os
-'''
-@app.route('/')
-def health_check():
-    return jsonify({
-        'up': True
-    })
-'''
-def root_dir():  # pragma: no cover
-    return os.path.abspath(os.path.dirname(__file__))
-
-
-def get_file(filename):  # pragma: no cover
-    try:
-        src = os.path.join(root_dir(), filename)
-        # Figure out how flask returns static files
-        # Tried:
-        # - render_template
-        # - send_file
-        # This should not be so non-obvious
-        return open(src).read()
-    except IOError as exc:
-        return str(exc)
-
 
 @app.route('/')
 def home():  # pragma: no cover
@@ -47,11 +24,12 @@ def predict():
     rate, dur, step = float(args['rate']), float(args['dur']), float(args['step'])
     model = int(args['model'])
     coeff = float(args['coeff'])
-    elev_flag = bool(args['elev'])
+    #elev_flag = bool(args['elev'])
     alt = float(args['alt'])
+    simulate.reset()
     simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
     try:
-        path = simulate.simulate(datetime(yr, mo, day, hr, mn), lat, lon, rate, step, dur, alt, coeff, elev_flag)
+        path = simulate.simulate(datetime(yr, mo, day, hr, mn), lat, lon, rate, step, dur, alt, coeff)
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"
     return jsonify(path)
@@ -72,6 +50,6 @@ def elevation():
 def ls():
     return jsonify(os.listdir('gefs'))
 
-import downloader
+import downloaderd
 from multiprocessing import Process
-Process(target=downloader.main).start()
+Process(target=downloaderd.main).start()

@@ -19,17 +19,22 @@ GEFS = [10, 20, 30, 50, 70,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
 
-
 ### Will be populated by get_filecache ###
 
 ### Client must directly populate via the method below ###
 
-def set_constants(lvls, prfx, sffx):
+def set_constants(ppd, lo, hrs, lvls, pth, prfx, sffx):
+    global points_per_degree
+    global lon_offset
     global levels
+    global path
     global prefix
     global suffix
+    points_per_degree = ppd
+    lon_offset = lo
     levels = lvls
     prefix = prfx
+    path = pth
     suffix = sffx
 
 def reset():
@@ -37,7 +42,7 @@ def reset():
     filecache = {}
 
 def get_basetime(simtime):
-    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / 6) * 6))
+    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / DATA_STEP) * DATA_STEP))
 
 ### Cache of datacubes and files. ###
 ### Must be reset for each ensemble member ##
@@ -48,7 +53,7 @@ filecache = {}
 def get_file(timestamp):
     if timestamp not in filecache.keys():
         name = timestamp.strftime("%Y%m%d%H")
-        filecache[timestamp] = np.load("gefs/" + prefix + name + suffix, "r")
+        filecache[timestamp] = np.load(path + "/" + prefix + name + suffix, "r")
     return filecache[timestamp]
 
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###
@@ -87,9 +92,10 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     lat_res, lon_res, pressure_res = None, None, None
         
     lat = 90 - lat
+    lat = lat * points_per_degree
     lat_res = (int(math.floor(lat)), 1 - lat % 1)
 
-    lon = lon % 360
+    lon = ((lon % 360) - lon_offset) * points_per_degree
     lon_res = (int(math.floor(lon)), 1 - lon % 1)
     
     base_timestamp = get_basetime(sim_timestamp)
@@ -127,20 +133,47 @@ def get_wind(simtime, lat, lon, alt):
     u, v = get_wind_helper(*bounds)
     return u, v
 
-def simulate(simtime, lat, lon, rate, step, max_duration, alt, coefficient, elevation=True):
+def single_step(simtime, lat, lon, alt, ascent_rate, step, coefficient = 1):
+    u, v = get_wind(simtime, lat, lon, alt)
+    dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
     
-    end = simtime + timedelta(hours=max_duration)
-    path = list()
-    while True:
-        u, v = get_wind(simtime, lat, lon, alt)
-        path.append((lat, lon, alt, u, v))
-        
-        if simtime > end or (elevation and elev.getElevation(lat, lon) > alt):
+    alt = alt + step * ascent_rate
+    lat = lat + dlat * step * coefficient
+    lon = lon + dlon * step * coefficient
+    simtime = simtime + timedelta(seconds = step)
+    return simtime, lat, lon, alt, u, v
+
+def simulate(starttime, slat, slon, ascent_rate, step, stop_alt, descent_rate, max_duration, start_alt = None, coefficient = 1):
+    
+    lat, lon = slat, slon
+    if start_alt == None:
+        alt = elev.getElevation(lat,lon)
+    else:
+        alt = start_alt
+    simtime = starttime
+
+    end = starttime + timedelta(hours=max_duration)
+
+    rise, fall, coast = list(), list(), list()
+    rise.append((starttime, lat, lon, alt, 0, 0))
+    
+    groundelev = alt
+    while alt < stop_alt and simtime < end:
+        simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, alt, ascent_rate, step)
+        rise.append((simtime, lat, lon, alt, u, v))
+
+    while simtime < end:
+        if alt <= groundelev:
             break
-        dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
-        alt = alt + step * rate
-        lat = lat + dlat * step * coefficient
-        lon = lon + dlon * step * coefficient
-        simtime = simtime + timedelta(seconds = step)
-    
-    return path
+        simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, alt, -descent_rate, step)
+        fall.append((simtime, lat, lon, alt, u, v))
+        groundelev = elev.getElevation(lat, lon)
+        
+    if groundelev <= 0:
+        while simtime < end:
+            simtime, lat, lon, alt, u, v = single_step(simtime, lat, lon, 0, 0, step, coefficient)
+            groundelev = elev.getElevation(lat, lon)
+            coast.append((simtime, lat, lon, 0, u, v))
+            if groundelev > 0:
+                break
+    return rise, fall, coast ### (rise, fall, coast)

@@ -5,7 +5,7 @@ def get_path_string(path_cache, color):
     global counter
     string =  "var flightPlanCoordinates" + str(counter) + " = [ \n"
     for pair in path_cache:
-        string = string + "{lat: " + str(pair[1]) + ", lng: " + str(pair[2]) + "},\n"
+        string = string + "{lat: " + str(pair[0]) + ", lng: " + str(pair[1]) + "},\n"
     string = string + """
         ];
         var flightPath""" + str(counter) + """ = new google.maps.Polyline({

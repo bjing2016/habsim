@@ -112,7 +112,7 @@ def main(y, m, d, h):
             continue  
 
 
-
+'''
     ### Spaceshot
 
     if not os.path.exists(destination + "/spaceshot/" + model_timestamp):
@@ -188,7 +188,7 @@ def cycloon_search(location_name, model_time, slat, slon, resultfile):
     resultfile.write("\n")
 
 
-
+'''
 def floatloon_search(location_name, model_time, slat, slon, resultfile):
     
     launch_hours = [0,3,6,9,12,15,18,21] ###

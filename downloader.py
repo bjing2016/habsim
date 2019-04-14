@@ -1,15 +1,14 @@
 import numpy as np
 import pygrib
 import urllib.request
-import os
 import time
 from datetime import datetime, timedelta
-from threading import Thread
 import multiprocessing
 from multiprocessing import Pool, Process
 import queue
-import gc
 import socket
+import sys
+import os
 
 levels = [10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
@@ -23,35 +22,7 @@ levels = [10, 20, 30, 50, 70,\
 order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
 
 path = "./gefs/"
-
-
-def main():
-    try:
-        os.mkdir("gefs")
-    except FileExistsError:
-        pass
-    f = open("downloaderstatus", 'r')
-    if f.readline() == "Running":
-        print("Downloader process already running, quitting")
-        return
-    f.close()
-    f = open("downloaderstatus", 'w')
-    if not __name__ == "__main__":
-        f.write("Running")
-    f.close()
-
-    socket.setdefaulttimeout(10)
-    
-    now = datetime.utcnow()
-    timestamp = datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) - timedelta(hours=6)
-    while True:
-        complete_run(timestamp.year, timestamp.month, timestamp.day, timestamp.hour)
-        f = open("whichgefs", "w")
-        f.write(timestamp.strftime("%Y%m%d%H"))
-        f.close()
-        prev_timestamp = timestamp - timedelta(hours=6)
-        os.system("rm " + path + prev_timestamp.strftime("%Y%m%d%H") + "*")
-        timestamp = timestamp + timedelta(hours=6)
+socket.setdefaulttimeout(10)
 
 def worker(tasks):
     for task in tasks:
@@ -66,7 +37,6 @@ def worker(tasks):
         
 def complete_run(y, m, d, h):
     print("Starting run")
-    gc.collect()
     k = 10 # workers per pool
     max_tasks = 50 # number of tasks per pool
     tasks = [list() for i in range(k)]
@@ -126,4 +96,5 @@ def grb2_to_array(filename):
     return dataset
 
 if __name__ == "__main__":
-    main()
+    y, m, d, h = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
+    complete_run(y,m,d,h)

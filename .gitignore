@@ -8,7 +8,7 @@ localtest
 *grb2*
 gefs/
 elev/
-prev/
+res/
 
 .idea
 .vscode
