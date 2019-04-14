@@ -5,6 +5,7 @@ import os
 import time
 from datetime import datetime, timedelta
 from threading import Thread
+import multiprocessing
 from multiprocessing import Pool, Process
 import queue
 import gc
@@ -21,7 +22,6 @@ levels = [10, 20, 30, 50, 70,\
 ## One-indexed positions of the above levels in the result of grbs.select
 order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
 
-socket.setdefaulttimeout(10)
 path = "./gefs/"
 
 
@@ -39,6 +39,8 @@ def main():
     if not __name__ == "__main__":
         f.write("Running")
     f.close()
+
+    socket.setdefaulttimeout(10)
     
     now = datetime.utcnow()
     timestamp = datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) - timedelta(hours=6)
@@ -53,13 +55,20 @@ def main():
 
 def worker(tasks):
     for task in tasks:
-        single_run(*task)
+        while True:
+            try:
+                single_run(*task)
+                break
+            except (TimeoutError, urllib.error.URLError, ConnectionResetError, socket.timeout, IndexError):
+                print("Error " + str(task) + ", trying again in 10s")
+                time.sleep(10)
+    
         
 def complete_run(y, m, d, h):
     print("Starting run")
     gc.collect()
-    k = 10
-    max_tasks = 10
+    k = 10 # workers per pool
+    max_tasks = 50 # number of tasks per pool
     tasks = [list() for i in range(k)]
     j = 0
     for t in range(0, 384+6, 6):
@@ -88,13 +97,7 @@ def single_run(y,m,d,h,t,n):
     print("Downloading " + savename)
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
-    while True:
-        try:
-            urllib.request.urlretrieve(url, path + savename + ".grb2")
-            break
-        except (TimeoutError, urllib.error.URLError, ConnectionResetError, socket.timeout):
-            print("Error " + savename + ", trying again in 10s")
-            time.sleep(10)
+    urllib.request.urlretrieve(url, path + savename + ".grb2")
     
     print("Unpacking " + savename)
     data = grb2_to_array(path + savename)
@@ -115,6 +118,7 @@ def grb2_to_array(filename):
 
     u = grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels)
     v = grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels)
+    grbs.close()
 
     for i in range(len(levels)):
         dataset[0][i] = u[order[i]-1].data()[0]

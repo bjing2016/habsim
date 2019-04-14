@@ -1,17 +1,38 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 app = Flask(__name__)
 import elev
 from datetime import datetime
 import simulate
 import os
-
+'''
 @app.route('/')
 def health_check():
     return jsonify({
         'up': True
     })
+'''
+def root_dir():  # pragma: no cover
+    return os.path.abspath(os.path.dirname(__file__))
 
-@app.route('/whichgefs')
+
+def get_file(filename):  # pragma: no cover
+    try:
+        src = os.path.join(root_dir(), filename)
+        # Figure out how flask returns static files
+        # Tried:
+        # - render_template
+        # - send_file
+        # This should not be so non-obvious
+        return open(src).read()
+    except IOError as exc:
+        return str(exc)
+
+
+@app.route('/')
+def home():  # pragma: no cover
+    return Response(open("home.html").read(), mimetype="text/html")
+    
+@app.route('/which')
 def whichgefs():
     f = open("whichgefs")
     s = f.readline()
@@ -34,6 +55,13 @@ def predict():
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"
     return jsonify(path)
+
+@app.route('/test')
+def test():
+    result = list()
+    for i in range(10):
+        result.append((i, 2*1, 3*i, 4*i, 5*i))
+    return jsonify(result)
 
 @app.route('/elev')
 def elevation():
