@@ -43,12 +43,32 @@ def test():
 
 @app.route('/elev')
 def elevation():
-    lat, lon = float(request.args.get('lat')), float(request.args.get('lon'))
+    lat, lon = float(request.args['lat']), float(request.args['lon'])
     return str(elev.getElevation(lat, lon))
 
 @app.route('/ls')
 def ls():
     return jsonify(os.listdir('gefs'))
+
+@app.route('/wind')
+def wind():
+    args = request.args
+    lat, lon = float(args['lat']), float(args['lon'])
+    alt = float(args['alt'])
+    yr, mo, day, hr, mn = int(args['yr']), int(args['mo']), int(args['day']), int(args['hr']), int(args['mn'])
+    time = datetime(yr, mo, day, hr, mn)
+    uList = list()
+    vList = list()
+
+    for i in range(1, 21):
+        simulate.reset()
+        simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(i).zfill(2) + ".npy")
+        u, v = simulate.get_wind(time,lat,lon,alt)
+        uList.append(u)
+        vList.append(v)
+    
+    return jsonify([uList, vList])
+
 
 import downloaderd
 from multiprocessing import Process

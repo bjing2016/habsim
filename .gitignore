@@ -10,5 +10,7 @@ gefs/
 elev/
 res/
 
+windowsearch*
+result*
 .idea
 .vscode

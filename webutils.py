@@ -73,7 +73,7 @@ part1 = '''
 		
 		 #info {
         position: absolute;
-        width:20%;
+        width:15%;
         height:100%;
         overflow-y: scroll;
         overflow-x: scroll;

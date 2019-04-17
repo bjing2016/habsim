@@ -135,7 +135,7 @@ def simulate(simtime, lat, lon, rate, step, max_duration, alt, coefficient, elev
         u, v = get_wind(simtime, lat, lon, alt)
         path.append((lat, lon, alt, u, v))
         
-        if simtime > end or (elevation and elev.getElevation(lat, lon) > alt):
+        if simtime >= end or (elevation and elev.getElevation(lat, lon) > alt):
             break
         dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
         alt = alt + step * rate
