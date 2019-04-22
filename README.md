@@ -33,13 +33,6 @@ Lat, lon
 #### Returns
 Elevation at that location as a string. Elevation data has a resolution of 120 points per degree and is rounded, not interpolated. Not all elevation data is available; see https://web.stanford.edu/~bjing/elev. Locations outside these files are reported as elevation 0.
 
-### /elev
-#### Args
-Lat, lon
-
-#### Returns
-Elevation at that location as a string. Elevation data has a resolution of 120 points per degree and is rounded, not interpolated. Not all elevation data is available; see https://web.stanford.edu/~bjing/elev. Locations outside these files are reported as elevation 0.
-
 ### /wind
 #### Args
 Time (yr, mo, day, hr, mn), a location (lat, lon), and an altitude (alt)
@@ -89,7 +82,7 @@ UI interface for the prediction server. Currently only exports coordinate and el
 ### simulate.py
 Core sim module. Must set constants before use; see comments.
 
-### tif_to_npy
+### tif_to_npy.py
 When run from command line, converts all .tif in local directory to .npy.
 
 ### whichgefs
