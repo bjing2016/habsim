@@ -16,6 +16,17 @@ def whichgefs():
     f.close()
     return s
 
+'''
+Returns a json object representing the flight path, given a UTC launch time (yr, mo, day, hr, mn),
+a location (lat, lon), a launch elevation (alt), a drift coefficient (coeff),
+a maximum duration in hrs (dur), a step interval in seconds (step), and a GEFS model number (model)
+
+
+Return format is a list of [loc1, loc2 ...] where each loc is a list [lat, lon, altitude, u-wind, v-wind]
+
+u-wind is wind towards the EAST: wind vector in the positive X direction
+v-wind is wind towards the NORTH: wind vector in the positve Y direction
+'''
 @app.route('/predict')
 def predict():
     args = request.args
@@ -41,6 +52,10 @@ def test():
         result.append((i, 2*1, 3*i, 4*i, 5*i))
     return jsonify(result)
 
+
+'''
+Given a lat and lon, returns the elevation as a string
+'''
 @app.route('/elev')
 def elevation():
     lat, lon = float(request.args['lat']), float(request.args['lon'])
@@ -50,6 +65,17 @@ def elevation():
 def ls():
     return jsonify(os.listdir('gefs'))
 
+
+'''
+Given a time (yr, mo, day, hr, mn), a location (lat, lon), and an altitude (alt)
+returns a json object of [u-wind, v-wind], where
+
+
+u-wind = [u-wind-1, u-wind-2, u-wind-3...u-wind-20]
+v-wind = [v-wind-1, v-wind-2, v-wind-3...v-wind-20]
+
+where the numbers are the GEFS model from which the data is extracted.
+'''
 @app.route('/wind')
 def wind():
     args = request.args

@@ -79,7 +79,7 @@ def get_wind_helper(lat_res, lon_res, level_res, time_res):
     return u1 * time_f + u2 * (1-time_f), v1 * time_f + v2 * (1-time_f)
 
 ## Array format: array[u,v][Pressure][Lat][Lon] ##
-## Currently [lat 90 to -90][lon 0 to 395.5]
+## Currently [lat 90 to -90][lon 0 to 359]
 
 ## Note: this returns bounds as array indices ##
 ###     return lat_res, lon_res, pressure_res, time_res ###
