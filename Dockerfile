@@ -19,6 +19,7 @@ RUN apt-get install -qq -y libproj-dev proj-bin proj-data libtcmalloc-minimal4 l
 RUN pip3 install numpy
 
 RUN pip3 install Flask
+RUN pip3 install flask-cors
 
 # ADD crontab /etc/cron.d/main-cron
 # RUN chmod 0644 /etc/cron.d/main-cron

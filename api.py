@@ -1,5 +1,9 @@
 from flask import Flask, jsonify, request, Response
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app)
+
 import elev
 from datetime import datetime, timezone
 import simulate
@@ -67,7 +71,7 @@ def singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
     simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
     try:
         dur = (equil - alt) / asc / 3600
-        rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt)
+        rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt, elevation=False)
         if len(rise) > 0:
             timestamp, lat, lon, alt, __, __ = rise[-1]
             timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
