@@ -15,16 +15,30 @@ The server automatically downloads and curates GEFS data from https://nomads.ncd
 Download progress may be manually checked at https://predict.stanfordssi.org/ls.
 
 ## API Usage
-### /predict
+### /singlepredicth
 #### Args
 UTC launch time (yr, mo, day, hr, mn), location (lat, lon), launch elevation (alt), drift coefficient (coeff), maximum duration in hrs (dur), step interval in seconds (step), GEFS model number (model).
 
 #### Returns
-A list of [loc1, loc2 ...] where each loc is a list [lat, lon, altitude, u-wind, v-wind]. The list ends when the flight has exceeded its duration or the altitude goes below the ground elevation. An error is returned if the time boundaries of the dataset are exceeded.
+A list of [loc1, loc2 ...] where each loc is a list [UNIX timestamp, lat, lon, altitude, u-wind, v-wind]. The list ends when the flight has exceeded its duration or the altitude goes below the ground elevation. An error is returned if the time boundaries of the dataset are exceeded.
 
 Note:
 u-wind is wind towards the EAST: wind vector in the positive X direction
 v-wind is wind towards the NORTH: wind vector in the positve Y direction
+
+### /singlepredict
+As above, except time is passed as a UNIX timestamp (timestamp)
+
+### /spaceshot
+#### Args
+Launch time as UNIX timestamp (timestamp), launch location (lat, lon), launch altitude (alt), equilibrium altitude (equil), time to stay at equilibrium (eqtime), ascent rate (asc), descent rate (desc).
+
+Note that descent rate is -dh/dt. That is, if the balloon is falling, desc > 0.
+
+#### Returns
+A list of [path1, path2, ... path20] where each path is a list of three paths [rise, equil, fall]. Each path is a list [loc1, loc2 ...] and each loc is a list [UNIX timestamp, lat, lon, altitude, u-wind, v-wind] as above.
+
+If the equilibrium altitude is below the launch altitude, the rise path will be of zero length and the equilibrium path will begin at the launch altitude.
 
 ### /elev
 #### Args

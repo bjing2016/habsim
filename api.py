@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, Response
 app = Flask(__name__)
 import elev
-from datetime import datetime
+from datetime import datetime, timezone
 import simulate
 import os
 
@@ -27,15 +27,14 @@ Return format is a list of [loc1, loc2 ...] where each loc is a list [lat, lon, 
 u-wind is wind towards the EAST: wind vector in the positive X direction
 v-wind is wind towards the NORTH: wind vector in the positve Y direction
 '''
-@app.route('/predict')
-def predict():
+@app.route('/singlepredicth')
+def singlepredicth():
     args = request.args
     yr, mo, day, hr, mn = int(args['yr']), int(args['mo']), int(args['day']), int(args['hr']), int(args['mn'])
     lat, lon = float(args['lat']), float(args['lon'])
     rate, dur, step = float(args['rate']), float(args['dur']), float(args['step'])
     model = int(args['model'])
     coeff = float(args['coeff'])
-    #elev_flag = bool(args['elev'])
     alt = float(args['alt'])
     simulate.reset()
     simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
@@ -44,6 +43,56 @@ def predict():
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"
     return jsonify(path)
+
+@app.route('/singlepredict')
+def singlepredict():
+    args = request.args
+    timestamp = datetime.utcfromtimestamp(float(args['timestamp'])).replace(tzinfo=timezone.utc)
+    lat, lon = float(args['lat']), float(args['lon'])
+    rate, dur, step = float(args['rate']), float(args['dur']), float(args['step'])
+    model = int(args['model'])
+    coeff = float(args['coeff'])
+    alt = float(args['alt'])
+    simulate.reset()
+    simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
+    try:
+        path = simulate.simulate(timestamp, lat, lon, rate, step, dur, alt, coeff)
+    except (IOError, FileNotFoundError, ValueError, IndexError):
+        return "error"
+    return jsonify(path)
+
+
+def singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
+    simulate.reset()
+    simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
+    try:
+        dur = (equil - alt) / asc / 3600
+        rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt)
+        if len(rise) > 0:
+            timestamp, lat, lon, alt, __, __ = rise[-1]
+            timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
+        coast = simulate.simulate(timestamp, lat, lon, 0, 240, eqtime, alt)
+        timestamp, lat, lon, __, __, __ = coast[-1]
+        timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
+        fall = simulate.simulate(timestamp, lat, lon, -desc, 240, eqtime, alt)
+        return (rise, coast, fall)
+    except (IOError, FileNotFoundError, ValueError, IndexError):
+        return "error"
+
+
+@app.route('/spaceshot')
+def spaceshot():
+    args = request.args
+    timestamp = datetime.utcfromtimestamp(float(args['timestamp'])).replace(tzinfo=timezone.utc)
+    lat, lon = float(args['lat']), float(args['lon'])
+    alt = float(args['alt'])
+    equil = float(args['equil'])
+    eqtime = float(args['eqtime'])
+    asc, desc = float(args['asc']), float(args['desc'])
+    paths = list()
+    for model in range(1,21):
+        paths.append(singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model))
+    return jsonify(paths)
 
 @app.route('/test')
 def test():

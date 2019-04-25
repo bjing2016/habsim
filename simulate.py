@@ -1,7 +1,7 @@
 import numpy as np 
 import math
 import elev
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import math
 import bisect
 import time
@@ -127,13 +127,13 @@ def get_wind(simtime, lat, lon, alt):
     u, v = get_wind_helper(*bounds)
     return u, v
 
-def simulate(simtime, lat, lon, rate, step, max_duration, alt, coefficient, elevation=True):
+def simulate(simtime, lat, lon, rate, step, max_duration, alt, coefficient=1, elevation=True):
     
     end = simtime + timedelta(hours=max_duration)
     path = list()
     while True:
         u, v = get_wind(simtime, lat, lon, alt)
-        path.append((lat, lon, alt, u, v))
+        path.append((simtime.timestamp(), lat, lon, alt, u, v))
         
         if simtime >= end or (elevation and elev.getElevation(lat, lon) > alt):
             break
