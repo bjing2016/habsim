@@ -39,7 +39,7 @@ def singlepredicth():
     simulate.reset()
     simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
     try:
-        path = simulate.simulate(datetime(yr, mo, day, hr, mn), lat, lon, rate, step, dur, alt, coeff)
+        path = simulate.simulate(datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc), lat, lon, rate, step, dur, alt, coeff)
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"
     return jsonify(path)

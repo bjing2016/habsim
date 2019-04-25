@@ -37,7 +37,7 @@ def reset():
     filecache = {}
 
 def get_basetime(simtime):
-    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / 6) * 6))
+    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / 6) * 6)).replace(tzinfo=timezone.utc)
 
 ### Cache of datacubes and files. ###
 ### Must be reset for each ensemble member ##
