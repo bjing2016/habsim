@@ -40,6 +40,8 @@ A list of [path1, path2, ... path20] where each path is a list of three paths [r
 
 If the equilibrium altitude is below the launch altitude, the rise path will be of zero length and the equilibrium path will begin at the launch altitude.
 
+If the equilibrium time is zero, the equilibrium path will be of zero length and the fall path will begin at the altitude of the last data point in rise (unless rise is also of zero length, in which case it will begin at the launch altitude)
+
 ### /elev
 #### Args
 Lat, lon
