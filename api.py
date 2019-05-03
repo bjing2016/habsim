@@ -13,6 +13,12 @@ import os
 def home():  # pragma: no cover
     return Response(open("home.html").read(), mimetype="text/html")
     
+
+
+@app.route('/zpb')
+def zpb():  # pragma: no cover
+    return Response(open("zpb.html").read(), mimetype="text/html")
+
 @app.route('/which')
 def whichgefs():
     f = open("whichgefs")
