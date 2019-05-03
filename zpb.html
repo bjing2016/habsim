@@ -81,16 +81,82 @@
             }));
 
             function simulate() {
-                var formData = new FormData(document.getElementById('form'));
+                var time = toTimestamp(Number(document.getElementById('yr').value),
+                                        Number(document.getElementById('mo').value),
+                                        Number(document.getElementById('day').value),
+                                        Number(document.getElementById('hr').value),
+                                        Number(document.getElementById('mn').value));
+                var lat = document.getElementById('lat').value;
+                var lon = document.getElementById('lon').value;
+                var alt = document.getElementById('alt').value;
+                var equil = document.getElementById('equil').value;
+                var eqtime = document.getElementById('eqtime').value;
+                var asc = document.getElementById('asc').value;
+                var desc = document.getElementById('desc').value;
+                for (i=1; i<21; i++) {
+                    var url = "http://predict.stanfordssi.org/singlezpb?timestamp=" 
+                                + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + eqtime + "&asc=" + asc + "&desc=" + desc + "&model=" + i;
+                    console.log(url)
+                    fetch(url).then(res => res.json()).then(resjson => showpath(resjson))
+                }
             }
-            
+            function showpath(path) {               
+                var rise = path[0]
+                var eq = path[1]
+                var fall = path[2]
+                var risepathpoints = [];
+                for (point in rise) {
+                    risepathpoints.push( {lat: rise[point][1], lng: rise[point][2]} );
+                }
+                var risepath = new google.maps.Polyline({
+                    path: risepathpoints,
+                    geodesic: true,
+                    strokeColor: '#000000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                risepath.setMap(map);
+
+
+                
+                var eqpathpoints = [];
+                for (point in eq) {
+                    eqpathpoints.push( {lat: eq[point][1], lng: eq[point][2]} );
+                }
+                var eqpath = new google.maps.Polyline({
+                    path: eqpathpoints,
+                    geodesic: true,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                eqpath.setMap(map);
+
+
+                var fallpathpoints = [];
+                for (point in fall) {
+                    fallpathpoints.push( {lat: fall[point][1], lng: fall[point][2]} );
+                }
+                var fallpath = new google.maps.Polyline({
+                    path: fallpathpoints,
+                    geodesic: true,
+                    strokeColor: '#0000FF',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                fallpath.setMap(map);
+
+            }
+            function toTimestamp(year,month,day,hour,minute){
+                var datum = new Date(Date.UTC(year,month-1,day,hour,minute));
+                return datum.getTime()/1000;
+            }
         </script>
     <div id="map_canvas" style="width:80%; height:100%"></div>
     <div id="info" style="padding-left:2ch; padding-right: 2ch">
       <div>
         <h1>Stanford SSI HABSIM</h1>
-        <h2>Balloon trajectory prediction</h2>
-        <form name="form">
+        <h2>ZPB-profile trajectory prediction</h2>
             Model run: <span id="run">Unavailable</span></br></br>
 
             Date: <input id = "yr" type="text" size="2" name="yr">/<input id = "mo" type="text" size="1" name="mo">/<input id = "day" type="text" size="1" name="day"><br/>
@@ -101,15 +167,11 @@
             Lon: <input id="lon" type="text" size="6" name="2lon"> <br/>
             Launch altitude: <input id="alt" type="text" size="2" name="alt"> m <br/><br/>
             
-            Ascent rate: <input id="rate" type="text" size="2" name="rate"> m/s <br/>
-            Drift coefficient: <input id="coeff" type="text" size="2" name="coeff"> <br/><br/>
-
-            Duration: <input id="rate" type="text" size="2" name="rate"> hours <br/>
-            Step: <input id="step" type="text" size="4" name="step"> s <br/>
-            GEFS member: <input id="model" type="text" size="2" name="model"> <br/>
-
-	    <!--<button formaction="https://web.stanford.edu/~bjing/cgi-bin/hist_batch.php" method = "get">Simulate</button>-->
-	    </form>
+            Ascent rate: <input id="asc" type="text" size="2" name="asc"> m/s <br/>
+            Equilibrium altitude: <input id="equil" type="text" size="4" name="equil"> <br/>
+            Time at equilibrium: <input id="eqtime" type="text" size="2" name="eqtime"> h <br/>
+            Descent rate: <input id="desc" type="text" size="2" name="desc"> m/s <br/>
+	    <button onclick="simulate()">Simulate</button>
       </div>
     </div>
     <script> 
@@ -122,8 +184,11 @@
     fetch("http://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
                     document.getElementById("run").textContent = result
                 })
-    document.getElementById("coeff").value = 1
-    
+    document.getElementById("asc").value = 3.7
+    document.getElementById("equil").value = 29000
+    document.getElementById("eqtime").value = 1
+    document.getElementById("desc").value = 15
+
     </script>
 </body>
 </html>

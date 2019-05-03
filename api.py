@@ -79,10 +79,24 @@ def singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
         if len(coast) > 0:
             timestamp, lat, lon, alt, __, __ = coast[-1]
             timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
-        fall = simulate.simulate(timestamp, lat, lon, -desc, 240, eqtime, alt)
+        fall = simulate.simulate(timestamp, lat, lon, -desc, 240, 24, alt)
         return (rise, coast, fall)
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"
+
+
+@app.route('/singlezpb')
+def singlezpb():
+    args = request.args
+    timestamp = datetime.utcfromtimestamp(float(args['timestamp'])).replace(tzinfo=timezone.utc)
+    lat, lon = float(args['lat']), float(args['lon'])
+    alt = float(args['alt'])
+    equil = float(args['equil'])
+    eqtime = float(args['eqtime'])
+    asc, desc = float(args['asc']), float(args['desc'])
+    model = int(args['model'])
+    path = singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model)
+    return jsonify(path)
 
 
 @app.route('/spaceshot')
