@@ -56,7 +56,7 @@
                 lng = lng.toFixed(4);
                 document.getElementById("lat").value = lat;
                 document.getElementById("lon").value = lng;
-                fetch("http://predict.stanfordssi.org/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((result) => {
+                fetch("https://predict.stanfordssi.org/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((result) => {
                     document.getElementById("alt").value = result
                 })
             }
@@ -94,7 +94,7 @@
                 var asc = document.getElementById('asc').value;
                 var desc = document.getElementById('desc').value;
                 for (i=1; i<21; i++) {
-                    var url = "http://predict.stanfordssi.org/singlezpb?timestamp=" 
+                    var url = "https://predict.stanfordssi.org/singlezpb?timestamp=" 
                                 + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + eqtime + "&asc=" + asc + "&desc=" + desc + "&model=" + i;
                     console.log(url)
                     fetch(url).then(res => res.json()).then(resjson => showpath(resjson))
@@ -181,7 +181,7 @@
     document.getElementById("day").value = now.getUTCDate()
     document.getElementById("hr").value = now.getUTCHours()
     document.getElementById("mn").value = now.getUTCMinutes()
-    fetch("http://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
+    fetch("https://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
                     document.getElementById("run").textContent = result
                 })
     document.getElementById("asc").value = 3.7

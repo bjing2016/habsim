@@ -56,7 +56,7 @@
                 lng = lng.toFixed(4);
                 document.getElementById("lat").value = lat;
                 document.getElementById("lon").value = lng;
-                fetch("http://predict.stanfordssi.org/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((result) => {
+                fetch("elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((result) => {
                     document.getElementById("alt").value = result
                 })
             }
@@ -119,7 +119,7 @@
     document.getElementById("day").value = now.getUTCDate()
     document.getElementById("hr").value = now.getUTCHours()
     document.getElementById("mn").value = now.getUTCMinutes()
-    fetch("http://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
+    fetch("https://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
                     document.getElementById("run").textContent = result
                 })
     document.getElementById("coeff").value = 1
