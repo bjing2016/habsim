@@ -85,7 +85,8 @@ def singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
         if len(coast) > 0:
             timestamp, lat, lon, alt, __, __ = coast[-1]
             timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
-        fall = simulate.simulate(timestamp, lat, lon, -desc, 240, 24, alt)
+        dur = (alt) / desc / 3600
+        fall = simulate.simulate(timestamp, lat, lon, -desc, 240, dur, alt)
         return (rise, coast, fall)
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"

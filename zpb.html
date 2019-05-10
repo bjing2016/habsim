@@ -26,7 +26,6 @@
                 margin: 0;
                 padding: 0;
             }
-  
         </style> 
     </head>
     <body>
@@ -79,8 +78,13 @@
                 name: "OpenStreetMap",
                 maxZoom: 18
             }));
-
+            var currpaths = new Array()
             async function simulate() {
+                for (path in currpaths) {
+                        currpaths[path].setMap(null);
+                }
+                currpaths = new Array();
+                console.log("Clearing"); 
                 var time = toTimestamp(Number(document.getElementById('yr').value),
                                         Number(document.getElementById('mo').value),
                                         Number(document.getElementById('day').value),
@@ -93,6 +97,7 @@
                 var eqtime = document.getElementById('eqtime').value;
                 var asc = document.getElementById('asc').value;
                 var desc = document.getElementById('desc').value;
+               
                 for (i = 1; i < 21; i++) {
                     var url = "https://predict.stanfordssi.org/singlezpb?timestamp=" 
                                 + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + eqtime + "&asc=" + asc + "&desc=" + desc
@@ -100,13 +105,9 @@
                     console.log(url);
                     await fetch(url).then(res => res.json()).then(resjson => showpath(resjson));
                 }
-            }
-            function showensemble(ens) {
-                for (n in ens) {
-                    showpath(ens[n]);
-                }
-            }
             
+                    
+            }
             function showpath(path) {               
                 var rise = path[0]
                 var eq = path[1]
@@ -123,8 +124,7 @@
                     strokeWeight: 2
                 });
                 risepath.setMap(map);
-
-
+                currpaths.push(risepath);
                 
                 var eqpathpoints = [];
                 for (point in eq) {
@@ -138,6 +138,7 @@
                     strokeWeight: 2
                 });
                 eqpath.setMap(map);
+                currpaths.push(eqpath);
 
 
                 var fallpathpoints = [];
@@ -152,6 +153,7 @@
                     strokeWeight: 2
                 });
                 fallpath.setMap(map);
+                currpaths.push(fallpath);
 
             }
             function toTimestamp(year,month,day,hour,minute){
@@ -178,7 +180,9 @@
             Equilibrium altitude: <input id="equil" type="text" size="4" name="equil"> m <br/>
             Time at equilibrium: <input id="eqtime" type="text" size="2" name="eqtime"> h <br/>
             Descent rate: <input id="desc" type="text" size="2" name="desc"> m/s <br/>
-	    <button onclick="simulate()">Simulate</button>
+            <button onclick="simulate()">Simulate</button>
+            <br/><br/>
+            If no trajectories appear, please check that the trajectory end time is within 376 hours of the model run.
       </div>
     </div>
     <script> 

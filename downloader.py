@@ -30,7 +30,7 @@ def worker(tasks):
             try:
                 single_run(*task)
                 break
-            except (TimeoutError, urllib.error.URLError, ConnectionResetError, socket.timeout, IndexError, ValueError):
+            except: # (TimeoutError, urllib.error.URLError, ConnectionResetError, socket.timeout, IndexError, ValueError):
                 print("Error " + str(task) + ", trying again in 10s")
                 time.sleep(10)
     
