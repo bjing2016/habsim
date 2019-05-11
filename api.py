@@ -12,12 +12,14 @@ import os
 @app.route('/')
 def home():  # pragma: no cover
     return Response(open("home.html").read(), mimetype="text/html")
-    
-
 
 @app.route('/zpb')
 def zpb():  # pragma: no cover
     return Response(open("zpb.html").read(), mimetype="text/html")
+
+@app.route('/float')
+def floatonly():  # pragma: no cover
+    return Response(open("float.html").read(), mimetype="text/html")
 
 @app.route('/which')
 def whichgefs():
@@ -120,14 +122,6 @@ def spaceshot():
         paths.append(singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model))
     return jsonify(paths)
 
-@app.route('/test')
-def test():
-    result = list()
-    for i in range(10):
-        result.append((i, 2*1, 3*i, 4*i, 5*i))
-    return jsonify(result)
-
-
 '''
 Given a lat and lon, returns the elevation as a string
 '''
@@ -157,7 +151,7 @@ def wind():
     lat, lon = float(args['lat']), float(args['lon'])
     alt = float(args['alt'])
     yr, mo, day, hr, mn = int(args['yr']), int(args['mo']), int(args['day']), int(args['hr']), int(args['mn'])
-    time = datetime(yr, mo, day, hr, mn)
+    time = datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc)
     uList = list()
     vList = list()
 
@@ -169,7 +163,6 @@ def wind():
         vList.append(v)
     
     return jsonify([uList, vList])
-
 
 import downloaderd
 from multiprocessing import Process

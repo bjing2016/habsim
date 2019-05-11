@@ -8,6 +8,8 @@ localtest
 *grb2*
 gefs/
 elev/
+trim/
+prev/*
 res/
 prev/
 windowsearch*

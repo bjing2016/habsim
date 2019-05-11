@@ -79,10 +79,12 @@
                 maxZoom: 18
             }));
             var currpaths = new Array()
+            var mean = 0
             async function simulate() {
                 for (path in currpaths) {
-                        currpaths[path].setMap(null);
+                    currpaths[path].setMap(null);
                 }
+                mean = 0
                 currpaths = new Array();
                 console.log("Clearing"); 
                 var time = toTimestamp(Number(document.getElementById('yr').value),
@@ -93,52 +95,37 @@
                 var lat = document.getElementById('lat').value;
                 var lon = document.getElementById('lon').value;
                 var alt = document.getElementById('alt').value;
-                var equil = document.getElementById('equil').value;
-                var asc = document.getElementById('asc').value;
-                var desc = document.getElementById('desc').value;
-               
+                var coeff = document.getElementById('coeff').value;
+                var step = document.getElementById('step').value;
+                var dur = document.getElementById('dur').value;
+                
                 for (i = 1; i < 21; i++) {
-                    var url = "https://predict.stanfordssi.org/singlezpb?timestamp=" 
-                                + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + 0 + "&asc=" + asc + "&desc=" + desc
-                                + "&model=" + i
+                    var url = "https://predict.stanfordssi.org/singlepredict?timestamp=" 
+                                + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&model=" + i + "&rate=0&coeff=" + coeff + "&step=" + step + "&dur=" + dur
+
                     console.log(url);
                     await fetch(url).then(res => res.json()).then(resjson => showpath(resjson));
                 }
+                mean = (mean * step / 20 / 3600).toFixed(2)
+                document.getElementById("mean").textContent = mean
             
                     
             }
             function showpath(path) {               
-                var rise = path[0]
-                var fall = path[2]
-                var risepathpoints = [];
-                for (point in rise) {
-                    risepathpoints.push( {lat: rise[point][1], lng: rise[point][2]} );
+                var points = [];
+                for (point in path) {
+                    points.push( {lat: path[point][1], lng: path[point][2]} );
                 }
-                var risepath = new google.maps.Polyline({
-                    path: risepathpoints,
+                mean += points.length - 1
+                var pathline = new google.maps.Polyline({
+                    path: points,
                     geodesic: true,
                     strokeColor: '#000000',
                     strokeOpacity: 1.0,
                     strokeWeight: 2
                 });
-                risepath.setMap(map);
-                currpaths.push(risepath);
-
-
-                var fallpathpoints = [];
-                for (point in fall) {
-                    fallpathpoints.push( {lat: fall[point][1], lng: fall[point][2]} );
-                }
-                var fallpath = new google.maps.Polyline({
-                    path: fallpathpoints,
-                    geodesic: true,
-                    strokeColor: '#DC143C',
-                    strokeOpacity: 1.0,
-                    strokeWeight: 2
-                });
-                fallpath.setMap(map);
-                currpaths.push(fallpath);
-
+                currpaths.push(pathline);
+                pathline.setMap(map);
             }
             function toTimestamp(year,month,day,hour,minute){
                 var datum = new Date(Date.UTC(year,month-1,day,hour,minute));
@@ -149,7 +136,7 @@
     <div id="info" style="padding-left:2ch; padding-right: 2ch">
       <div>
         <h1>Stanford SSI HABSIM</h1>
-        <h2>Standard-profile trajectory prediction</h2>
+        <h2>Float-profile trajectory prediction</h2>
             Model run: <span id="run">Unavailable</span></br></br>
 
             Date: <input id = "yr" type="text" size="2" name="yr">/<input id = "mo" type="text" size="1" name="mo">/<input id = "day" type="text" size="1" name="day"><br/>
@@ -158,13 +145,14 @@
             <b>Click to select. </b></br>
             Lat: <input id="lat" type="text" size="6" name="lat"> <br/>
             Lon: <input id="lon" type="text" size="6" name="2lon"> <br/>
-            Launch altitude: <input id="alt" type="text" size="2" name="alt"> m <br/><br/>
+            Altitude: <input id="alt" type="text" size="2" name="alt"> m <br/><br/>
+            Floating coefficient: <input id="coeff" type="text" size="2" name="coeff"> <br/>
+
+            Simulate for: <input id="dur" type="text" size="2" name="dur"> h <br/>
+            Step size: <input id="step" type="text" size="2" name="step"> s <br/>
+            <button onclick="simulate()">Simulate</button><br/><br/>
+            Mean trajectory length: <span id="mean">0</span> h </br></br>
             
-            Ascent rate: <input id="asc" type="text" size="2" name="asc"> m/s <br/>
-            Equilibrium altitude: <input id="equil" type="text" size="4" name="equil"> m <br/>
-            Descent rate: <input id="desc" type="text" size="2" name="desc"> m/s <br/>
-            <button onclick="simulate()">Simulate</button>
-            <br/><br/>
             If no trajectories appear, please check that the trajectory end time is within 384 hours of the model run.
       </div>
     </div>
@@ -178,9 +166,9 @@
     fetch("https://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
                     document.getElementById("run").textContent = result
                 })
-    document.getElementById("asc").value = 3.7
-    document.getElementById("equil").value = 30000
-    document.getElementById("desc").value = 15
+    document.getElementById("coeff").value = 0.5
+    document.getElementById("dur").value = 48
+    document.getElementById("step").value = 240
 
     </script>
 </body>
