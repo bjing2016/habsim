@@ -19,6 +19,8 @@ GEFS = [10, 20, 30, 50, 70,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
 
+### Cache of datacubes and files. ###
+### Filecache is in the form (currgefs, modelnumber). ###
 filecache = {}
 
 levels = GEFS
@@ -39,10 +41,6 @@ def reset():
 
 def get_basetime(simtime):
     return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / 6) * 6)).replace(tzinfo=timezone.utc)
-
-### Cache of datacubes and files. ###
-### Filecache is in the form (currgefs, modelnumber). ###
-filecache = {}
 
 def get_file(timestamp, model):
     if (timestamp, model) not in filecache.keys():
