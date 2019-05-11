@@ -28,6 +28,7 @@ suffix = ".npy"
 currgefs = "Unavailable"
 
 def refresh():
+    global currgefs
     f = open("whichgefs")
     s = f.readline()
     f.close()
