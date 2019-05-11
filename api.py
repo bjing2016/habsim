@@ -48,10 +48,9 @@ def singlepredicth():
     model = int(args['model'])
     coeff = float(args['coeff'])
     alt = float(args['alt'])
-    simulate.reset()
-    simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
+    simulate.refresh()
     try:
-        path = simulate.simulate(datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc), lat, lon, rate, step, dur, alt, coeff)
+        path = simulate.simulate(datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc), lat, lon, rate, step, dur, alt, model, coefficient=coeff)
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"
     return jsonify(path)
@@ -65,30 +64,28 @@ def singlepredict():
     model = int(args['model'])
     coeff = float(args['coeff'])
     alt = float(args['alt'])
-    simulate.reset()
-    simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
+    simulate.refresh()
     try:
-        path = simulate.simulate(timestamp, lat, lon, rate, step, dur, alt, coeff)
+        path = simulate.simulate(timestamp, lat, lon, rate, step, dur, alt, model, coefficient=coeff)
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"
     return jsonify(path)
 
 
 def singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
-    simulate.reset()
-    simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(model).zfill(2) + ".npy")
+    simulate.refresh()
     try:
         dur = (equil - alt) / asc / 3600
-        rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt, elevation=False)
+        rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt, model, elevation=False)
         if len(rise) > 0:
             timestamp, lat, lon, alt, __, __ = rise[-1]
             timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
-        coast = simulate.simulate(timestamp, lat, lon, 0, 240, eqtime, alt)
+        coast = simulate.simulate(timestamp, lat, lon, 0, 240, eqtime, alt, model)
         if len(coast) > 0:
             timestamp, lat, lon, alt, __, __ = coast[-1]
             timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
         dur = (alt) / desc / 3600
-        fall = simulate.simulate(timestamp, lat, lon, -desc, 240, dur, alt)
+        fall = simulate.simulate(timestamp, lat, lon, -desc, 240, dur, alt, model)
         return (rise, coast, fall)
     except (IOError, FileNotFoundError, ValueError, IndexError):
         return "error"
@@ -147,6 +144,7 @@ where the numbers are the GEFS model from which the data is extracted.
 '''
 @app.route('/wind')
 def wind():
+    simulate.refresh()
     args = request.args
     lat, lon = float(args['lat']), float(args['lon'])
     alt = float(args['alt'])
@@ -156,9 +154,7 @@ def wind():
     vList = list()
 
     for i in range(1, 21):
-        simulate.reset()
-        simulate.set_constants(simulate.GEFS, whichgefs() + "_", "_" + str(i).zfill(2) + ".npy")
-        u, v = simulate.get_wind(time,lat,lon,alt)
+        u, v = simulate.get_wind(time,lat,lon,alt, i)
         uList.append(u)
         vList.append(v)
     

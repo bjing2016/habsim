@@ -19,18 +19,19 @@ GEFS = [10, 20, 30, 50, 70,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
 
+filecache = {}
 
-### Will be populated by get_filecache ###
+levels = GEFS
+suffix = ".npy"
+currgefs = "Unavailable"
 
-### Client must directly populate via the method below ###
-
-def set_constants(lvls, prfx, sffx):
-    global levels
-    global prefix
-    global suffix
-    levels = lvls
-    prefix = prfx
-    suffix = sffx
+def refresh():
+    f = open("whichgefs")
+    s = f.readline()
+    f.close()
+    if s != currgefs:
+        reset()
+        currgefs = s
 
 def reset():
     global filecache
@@ -40,28 +41,26 @@ def get_basetime(simtime):
     return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / 6) * 6)).replace(tzinfo=timezone.utc)
 
 ### Cache of datacubes and files. ###
-### Must be reset for each ensemble member ##
-
-### Filecache is in the form (datetime). ###
+### Filecache is in the form (currgefs, modelnumber). ###
 filecache = {}
 
-def get_file(timestamp):
-    if timestamp not in filecache.keys():
+def get_file(timestamp, model):
+    if (timestamp, model) not in filecache.keys():
         name = timestamp.strftime("%Y%m%d%H")
-        filecache[timestamp] = np.load("gefs/" + prefix + name + suffix, "r")
-    return filecache[timestamp]
+        filecache[(timestamp, model)] = np.load("gefs/" + currgefs + "_" + name + "_" + str(model).zfill(2) + suffix, "r")
+    return filecache[(timestamp,model)]
 
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###
 ### Handles file and cache import ###
 
-def get_wind_helper(lat_res, lon_res, level_res, time_res):
+def get_wind_helper(lat_res, lon_res, level_res, time_res, model):
     lat_i, lat_f = lat_res
     lon_i, lon_f = lon_res
     level_i, level_f = level_res
     timestamp, time_f = time_res
     
-    data1 = get_file(timestamp)
-    data2 = get_file(timestamp + timedelta(hours=6))
+    data1 = get_file(timestamp, model)
+    data2 = get_file(timestamp + timedelta(hours=6), model)
 
     pressure_filter = np.array([level_f, 1-level_f]).reshape(1,2,1,1)
     lat_filter = np.array([lat_f, 1-lat_f]).reshape(1,1,2,1)
@@ -122,17 +121,17 @@ def lin_to_angular_velocities(lat, lon, u, v):
     dlon = math.degrees(u / (EARTH_RADIUS * math.cos(math.radians(lat))))
     return dlat, dlon
 
-def get_wind(simtime, lat, lon, alt):
+def get_wind(simtime, lat, lon, alt, model):
     bounds = get_bounds_and_fractions(lat, lon, alt, simtime)  
-    u, v = get_wind_helper(*bounds)
+    u, v = get_wind_helper(*bounds, model)
     return u, v
 
-def simulate(simtime, lat, lon, rate, step, max_duration, alt, coefficient=1, elevation=True):
+def simulate(simtime, lat, lon, rate, step, max_duration, alt, model, coefficient=1, elevation=True):
     
     end = simtime + timedelta(hours=max_duration)
     path = list()
     while True:
-        u, v = get_wind(simtime, lat, lon, alt)
+        u, v = get_wind(simtime, lat, lon, alt, model)
         path.append((simtime.timestamp(), lat, lon, alt, u, v))
         
         if simtime >= end or (elevation and elev.getElevation(lat, lon) > alt):
