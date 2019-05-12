@@ -24,7 +24,12 @@ def main():
     timestamp = datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) - timedelta(hours=6)
     while True:
         command = "python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
-        os.system(command)
+        while True:
+            try: 
+                os.system(command)
+                break
+            except:
+                continue
         f = open("whichgefs", "w")
         f.write(timestamp.strftime("%Y%m%d%H"))
         f.close()
