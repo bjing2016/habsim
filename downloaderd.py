@@ -21,11 +21,11 @@ def main():
         pass
     
     ''' Special case to verify May 11 Launch '''
-    
+    '''
     timestamp = datetime(2019, 5, 11, 6)
     command = "python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
     os.system(command)
-    
+    '''
     ''' End special case '''
             
     now = datetime.utcnow()
