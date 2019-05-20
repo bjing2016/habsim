@@ -37,7 +37,7 @@ def worker(tasks):
         
 def complete_run(y, m, d, h):
     print("Starting run")
-    k = 10 # workers per pool
+    k = 5 # workers per pool
     max_tasks = 50 # number of tasks per pool
     tasks = [list() for i in range(k)]
     j = 0
