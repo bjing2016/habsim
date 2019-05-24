@@ -63,23 +63,25 @@ def single_run(y,m,d,h,t,n):
     predstring = pred.strftime("%Y%m%d%H")
     savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
 
+    print("Processing " + savename)
+    
     if os.path.exists(path+'/'+savename+".npy"):
         print("Skipping " + savename)
         return
 
-    print("Downloading " + savename)
+    #print("Downloading " + savename)
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
     urllib.request.urlretrieve(url, path + savename + ".grb2")
     
-    print("Unpacking " + savename)
+    #print("Unpacking " + savename)
     data = grb2_to_array(path + savename)
     data = np.float32(data)
     
-    print("Saving " + savename)
+    #print("Saving " + savename)
     np.save(path + savename + ".npy", data)
     
-    print("Deleting " + savename)
+    #print("Deleting " + savename)
     os.remove(path + savename + ".grb2")
 
 def grb2_to_array(filename): 
