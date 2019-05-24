@@ -37,7 +37,7 @@ def main():
                 os.system(command)
                 break
             except:
-                continue
+                print("Error, restarting downloader process")
         f = open("whichgefs", "w")
         f.write(timestamp.strftime("%Y%m%d%H"))
         f.close()
