@@ -20,12 +20,12 @@ def main():
     except FileExistsError:
         pass
     
-    ''' Special case to verify May 11 Launch '''
-    '''
-    timestamp = datetime(2019, 5, 11, 6)
+    ''' Special case to verify June 1 Launch '''
+    
+    timestamp = datetime(2019, 6, 1, 18)
     command = "python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
     os.system(command)
-    '''
+    exit()
     ''' End special case '''
             
     now = datetime.utcnow()
