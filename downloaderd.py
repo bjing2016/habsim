@@ -21,10 +21,15 @@ def main():
         pass
     
     ''' Special case to verify June 1 Launch '''
-    
     timestamp = datetime(2019, 6, 1, 18)
+  
+    f = open("whichgefs", "w")
+    f.write(timestamp.strftime("%Y%m%d%H"))
+    f.close()
+    
     command = "python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
     os.system(command)
+        
     exit()
     ''' End special case '''
             
