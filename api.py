@@ -72,10 +72,10 @@ def singlepredict():
     return jsonify(path)
 
 
-def singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
+def singlezpb(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
     simulate.refresh()
     try:
-        dur = (equil - alt) / asc / 3600
+        dur = 0 if equil == alt else (equil - alt) / asc / 3600
         rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt, model, elevation=False)
         if len(rise) > 0:
             timestamp, lat, lon, alt, __, __ = rise[-1]
@@ -92,7 +92,7 @@ def singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
 
 
 @app.route('/singlezpb')
-def singlezpb():
+def singlezpbh():
     args = request.args
     timestamp = datetime.utcfromtimestamp(float(args['timestamp'])).replace(tzinfo=timezone.utc)
     lat, lon = float(args['lat']), float(args['lon'])
@@ -101,7 +101,7 @@ def singlezpb():
     eqtime = float(args['eqtime'])
     asc, desc = float(args['asc']), float(args['desc'])
     model = int(args['model'])
-    path = singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model)
+    path = singlezpb(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model)
     return jsonify(path)
 
 
@@ -116,7 +116,7 @@ def spaceshot():
     asc, desc = float(args['asc']), float(args['desc'])
     paths = list()
     for model in range(1,21):
-        paths.append(singlespaceshot(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model))
+        paths.append(singlezpb(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model))
     return jsonify(paths)
 
 '''
