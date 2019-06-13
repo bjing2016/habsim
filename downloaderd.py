@@ -19,8 +19,8 @@ def main():
         os.mkdir("gefs")
     except FileExistsError:
         pass
-    
-    ''' Special case to verify June 1 Launch '''
+
+    ''' Special case to verify June 1 Launch 
     timestamp = datetime(2019, 6, 1, 18)
   
     f = open("whichgefs", "w")
@@ -31,7 +31,7 @@ def main():
     os.system(command)
         
     exit()
-    ''' End special case '''
+    End special case '''
             
     now = datetime.utcnow()
     timestamp = datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) - timedelta(hours=6)
