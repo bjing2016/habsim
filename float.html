@@ -137,7 +137,8 @@
       <div>
         <h1>Stanford SSI HABSIM</h1>
         <h2>Float-profile trajectory prediction</h2>
-            Model run: <span id="run">Unavailable</span></br></br>
+            Model run: <span id="run">Unavailable</span></br>
+            Server status: <span id="status">Unavailable</span></br></br>
 
             Date: <input id = "yr" type="text" size="2" name="yr">/<input id = "mo" type="text" size="1" name="mo">/<input id = "day" type="text" size="1" name="day"><br/>
             Time (UTC): <input id = "hr" type="text" size="1" name="hr">:<input id = "mn" type="text" size="1" name="mn"><br/><br/>
@@ -145,7 +146,7 @@
             <b>Click to select. </b></br>
             Lat: <input id="lat" type="text" size="6" name="lat"> <br/>
             Lon: <input id="lon" type="text" size="6" name="2lon"> <br/>
-            Altitude: <input id="alt" type="text" size="2" name="alt"> m <br/><br/>
+            Altitude: <input id="alt" type="text" size="4" name="alt"> m <br/><br/>
             Floating coefficient: <input id="coeff" type="text" size="2" name="coeff"> <br/>
 
             Simulate for: <input id="dur" type="text" size="2" name="dur"> h <br/>
@@ -166,6 +167,10 @@
     fetch("https://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
                     document.getElementById("run").textContent = result
                 })
+    fetch("https://predict.stanfordssi.org/status").then(res => res.text()).then((result) => {
+                    document.getElementById("status").textContent = result
+                })
+
     document.getElementById("coeff").value = 0.5
     document.getElementById("dur").value = 48
     document.getElementById("step").value = 240

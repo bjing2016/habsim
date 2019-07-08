@@ -28,6 +28,13 @@ def whichgefs():
     f.close()
     return s
 
+@app.route('/status')
+def status():
+    f = open("serverstatus")
+    s = f.readline()
+    f.close()
+    return s
+
 '''
 Returns a json object representing the flight path, given a UTC launch time (yr, mo, day, hr, mn),
 a location (lat, lon), a launch elevation (alt), a drift coefficient (coeff),

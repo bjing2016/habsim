@@ -19,24 +19,16 @@ def main():
         os.mkdir("gefs")
     except FileExistsError:
         pass
-
-    ''' Special case to verify June 1 Launch 
-    timestamp = datetime(2019, 6, 1, 18)
-  
-    f = open("whichgefs", "w")
-    f.write(timestamp.strftime("%Y%m%d%H"))
-    f.close()
-    
-    command = "python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
-    os.system(command)
-        
-    exit()
-    End special case '''
             
     now = datetime.utcnow()
     timestamp = datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) - timedelta(hours=6)
     while True:
         command = "python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
+        
+        g = open("serverstatus", "w")
+        g.write("Data refreshing. Sims may be slower than usual.")
+        g.close()
+        
         while True:
             try: 
                 os.system(command)
@@ -46,6 +38,11 @@ def main():
         f = open("whichgefs", "w")
         f.write(timestamp.strftime("%Y%m%d%H"))
         f.close()
+
+        g = open("serverstatus", "w")
+        g.write("Ready")
+        g.close()
+
         prev_timestamp = timestamp - timedelta(hours=6)
         os.system("rm " + path + prev_timestamp.strftime("%Y%m%d%H") + "*")
         timestamp = timestamp + timedelta(hours=6)
