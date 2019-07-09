@@ -4,10 +4,15 @@ https://predict.stanfordssi.org
 
 ## Overview
 This is a prediction server developed for the Stanford Space Initiative's Balloons team. The aims of the prediction server, in comparison to existing ones, are as follows:
+
 -Offer probabilistic predictions based on the Monte-Carlo GEFS run set
+
 -Offer predictions out to the maximum time window permitted by GEFS (+378 hrs)
+
 -Offer finer and broader control over simulation parameters, including ascent rate, duration, simulation step, and drift coefficient
+
 -Export an intuitive prediction API which can be used to simulate arbitrary flight profiles
+
 -Offer a web-based UI which captures the functionality and flexibility of the API
 
 ## Status / Operation
@@ -66,6 +71,12 @@ v-wind is wind towards the NORTH: wind vector in the positve Y direction
 
 GEFS wind data has resolution 1 point per degree. Data is interpolated in all four dimensions.
 
+### /which
+Returns GFS timestamp
+
+### /status
+Returns server status
+
 ## Files
 
 ### api.py
@@ -85,6 +96,9 @@ Daemon-like downloader service. Upon startup, downloads elevation files once fro
 
 ### downloaderstatus
 Lock file to ensure only one instance of downloaderd.py runs
+
+### serverstatus
+Reports server status (initializing, refreshing, or ready)
 
 ### elev.py
 Tools for fetching elevation data from .npy files. File names and contents must be from the format in https://topotools.cr.usgs.gov/gmted_viewer/viewer.htm, converted into .npy format. Usage: exports getElevation(lat, lon) function. No interpolation; rounds to nearest 1/120 of a degree.
