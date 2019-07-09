@@ -73,7 +73,9 @@ def single_run(y,m,d,h,t,n):
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
     urllib.request.urlretrieve(url, path + savename + ".grb2")
-    
+
+    setBusy()
+
     #print("Unpacking " + savename)
     data = grb2_to_array(path + savename)
     data = np.float32(data)
@@ -100,6 +102,18 @@ def grb2_to_array(filename):
         dataset[1][i] = v[order[i]-1].data()[0]
     return dataset
 
+def setBusy():
+    g = open("serverstatus", "r")
+    line = g.readline()
+    g.close()
+    if line != "Data refreshing. Sims may be slower than usual." and line != "Initializing. Please check again later.":
+        g = open("serverstatus", "w")
+        g.write("Data refreshing. Sims may be slower than usual.")
+        g.close()
+
 if __name__ == "__main__":
     y, m, d, h = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
     complete_run(y,m,d,h)
+    g = open("serverstatus", "w")
+    g.write("Ready")
+    g.close()
