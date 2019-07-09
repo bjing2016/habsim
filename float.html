@@ -55,6 +55,12 @@
                 lng = lng.toFixed(4);
                 document.getElementById("lat").value = lat;
                 document.getElementById("lon").value = lng;
+                getElev();
+            }
+
+            function getElev() {
+                lat = document.getElementById("lat").value;
+                lng = document.getElementById("lon").value;
                 fetch("https://predict.stanfordssi.org/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((result) => {
                     document.getElementById("alt").value = result
                 })
@@ -146,8 +152,8 @@
             <b>Click to select. </b></br>
             Lat: <input id="lat" type="text" size="6" name="lat"> <br/>
             Lon: <input id="lon" type="text" size="6" name="2lon"> <br/>
-            Altitude: <input id="alt" type="text" size="4" name="alt"> m <br/><br/>
-            Floating coefficient: <input id="coeff" type="text" size="2" name="coeff"> <br/>
+            Altitude: <input id="alt" type="text" size="4" name="alt"> m <br/>
+            <button onclick="getElev()">Ground elevation</button><br/><br/>
 
             Simulate for: <input id="dur" type="text" size="2" name="dur"> h <br/>
             Step size: <input id="step" type="text" size="2" name="step"> s <br/>
