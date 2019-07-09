@@ -21,6 +21,10 @@ def zpb():  # pragma: no cover
 def floatonly():  # pragma: no cover
     return Response(open("interface/float.html").read(), mimetype="text/html")
 
+@app.route('/common.js')
+def commonjs():  # pragma: no cover
+    return Response(open("interface/common.js").read(), mimetype="text/html")
+
 @app.route('/which')
 def whichgefs():
     f = open("whichgefs")
