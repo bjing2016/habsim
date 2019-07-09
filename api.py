@@ -11,15 +11,15 @@ import os
 
 @app.route('/')
 def home():  # pragma: no cover
-    return Response(open("home.html").read(), mimetype="text/html")
+    return Response(open("interface/home.html").read(), mimetype="text/html")
 
 @app.route('/zpb')
 def zpb():  # pragma: no cover
-    return Response(open("zpb.html").read(), mimetype="text/html")
+    return Response(open("interface/zpb.html").read(), mimetype="text/html")
 
 @app.route('/float')
 def floatonly():  # pragma: no cover
-    return Response(open("float.html").read(), mimetype="text/html")
+    return Response(open("interface/float.html").read(), mimetype="text/html")
 
 @app.route('/which')
 def whichgefs():

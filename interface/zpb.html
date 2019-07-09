@@ -35,55 +35,6 @@
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
         
         <script type="text/javascript">
-            //Google maps API initialisation
-            var element = document.getElementById("map");
- 
-            var map = new google.maps.Map(element, {
-                center: new google.maps.LatLng(37.4, -121.5),
-                zoom: 9,
-                mapTypeId: "OSM",  
-            });
-
-            google.maps.event.addListener(map, 'click', function (event) {
-              displayCoordinates(event.latLng);               
-            });
-
-            function displayCoordinates(pnt) {
-                var lat = pnt.lat();
-                lat = lat.toFixed(4);
-                var lng = pnt.lng();
-                lng = lng.toFixed(4);
-                document.getElementById("lat").value = lat;
-                document.getElementById("lon").value = lng;
-                getElev();
-            }
-
-            function getElev() {
-                lat = document.getElementById("lat").value;
-                lng = document.getElementById("lon").value;
-                fetch("https://predict.stanfordssi.org/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((result) => {
-                    document.getElementById("alt").value = result
-                })
-            }
-        
-            //Define OSM map type pointing at the OpenStreetMap tile server
-            map.mapTypes.set("OSM", new google.maps.ImageMapType({
-                getTileUrl: function(coord, zoom) {
-                    // "Wrap" x (longitude) at 180th meridian properly
-                    // NB: Don't touch coord.x: because coord param is by reference, and changing its x property breaks something in Google's lib
-                    var tilesPerGlobe = 1 << zoom;
-                    var x = coord.x % tilesPerGlobe;
-                    if (x < 0) {
-                        x = tilesPerGlobe+x;
-                    }
-                    // Wrap y (latitude) in a like manner if you want to enable vertical infinite scrolling
-
-                    return "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
-                },
-                tileSize: new google.maps.Size(256, 256),
-                name: "OpenStreetMap",
-                maxZoom: 18
-            }));
             var currpaths = new Array()
             async function simulate() {
                 for (path in currpaths) {
@@ -100,12 +51,13 @@
                 var lon = document.getElementById('lon').value;
                 var alt = document.getElementById('alt').value;
                 var equil = document.getElementById('equil').value;
+                var eqtime = document.getElementById('eqtime').value;
                 var asc = document.getElementById('asc').value;
                 var desc = document.getElementById('desc').value;
                
                 for (i = 1; i < 21; i++) {
                     var url = "https://predict.stanfordssi.org/singlezpb?timestamp=" 
-                                + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + 0 + "&asc=" + asc + "&desc=" + desc
+                                + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + eqtime + "&asc=" + asc + "&desc=" + desc
                                 + "&model=" + i
                     console.log(url);
                     await fetch(url).then(res => res.json()).then(resjson => showpath(resjson));
@@ -115,6 +67,7 @@
             }
             function showpath(path) {               
                 var rise = path[0]
+                var eq = path[1]
                 var fall = path[2]
                 var risepathpoints = [];
                 for (point in rise) {
@@ -129,6 +82,20 @@
                 });
                 risepath.setMap(map);
                 currpaths.push(risepath);
+                
+                var eqpathpoints = [];
+                for (point in eq) {
+                    eqpathpoints.push( {lat: eq[point][1], lng: eq[point][2]} );
+                }
+                var eqpath = new google.maps.Polyline({
+                    path: eqpathpoints,
+                    geodesic: true,
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+                eqpath.setMap(map);
+                currpaths.push(eqpath);
 
 
                 var fallpathpoints = [];
@@ -138,7 +105,7 @@
                 var fallpath = new google.maps.Polyline({
                     path: fallpathpoints,
                     geodesic: true,
-                    strokeColor: '#DC143C',
+                    strokeColor: '#0000FF',
                     strokeOpacity: 1.0,
                     strokeWeight: 2
                 });
@@ -146,16 +113,12 @@
                 currpaths.push(fallpath);
 
             }
-            function toTimestamp(year,month,day,hour,minute){
-                var datum = new Date(Date.UTC(year,month-1,day,hour,minute));
-                return datum.getTime()/1000;
-            }
         </script>
     <div id="map_canvas" style="width:80%; height:100%"></div>
     <div id="info" style="padding-left:2ch; padding-right: 2ch">
       <div>
         <h1>Stanford SSI HABSIM</h1>
-        <h2>Standard-profile trajectory prediction</h2>
+        <h2>ZPB-profile trajectory prediction</h2>
             Model run: <span id="run">Unavailable</span></br>
             Server status: <span id="status">Unavailable</span></br></br>
 
@@ -164,35 +127,25 @@
             
             <b>Click to select. </b></br>
             Lat: <input id="lat" type="text" size="6" name="lat"> <br/>
-            Lon: <input id="lon" type="text" size="6" name="2lon"> <br/>
+            Lon: <input id="lon" type="text" size="6" name="lon"> <br/>
             Launch altitude: <input id="alt" type="text" size="4" name="alt"> m <br/>
             <button onclick="getElev()">Ground elevation</button><br/><br/>
             
             Ascent rate: <input id="asc" type="text" size="2" name="asc"> m/s <br/>
-            Burst altitude: <input id="equil" type="text" size="4" name="equil"> m <br/>
+            Equilibrium altitude: <input id="equil" type="text" size="4" name="equil"> m <br/>
+            Time at equilibrium: <input id="eqtime" type="text" size="2" name="eqtime"> h <br/>
             Descent rate: <input id="desc" type="text" size="2" name="desc"> m/s <br/>
             <button onclick="simulate()">Simulate</button>
             <br/><br/>
             If no trajectories appear, please check that the trajectory end time is within 384 hours of the model run.
       </div>
     </div>
+    <script type="text/javascript" src = "common.js"></script>
     <script> 
-    var now = new Date(Date.now());
-    document.getElementById("yr").value = now.getUTCFullYear()
-    document.getElementById("mo").value = now.getUTCMonth() + 1
-    document.getElementById("day").value = now.getUTCDate()
-    document.getElementById("hr").value = now.getUTCHours()
-    document.getElementById("mn").value = now.getUTCMinutes()
-    fetch("https://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
-                    document.getElementById("run").textContent = result
-                })
-    fetch("https://predict.stanfordssi.org/status").then(res => res.text()).then((result) => {
-                    document.getElementById("status").textContent = result
-                })
-    
-    document.getElementById("asc").value = 4
-    document.getElementById("equil").value = 30000
-    document.getElementById("desc").value = 8
+    document.getElementById("asc").value = 3.7
+    document.getElementById("equil").value = 29000
+    document.getElementById("eqtime").value = 1
+    document.getElementById("desc").value = 15
 
     </script>
 </body>
