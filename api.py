@@ -153,8 +153,8 @@ v-wind = [v-wind-1, v-wind-2, v-wind-3...v-wind-20]
 
 where the numbers are the GEFS model from which the data is extracted.
 '''
-@app.route('/wind')
-def wind():
+@app.route('/windensemble')
+def windensemble():
     simulate.refresh()
     args = request.args
     lat, lon = float(args['lat']), float(args['lon'])
@@ -170,6 +170,23 @@ def wind():
         vList.append(v)
     
     return jsonify([uList, vList])
+
+'''
+Given a time (yr, mo, day, hr, mn), a location (lat, lon), an altitude (alt),
+and a model (model) returns a json object of u-wind, v-wind for that location
+extracted from that model.
+'''
+@app.route('/wind')
+def wind():
+    simulate.refresh()
+    args = request.args
+    lat, lon = float(args['lat']), float(args['lon'])
+    model = int(args['model'])
+    alt = float(args['alt'])
+    yr, mo, day, hr, mn = int(args['yr']), int(args['mo']), int(args['day']), int(args['hr']), int(args['mn'])
+    time = datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc)
+    u, v = simulate.get_wind(time,lat,lon,alt, model)
+    return jsonify([u, v])
 
 import downloaderd
 from multiprocessing import Process

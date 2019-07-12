@@ -54,7 +54,7 @@ Lat, lon
 #### Returns
 Elevation at that location as a string. Elevation data has a resolution of 120 points per degree and is rounded, not interpolated. Not all elevation data is available; see https://web.stanford.edu/~bjing/elev. Locations outside these files are reported as elevation 0.
 
-### /wind
+### /windensemble
 #### Args
 Time (yr, mo, day, hr, mn), a location (lat, lon), and an altitude (alt)
 
@@ -70,6 +70,9 @@ u-wind is wind towards the EAST: wind vector in the positive X direction
 v-wind is wind towards the NORTH: wind vector in the positve Y direction
 
 GEFS wind data has resolution 1 point per degree. Data is interpolated in all four dimensions.
+
+### /wind
+Like /windensemble, except it takes a model parameter (model) and returns only the data for that model.
 
 ### /which
 Returns GFS timestamp
