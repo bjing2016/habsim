@@ -59,9 +59,12 @@ Elevation at that location as a string. Elevation data has a resolution of 120 p
 Time (yr, mo, day, hr, mn), a location (lat, lon), and an altitude (alt)
 
 #### Returns
-[u-wind, v-wind] where
+[u-wind, v-wind, du/dh, dv/dh], where
+
 u-wind = [u-wind-1, u-wind-2, u-wind-3...u-wind-20]
 v-wind = [v-wind-1, v-wind-2, v-wind-3...v-wind-20]
+du/dh = [du/dh-1, du/dh-2, du/dh-3...du/dh-20]
+dv/dh = [dv/dh-1, dv/dh-2, dv/dh-3...dv/dh-20]
 
 where the numbers are the GEFS model from which the data is extracted.
 
@@ -69,7 +72,7 @@ Note:
 u-wind is wind towards the EAST: wind vector in the positive X direction
 v-wind is wind towards the NORTH: wind vector in the positve Y direction
 
-GEFS wind data has resolution 1 point per degree. Data is interpolated in all four dimensions.
+Derivatives are approximated by linearly interpolating (with respect to altitude) between wind layers. GEFS wind data has resolution 1 point per degree. Data is interpolated in all four dimensions; in particular, actual wind is interpolated with respect to pressure.
 
 ### /wind
 Like /windensemble, except it takes a model parameter (model) and returns only the data for that model.

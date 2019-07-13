@@ -6,6 +6,8 @@ import math
 import bisect
 import time
 
+# Note: .replace(tzinfo=utc) is needed because we need to call .timestamp
+
 EARTH_RADIUS = float(6.371e6)
 DATA_STEP = 6 # hrs
 
@@ -18,6 +20,15 @@ GEFS = [10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
+
+GEFS_ALT = [30782, 26386, 23815, 20576, 18442, \
+            16180, 13608, 11784, 10363, 9164, 8117, 7186, 6344, \
+            5575, 4865, 4206, 3591, 3012, 2466, 1949, 1457, \
+            989, 762, 540, 323, 111]
+
+GEFS_ALT_DIFFS = [-4396, -2571, -3239, -2134, -2262, -2572, -1824, -1421, -1199, \
+       -1047,  -931,  -842,  -769,  -710,  -659,  -615,  -579,  -546, \
+        -517,  -492,  -468,  -227,  -222,  -217,  -212]
 
 ### Cache of datacubes and files. ###
 ### Filecache is in the form (currgefs, modelnumber). ###
@@ -61,13 +72,25 @@ def get_wind_helper(lat_res, lon_res, level_res, time_res, model):
     data1 = get_file(timestamp, model)
     data2 = get_file(timestamp + timedelta(hours=6), model)
 
-    pressure_filter = np.array([level_f, 1-level_f]).reshape(1,2,1,1)
+    #pressure_filter = np.array([level_f, 1-level_f]).reshape(1,2,1,1)
+    pressure_filter = np.array([level_f, 1-level_f]).reshape(1,2)
     lat_filter = np.array([lat_f, 1-lat_f]).reshape(1,1,2,1)
     lon_filter = np.array([lon_f, 1-lon_f]).reshape(1,1,1,2)
     
     cube1 = data1[:,level_i:level_i+2,lat_i:lat_i+2, lon_i:lon_i+2]
     cube2 = data2[:,level_i:level_i+2,lat_i:lat_i+2, lon_i:lon_i+2]
 
+    line1 = np.sum(cube1 * lat_filter * lon_filter, axis=(2,3))
+    line2 = np.sum(cube2 * lat_filter * lon_filter, axis=(2,3))
+
+    line_t = line1 * time_f + line2 * (1-time_f)
+    du, dv = np.diff(line_t, axis=1).flatten()
+    dh = GEFS_ALT_DIFFS[level_i]
+
+    u, v = (line_t * pressure_filter).sum(axis=1).flatten()
+
+    return u, v, du/dh, dv/dh
+    '''
     u1 = np.sum(cube1[0] * pressure_filter * lat_filter * lon_filter)
     v1 = np.sum(cube1[1] * pressure_filter * lat_filter * lon_filter)
 
@@ -75,7 +98,7 @@ def get_wind_helper(lat_res, lon_res, level_res, time_res, model):
     v2 = np.sum(cube2[1] * pressure_filter * lat_filter * lon_filter)
 
     return u1 * time_f + u2 * (1-time_f), v1 * time_f + v2 * (1-time_f)
-
+    '''
 ## Array format: array[u,v][Pressure][Lat][Lon] ##
 ## Currently [lat 90 to -90][lon 0 to 359]
 
@@ -111,9 +134,15 @@ def get_pressure_bound(alt):
 def alt_to_hpa(altitude):
     pa_to_hpa = 1.0/100.0
     if altitude < 11000:
-        return pa_to_hpa * math.exp(math.log(1.0 - (altitude/44330.7)) / 0.190266) * 101325.0
+        return pa_to_hpa * (1-altitude/44330.7)**5.2558 * 101325
     else:
-        return pa_to_hpa * math.exp(altitude / -6341.73) * 22632.1 / 0.176481
+        return pa_to_hpa * math.exp(altitude / -6341.73) * 128241
+
+def hpa_to_alt(p):
+    if p >  226.325:
+        return 44330.7 * (1 - (p / 1013.25) ** 0.190266)
+    else:
+        return -6341.73 * (math.log(p) - 7.1565)
 
 def lin_to_angular_velocities(lat, lon, u, v): 
     dlat = math.degrees(v / EARTH_RADIUS)
@@ -122,17 +151,16 @@ def lin_to_angular_velocities(lat, lon, u, v):
 
 def get_wind(simtime, lat, lon, alt, model):
     bounds = get_bounds_and_fractions(lat, lon, alt, simtime)  
-    u, v = get_wind_helper(*bounds, model)
-    return u, v
+    u, v, du, dv = get_wind_helper(*bounds, model)
+    return u, v, du, dv
 
 def simulate(simtime, lat, lon, rate, step, max_duration, alt, model, coefficient=1, elevation=True):
     
     end = simtime + timedelta(hours=max_duration)
     path = list()
     while True:
-        u, v = get_wind(simtime, lat, lon, alt, model)
-        path.append((simtime.timestamp(), lat, lon, alt, u, v))
-        
+        u, v, du, dv = get_wind(simtime, lat, lon, alt, model)
+        path.append((simtime.timestamp(), lat, lon, alt, u, v, du, dv))
         if simtime >= end or (elevation and elev.getElevation(lat, lon) > alt):
             break
         dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)

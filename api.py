@@ -89,11 +89,11 @@ def singlezpb(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
         dur = 0 if equil == alt else (equil - alt) / asc / 3600
         rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt, model, elevation=False)
         if len(rise) > 0:
-            timestamp, lat, lon, alt, __, __ = rise[-1]
+            timestamp, lat, lon, alt, __, __, __, __= rise[-1]
             timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
         coast = simulate.simulate(timestamp, lat, lon, 0, 240, eqtime, alt, model)
         if len(coast) > 0:
-            timestamp, lat, lon, alt, __, __ = coast[-1]
+            timestamp, lat, lon, alt, __, __, __, __ = coast[-1]
             timestamp = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
         dur = (alt) / desc / 3600
         fall = simulate.simulate(timestamp, lat, lon, -desc, 240, dur, alt, model)
@@ -145,11 +145,12 @@ def ls():
 
 '''
 Given a time (yr, mo, day, hr, mn), a location (lat, lon), and an altitude (alt)
-returns a json object of [u-wind, v-wind], where
-
+returns a json object of [u-wind, v-wind, du/dh, dv/dh], where
 
 u-wind = [u-wind-1, u-wind-2, u-wind-3...u-wind-20]
 v-wind = [v-wind-1, v-wind-2, v-wind-3...v-wind-20]
+du/dh = [du/dh-1, du/dh-2, du/dh-3...du/dh-20]
+dv/dh = [dv/dh-1, dv/dh-2, dv/dh-3...dv/dh-20]
 
 where the numbers are the GEFS model from which the data is extracted.
 '''
@@ -163,17 +164,21 @@ def windensemble():
     time = datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc)
     uList = list()
     vList = list()
+    duList = list()
+    dvList = list()
 
     for i in range(1, 21):
-        u, v = simulate.get_wind(time,lat,lon,alt, i)
+        u, v, du, dv = simulate.get_wind(time,lat,lon,alt, i)
         uList.append(u)
         vList.append(v)
+        duList.append(du)
+        dvList.append(dv)
     
-    return jsonify([uList, vList])
+    return jsonify([uList, vList, duList, dvList])
 
 '''
 Given a time (yr, mo, day, hr, mn), a location (lat, lon), an altitude (alt),
-and a model (model) returns a json object of u-wind, v-wind for that location
+and a model (model) returns a json object of u-wind, v-wind, du/dh, dv/dh for that location
 extracted from that model.
 '''
 @app.route('/wind')
@@ -185,8 +190,8 @@ def wind():
     alt = float(args['alt'])
     yr, mo, day, hr, mn = int(args['yr']), int(args['mo']), int(args['day']), int(args['hr']), int(args['mn'])
     time = datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc)
-    u, v = simulate.get_wind(time,lat,lon,alt, model)
-    return jsonify([u, v])
+    u, v, du, dv = simulate.get_wind(time,lat,lon,alt, model)
+    return jsonify([u, v, du, dv])
 
 import downloaderd
 from multiprocessing import Process
