@@ -3,22 +3,28 @@
 <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
     <title>HABSIM: High Altitude Balloon Simulator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <style type="text/css">
         html { height: 100% }
         body { height: 100%; margin: 0; padding: 0 }
 
         #info {
-            position: absolute;
-            width:12.5%;
-            height:100%;
-            bottom:0px;
-            right:0px;
+
+            width: 100%;
+            height: 130px;
+            /* bottom: 0px; */
+            /* right: 0px; */
             overflow-y: scroll;
             overflow-x: scroll;
-            top:0px;
-            background-color: rgb(255, 255, 255);
-            border-left:1px rgb(0, 0, 0) solid;
-            font-family:Helvetica; }
+            top: 0px;
+            background-color: #111;
+            color: #a2a2a2;
+            font-family: Helvetica;
+
+        }
 
         #map{
             height: 100%;
@@ -26,9 +32,101 @@
             margin: 0;
             padding: 0;
         }
+
+        .nav-item {
+            padding-right: 40px;
+        }
+
+        .input {
+            padding-bottom: 5px;
+        }
+
+        #navbarSupportedContent {
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
+<!--<div id="info" style="padding-left:2ch; padding-right: 2ch">
+    <div>
+        <h1>Stanford SSI HABSIM</h1>
+        <h2>Standard-profile trajectory prediction</h2>
+        Model run: <span id="run">Unavailable</span></br>
+        Server status: <span id="status">Unavailable</span></br></br>
+        </div>
+    <div>
+
+
+
+        <b>Click to select. </b></br>
+
+
+
+
+        <br/><br/>
+        If no trajectories appear, please check that the trajectory end time is within 384 hours of the model run.
+    </div>-->
+
+<nav id="info" class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#"><img src="https://s3-us-west-1.amazonaws.com/habmc/assets/Logo_BlackSubText.png" style="width: 120px;"></a>
+
+    <div  id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+
+            <li class="nav-item">
+                <a class="navbar-brand" href="#">Stanford SSI HABSIM</a><br>
+                <p>Standard-profile trajectory prediction</p>
+            </li>
+            <li class="nav-item">
+                <div class = "input">
+                Date: <input id = "yr" type="text" size="4" name="yr">/<input id = "mo" type="text" size="2" name="mo">/<input id = "day" type="text" size="2" name="day"><br/>
+                </div>
+                <div class = "input">
+                    Time (UTC): <input id = "hr" type="text" size="2" name="hr">:<input id = "mn" type="text" size="2" name="mn"><br/><br/>
+                </div>
+            </li>
+            <li class="nav-item">
+                <div class = "input">
+                Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
+                </div>
+                <div class = "input">
+                Lon: <input id="lon" type="text" size="8" name="2lon"> <br/>
+                </div>
+
+            </li>
+            <li class="nav-item">
+                <div class = "input">
+                Launch altitude: <input id="alt" type="text" size="5" name="alt"> m <br/>
+                </div>
+                <button onclick="getElev()">Ground elevation</button>
+            </li>
+            <li class="nav-item">
+                <div class = "input">
+                Ascent rate: <input id="asc" type="text" size="4" name="asc"> m/s <br/>
+                </div>
+                <div class = "input">
+                Burst altitude: <input id="equil" type="text" size="4" name="equil"> m <br/>
+                </div>
+                <div class = "input">
+                Descent rate: <input id="desc" type="text" size="4" name="desc"> m/s <br/>
+                </div>
+            </li>
+            <li class="nav-item">
+                <div class = "input">
+                Model run: <span id="run">Unavailable</span></br>
+                </div>
+                <div class = "input">
+                Server status: <span id="status">Unavailable</span></br>
+                </div>
+                <div class = "input">
+                <button onclick="simulate()">Simulate</button> <br/>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+</nav>
+</div>
 <div id="map" style="float: left;"></div>
 <!-- bring in the google maps library -->
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
@@ -164,45 +262,10 @@
             circleslist[i].setMap(null);
         }
         circleslist = [];
-    };
-    //create a global variable that will point to the tooltip in the DOM
-    var tipObj = null;
-
-    //offset along x and y in px
-    var offset = {
-        x: 20,
-        y: 20
-    };
-
-    var coordPropName = null;
-
-
+    }
 </script>
 <div id="map_canvas" style="width:80%; height:100%"></div>
-<div id="info" style="padding-left:2ch; padding-right: 2ch">
-    <div>
-        <h1>Stanford SSI HABSIM</h1>
-        <h2>Standard-profile trajectory prediction</h2>
-        Model run: <span id="run">Unavailable</span></br>
-        Server status: <span id="status">Unavailable</span></br></br>
 
-        Date: <input id = "yr" type="text" size="2" name="yr">/<input id = "mo" type="text" size="1" name="mo">/<input id = "day" type="text" size="1" name="day"><br/>
-        Time (UTC): <input id = "hr" type="text" size="1" name="hr">:<input id = "mn" type="text" size="1" name="mn"><br/><br/>
-
-        <b>Click to select. </b></br>
-        Lat: <input id="lat" type="text" size="6" name="lat"> <br/>
-        Lon: <input id="lon" type="text" size="6" name="2lon"> <br/>
-        Launch altitude: <input id="alt" type="text" size="4" name="alt"> m <br/>
-        <button onclick="getElev()">Ground elevation</button><br/><br/>
-
-        Ascent rate: <input id="asc" type="text" size="2" name="asc"> m/s <br/>
-        Burst altitude: <input id="equil" type="text" size="4" name="equil"> m <br/>
-        Descent rate: <input id="desc" type="text" size="2" name="desc"> m/s <br/>
-        <button onclick="simulate()">Simulate</button>
-        <br/><br/>
-        If no trajectories appear, please check that the trajectory end time is within 384 hours of the model run.
-    </div>
-</div>
 <script type="text/javascript" src = "common.js"></script>
 
 <script>
