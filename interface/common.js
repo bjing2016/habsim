@@ -4,12 +4,13 @@ var element = document.getElementById("map");
 var map = new google.maps.Map(element, {
     center: new google.maps.LatLng(37.4, -121.5),
     zoom: 9,
-    mapTypeId: "OSM",  
+    mapTypeId: "OSM",
 });
 
 google.maps.event.addListener(map, 'click', function (event) {
-    displayCoordinates(event.latLng);               
+    displayCoordinates(event.latLng);
 });
+
 
 function toTimestamp(year,month,day,hour,minute){
     var datum = new Date(Date.UTC(year,month-1,day,hour,minute));
