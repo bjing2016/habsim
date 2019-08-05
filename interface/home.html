@@ -280,9 +280,25 @@
     }
     circleslist = [];
     function showpath(path) {
+        switch(btype) {
+            case 'STANDARD':
+                var rise = path[0];
+                var equil = []
+                var fall = path[2];
+                break;
+            case 'ZPB':
+                var rise = path[0];
+                var equil = path[1]
+                var fall = path[2];
+            
+            // This doesn't work
+            
+            case 'FLOAT':
+                var rise = [];
+                var equil = [];
+                var fall = path;
+        }
 
-        var rise = path[0];
-        var fall = path[2];
         var risepathpoints = [];
         for (point in rise) {
             (function () {
@@ -305,14 +321,14 @@
                 circleslist.push(circle)
                 // multiplied by 1000 so that the argument is in milliseconds, not seconds.
                 var date = new Date(rise[point][0]*1000);
-// Hours part from the timestamp
+                // Hours part from the timestamp
                 var hours = date.getHours();
-// Minutes part from the timestamp
+                // Minutes part from the timestamp
                 var minutes = "0" + date.getMinutes();
-// Seconds part from the timestamp
+                // Seconds part from the timestamp
                 var seconds = "0" + date.getSeconds();
 
-// Will display time in 10:30:23 format
+                // Will display time in 10:30:23 format
                 var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
                 var infowindow = new google.maps.InfoWindow({
                     content: "Altitude: " + rise[point][3] + "m \n \n \n Time: " + formattedTime
@@ -337,6 +353,61 @@
         });
         risepath.setMap(map);
         currpaths.push(risepath);
+
+        var equilpathpoints = [];
+        for (point in equil) {
+            (function () {
+
+                equilpathpoints.push({
+                    lat: equil[point][1],
+                    lng: equil[point][2],
+                });
+                var circle = new google.maps.Circle({
+                    strokeColor: '#0000FF',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: '#0000FF',
+                    fillOpacity: 0.35,
+                    map: map,
+                    center: {lat: equil[point][1], lng: equil[point][2]},
+                    radius: 300,
+                    clickable: true
+                });
+                circleslist.push(circle)
+                // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+                var date = new Date(equil[point][0]*1000);
+                // Hours part from the timestamp
+                var hours = date.getHours();
+                // Minutes part from the timestamp
+                var minutes = "0" + date.getMinutes();
+                // Seconds part from the timestamp
+                var seconds = "0" + date.getSeconds();
+
+                // Will display time in 10:30:23 format
+                var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+                var infowindow = new google.maps.InfoWindow({
+                    content: "Altitude: " + equil[point][3] + "m \n \n \n Time: " + formattedTime
+                });
+                circle.addListener("mouseover", function () {
+                    infowindow.setPosition(circle.getCenter());
+                    infowindow.open(map);
+                });
+                circle.addListener("mouseout", function () {
+                    infowindow.close(map);
+                });
+
+            }());
+
+        }
+        var equilpath = new google.maps.Polyline({
+            path: equilpathpoints,
+            geodesic: true,
+            strokeColor: '#0000FF',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+        });
+        equilpath.setMap(map);
+        currpaths.push(equilpath);
 
         var fallpathpoints = [];
         for (point in fall) {
