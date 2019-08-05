@@ -9,20 +9,19 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <style type="text/css">
         html { height: 100% }
-        body { height: 100%; margin: 0; padding: 0 }
+        body { height: 100%; margin: 0; padding: 0; overflow-y: hidden;  }
 
         #info {
 
             width: 100%;
-            height: 130px;
+            height: 180px;
             /* bottom: 0px; */
             /* right: 0px; */
-            overflow-y: scroll;
-            overflow-x: scroll;
             top: 0px;
             background-color: #111;
             color: #a2a2a2;
             font-family: Helvetica;
+            font-size: 1vw;
 
         }
 
@@ -34,7 +33,7 @@
         }
 
         .nav-item {
-            padding-right: 40px;
+            padding-right: 35px;
         }
 
         .input {
@@ -43,6 +42,24 @@
 
         #navbarSupportedContent {
             margin-top: 5px;
+        }
+
+        .radio-inline {
+            margin-right: 5px;
+        }
+
+        .radiobtn {
+            margin-right: 5px;
+        }
+        @media (max-width: 768px) {
+            #info {
+                overflow-y: scroll;
+                overflow-x: scroll;
+            }
+
+            body{
+                overflow-y: scroll;
+            }
         }
     </style>
 </head>
@@ -75,11 +92,14 @@
 
             <li class="nav-item">
                 <a class="navbar-brand" href="#">Stanford SSI HABSIM</a><br>
-                <p>Standard-profile trajectory prediction</p>
+                <p id="subtext">Standard-profile trajectory prediction</p>
+                <label class="radio-inline"><input type="radio" name="optradio" class="radiobtn" value="standardbln" checked>Standard</label>
+                <label class="radio-inline"><input type="radio" name="optradio" class="radiobtn" value="zpbbln">ZPB</label>
+                <label class="radio-inline"><input type="radio" name="optradio" class="radiobtn" value="floatbln" >Float</label>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" style="width: 15%">
                 <div class = "input">
-                Date: <input id = "yr" type="text" size="4" name="yr">/<input id = "mo" type="text" size="2" name="mo">/<input id = "day" type="text" size="2" name="day"><br/>
+                    Date: <input id = "yr" type="text" size="4" name="yr">/<input id = "mo" type="text" size="2" name="mo">/<input id = "day" type="text" size="2" name="day"><br/>
                 </div>
                 <div class = "input">
                     Time (UTC): <input id = "hr" type="text" size="2" name="hr">:<input id = "mn" type="text" size="2" name="mn"><br/><br/>
@@ -87,39 +107,43 @@
             </li>
             <li class="nav-item">
                 <div class = "input">
-                Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
+                    Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
                 </div>
                 <div class = "input">
-                Lon: <input id="lon" type="text" size="8" name="2lon"> <br/>
+                    Lon: <input id="lon" type="text" size="8" name="2lon"> <br/>
                 </div>
+                <p style="
+    font-size: 12px;
+">Click on map to get coordinates
+                </p>
 
             </li>
             <li class="nav-item">
                 <div class = "input">
-                Launch altitude: <input id="alt" type="text" size="5" name="alt"> m <br/>
+                    Launch altitude: <input id="alt" type="text" size="5" name="alt"> m <br/>
                 </div>
                 <button onclick="getElev()">Ground elevation</button>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id = "contentwrap">
                 <div class = "input">
-                Ascent rate: <input id="asc" type="text" size="4" name="asc"> m/s <br/>
+                    Ascent rate: <input id="asc" type="text" size="4" name="asc"> m/s <br/>
                 </div>
                 <div class = "input">
-                Burst altitude: <input id="equil" type="text" size="4" name="equil"> m <br/>
+                    Burst altitude: <input id="equil" type="text" size="5" name="equil"> m <br/>
                 </div>
                 <div class = "input">
-                Descent rate: <input id="desc" type="text" size="4" name="desc"> m/s <br/>
+                    Descent rate: <input id="desc" type="text" size="4" name="desc"> m/s <br/>
                 </div>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" style="width: 15%">
                 <div class = "input">
-                Model run: <span id="run">Unavailable</span></br>
+                    Model run: <span id="run">Unavailable</span></br>
                 </div>
                 <div class = "input">
-                Server status: <span id="status">Unavailable</span></br>
+                    Server status: <span id="status">Unavailable</span></br>
                 </div>
                 <div class = "input">
-                <button onclick="simulate()">Simulate</button> <br/>
+                    <button onclick="simulate()">Simulate</button> <br/>
                 </div>
             </li>
         </ul>
@@ -131,6 +155,67 @@
 <!-- bring in the google maps library -->
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
 <script type="text/javascript">
+    var btype = "STANDARD"
+    $(document).ready(function() {
+        $('input[name="optradio"]').on('change', function () {
+
+            if ($(this).val() === "standardbln") {
+                var codeBlock = "<div class = \"input\">\n" +
+                    "                Ascent rate: <input id=\"asc\" type=\"text\" size=\"4\" name=\"asc\"> m/s <br/>\n" +
+                    "                </div>\n" +
+                    "                <div class = \"input\">\n" +
+                    "                Burst altitude: <input id=\"equil\" type=\"text\" size=\"4\" name=\"equil\"> m <br/>\n" +
+                    "                </div>\n" +
+                    "                <div class = \"input\">\n" +
+                    "                Descent rate: <input id=\"desc\" type=\"text\" size=\"4\" name=\"desc\"> m/s <br/>\n" +
+                    "                </div>"
+                document.getElementById("contentwrap").innerHTML = codeBlock;
+                document.getElementById("asc").value = 4;
+                document.getElementById("equil").value = 30000;
+                document.getElementById("desc").value = 8;
+                btype = "STANDARD"
+            }
+
+            else if ($(this).val() === "zpbbln") {
+                var codeBlock = "<div class = \"input\">\n" +
+                    "                Ascent rate: <input id=\"asc\" type=\"text\" size=\"4\" name=\"asc\"> m/s <br/>\n" +
+                    "                </div>\n" +
+                    "                <div class = \"input\">\n" +
+                    "                Equilibrium altitude: <input id=\"equil\" type=\"text\" size=\"4\" name=\"equil\"> m <br/>\n" +
+                    "                </div>\n" + "<div class = \"input\">\n" +
+                    "                Time at Equilibrium: <input id=\"eqtime\" type=\"text\" size=\"4\" name=\"eqtime\"> h <br/>\n" +
+                    "                </div>\n" +
+                    "                <div class = \"input\">\n" +
+                    "                Descent rate: <input id=\"desc\" type=\"text\" size=\"4\" name=\"desc\"> m/s <br/>\n" +
+                    "                </div>"
+                document.getElementById("contentwrap").innerHTML = codeBlock;
+                document.getElementById("asc").value = 3.7;
+                document.getElementById("equil").value = 29000;
+                document.getElementById("eqtime").value = 1;
+                document.getElementById("desc").value = 15;
+                btype = "ZPB"
+
+
+            } else if ($(this).val() === "floatbln") {
+                var codeBlock = "<div class = \"input\">\n" +
+                    "                Floating Coefficient: <input id=\"coeff\" type=\"text\" size=\"4\" name=\"coeff\"> <br/>\n" +
+                    "                </div>\n" +
+                    "                <div class = \"input\">\n" +
+                    "                Simulate for: <input id=\"dur\" type=\"text\" size=\"4\" name=\"dur\"> h <br/>\n" +
+                    "                </div>\n" +
+                    "                <div class = \"input\">\n" +
+                    "                Step Size: <input id=\"step\" type=\"text\" size=\"4\" name=\"step\"> m/s <br/>\n" +
+                    "                </div>"
+                document.getElementById("contentwrap").innerHTML = codeBlock;
+                document.getElementById("coeff").value = 0.5;
+                document.getElementById("dur").value = 48;
+                document.getElementById("step").value = 240;
+                btype = "FLOAT"
+
+            }
+        });
+    });
+
     var currpaths = new Array()
     async function simulate() {
         clearMap();
@@ -147,17 +232,50 @@
         var lat = document.getElementById('lat').value;
         var lon = document.getElementById('lon').value;
         var alt = document.getElementById('alt').value;
-        var equil = document.getElementById('equil').value;
-        var asc = document.getElementById('asc').value;
-        var desc = document.getElementById('desc').value;
+        var url = ""
+        console.log("BTYPE IS")
+        console.log(btype)
+        switch(btype) {
+            case 'STANDARD':
+                // code block
+                var equil = document.getElementById('equil').value;
+                var asc = document.getElementById('asc').value;
+                var desc = document.getElementById('desc').value;
+                document.getElementById("subtext").textContent = "Standard-profile trajectory prediction";
+                url = "https://predict.stanfordssi.org/singlezpb?timestamp="
+                    + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + 0 + "&asc=" + asc + "&desc=" + desc;
+
+                break;
+            case 'ZPB':
+                // code block
+                var equil = document.getElementById('equil').value;
+                var eqtime = document.getElementById('eqtime').value;
+                var asc = document.getElementById('asc').value;
+                var desc = document.getElementById('desc').value;
+                document.getElementById("subtext").textContent = "ZPB-profile trajectory prediction";
+                url = "https://predict.stanfordssi.org/singlezpb?timestamp="
+                    + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + eqtime + "&asc=" + asc + "&desc=" + desc
+
+                break;
+            case 'FLOAT':
+                // code block
+                var coeff = document.getElementById('coeff').value;
+                var step = document.getElementById('step').value;
+                var dur = document.getElementById('dur').value;
+                document.getElementById("subtext").textContent = "Float-profile trajectory prediction";
+                url = "https://predict.stanfordssi.org/singlepredict?timestamp="
+                    + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&rate=0&coeff=" + coeff + "&step=" + step + "&dur=" + dur
+
+                break;
+        }
+
 
         for (i = 1; i < 21; i++) {
-            var url = "https://predict.stanfordssi.org/singlezpb?timestamp="
-                + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + 0 + "&asc=" + asc + "&desc=" + desc
-                + "&model=" + i
-            console.log(url);
-            await fetch(url).then(res => res.json()).then(resjson => showpath(resjson));
+            var url2 = url + "&model=" + i;
+            console.log(url2);
+            await fetch(url2).then(res => res.json()).then(resjson => showpath(resjson));
         }
+
 
     }
     circleslist = [];
@@ -185,8 +303,19 @@
                     clickable: true
                 });
                 circleslist.push(circle)
+                // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+                var date = new Date(rise[point][0]*1000);
+// Hours part from the timestamp
+                var hours = date.getHours();
+// Minutes part from the timestamp
+                var minutes = "0" + date.getMinutes();
+// Seconds part from the timestamp
+                var seconds = "0" + date.getSeconds();
+
+// Will display time in 10:30:23 format
+                var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
                 var infowindow = new google.maps.InfoWindow({
-                    content: "Altitude: " + rise[point][3] + " m \n \n \n Time: " + rise[point][0]
+                    content: "Altitude: " + rise[point][3] + "m \n \n \n Time: " + formattedTime
                 });
                 circle.addListener("mouseover", function () {
                     infowindow.setPosition(circle.getCenter());
@@ -229,8 +358,19 @@
                     clickable: true
                 });
                 circleslist.push(circle)
+                // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+                var date = new Date(rise[point][0]*1000);
+// Hours part from the timestamp
+                var hours = date.getHours();
+// Minutes part from the timestamp
+                var minutes = "0" + date.getMinutes();
+// Seconds part from the timestamp
+                var seconds = "0" + date.getSeconds();
+
+// Will display time in 10:30:23 format
+                var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
                 var infowindow = new google.maps.InfoWindow({
-                    content: "Altitude: " + fall[point][3] + "m \n \n \n Time: " + fall[point][0]
+                    content: "Altitude: " + rise[point][3] + "m \n \n \n Time: " + formattedTime
                 });
                 circle.addListener("mouseover", function () {
                     infowindow.setPosition(circle.getCenter());
@@ -263,14 +403,33 @@
         }
         circleslist = [];
     }
+
+    window.onload = function(){
+        fetch("https://predict.stanfordssi.org/status").then(res => res.text()).then((result) => {
+            document.getElementById("status").textContent = result;
+            if(result === "Ready") {
+                document.getElementById("status").style.color = "#00CC00";
+            }
+            else if(result === "Unavailable" || result === "Initializing. Please check again later."){
+                document.getElementById("status").style.color = "#CC0000";
+            }
+            else{
+                document.getElementById("status").style.color = "#FFB900";
+            }
+
+        });
+
+
+
+    }();
 </script>
 <div id="map_canvas" style="width:80%; height:100%"></div>
-
+<script>
+    document.getElementById("asc").value = 4;
+    document.getElementById("equil").value = 30000;
+    document.getElementById("desc").value = 8;
+</script>
 <script type="text/javascript" src = "common.js"></script>
 
-<script>
-    document.getElementById("asc").value = 4
-    document.getElementById("equil").value = 30000
-    document.getElementById("desc").value = 8
-</script>
+
 </body>
