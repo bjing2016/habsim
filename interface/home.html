@@ -57,6 +57,16 @@
             #info {
                 overflow-y: scroll;
                 overflow-x: scroll;
+                font-size: 5vw;
+                text-align: center;
+            }
+
+            .nav-item {
+                width: 100% !important;
+            }
+
+            .navbar-brand img{
+                margin-left: 75%;
             }
 
             body{
@@ -92,7 +102,7 @@
     </div>-->
 
 <nav id="info" class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#"><img src="https://s3-us-west-1.amazonaws.com/habmc/assets/Logo_BlackSubText.png" style="width: 120px;"></a>
+    <a class="navbar-brand" href="https://stanfordssi.org"><img src="https://s3-us-west-1.amazonaws.com/habmc/assets/Logo_BlackSubText.png" style="width: 120px;"></a>
 
     <div  id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
@@ -146,7 +156,7 @@
                     Descent rate: <input id="desc" type="text" size="4" name="desc"> m/s <br/>
                 </div>
             </li>
-            <li class="nav-item" style="width: 15%">
+            <li class="nav-item" style="width: 19%">
                 <div class = "input">
                     Model run: <span id="run">Unavailable</span></br>
                 </div>
@@ -154,7 +164,8 @@
                     Server status: <span id="status">Unavailable</span></br>
                 </div>
                 <div class = "input">
-                    <button class="btn-sm btn-info" onclick="simulate()">Simulate</button> <br/>
+                    <button class="btn-sm btn-info" onclick="simulate()">Simulate</button>
+                    <button class="btn-sm btn-warning" onclick="habmc()">Get HABMC data</button> <br/>
                 </div>
             </li>
         </ul>
@@ -239,8 +250,21 @@
                 simulate()
             }
         })
-    })
-    var currpaths = new Array()
+    });
+    var currpaths = new Array();
+
+    async function habmc(){
+        let activemissionurl = "https://habmc.stanfordssi.org/transmissions/recent";
+        console.log(activemissionurl)
+        await fetch(activemissionurl).then(res => res.json()).then(resjson => show(resjson));
+
+    }
+    
+
+    function show(data){
+       document.getElementById("lat").value = data["latitude"];
+    }
+
     async function simulate() {
         clearWaypoints();
         for (path in currpaths) {
