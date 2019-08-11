@@ -11,12 +11,11 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <style type="text/css">
         html { height: 100% }
-        body { height: 100%; margin: 0; padding: 0; overflow-y: hidden;  }
-
+        body { height: 100%; margin: 0; padding: 0; overflow-y: hidden}
+        #map{ height: 100%; width: 100%; margin: 0; padding: 0}
         #info {
-
             width: 100%;
-            height: 180px;
+            height: 170px;
             /* bottom: 0px; */
             /* right: 0px; */
             top: 0px;
@@ -24,32 +23,19 @@
             color: #a2a2a2;
             font-family: Helvetica;
             font-size: 1vw;
-
         }
-
-        #map{
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
         .nav-item {
             padding-right: 35px;
         }
-
         .input {
             padding-bottom: 5px;
         }
-
         #navbarSupportedContent {
             margin-top: 5px;
         }
-
         .radio-inline {
             margin-right: 5px;
         }
-
         .radiobtn {
             margin-right: 5px;
         }
@@ -60,47 +46,22 @@
                 font-size: 5vw;
                 text-align: center;
             }
-
             .nav-item {
                 width: 100% !important;
             }
-
             .navbar-brand img{
                 margin-left: 75%;
             }
-
             body{
                 overflow-y: scroll;
             }
         }
-
         .toggle {
             border: solid 1px #a2a2a2;
         }
-
     </style>
 </head>
 <body>
-<!--<div id="info" style="padding-left:2ch; padding-right: 2ch">
-    <div>
-        <h1>Stanford SSI HABSIM</h1>
-        <h2>Standard-profile trajectory prediction</h2>
-        Model run: <span id="run">Unavailable</span></br>
-        Server status: <span id="status">Unavailable</span></br></br>
-        </div>
-    <div>
-
-
-
-        <b>Click to select. </b></br>
-
-
-
-
-        <br/><br/>
-        If no trajectories appear, please check that the trajectory end time is within 384 hours of the model run.
-    </div>-->
-
 <nav id="info" class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="https://stanfordssi.org"><img src="https://s3-us-west-1.amazonaws.com/habmc/assets/Logo_BlackSubText.png" style="width: 120px;"></a>
 
@@ -131,20 +92,18 @@
                     Lat: <input id="lat" type="text" size="8" name="lat"> <br/>
                 </div>
                 <div class = "input">
-                    Lon: <input id="lon" type="text" size="8" name="2lon"> <br/>
+                    Lon: <input id="lon" type="text" size="8" name="lon"> <br/>
                 </div>
-                <p style="
-    font-size: 12px;
-">Click on map to get coordinates
-                </p>
+                <p style="font-size: 12px;">Click on map to get coordinates</p>
 
             </li>
             <li class="nav-item">
                 <div class = "input">
                     Launch altitude: <input id="alt" type="text" size="5" name="alt"> m <br/>
                 </div>
-                <button class="btn-sm" onclick="getElev()">Get Ground Elevation</button><br>
-                <button class="btn-sm" id="eqtimebtn" style= "visibility: hidden;" onclick="getEqtime()">Get Equilibrium Time</button>
+                <button class="btn-sm" onclick="getElev()">Get Ground elevation</button><br>
+                <button class="btn-sm btn-warning" onclick="habmc()">Get Live HABMC Data</button><br>
+                
             </li>
             <li class="nav-item" id = "contentwrap">
                 <div class = "input">
@@ -157,7 +116,7 @@
                     Descent rate: <input id="desc" type="text" size="4" name="desc"> m/s <br/>
                 </div>
             </li>
-            <li class="nav-item" style="width: 15%">
+            <li class="nav-item" style="width: 20%">
                 <div class = "input">
                     Model run: <span id="run">Unavailable</span></br>
                 </div>
@@ -165,8 +124,10 @@
                     Server status: <span id="status">Unavailable</span></br>
                 </div>
                 <div class = "input">
-                    <button class="btn-sm btn-info" onclick="simulate()">Simulate</button>
-                    <button class="btn-sm btn-warning" onclick="habmc()">Get HABMC data</button> <br/>
+                    <button class="btn-sm btn-info" onclick="simulate()">Simulate</button><button class="btn-sm" id="eqtimebtn" onclick="getTimeremain()">Remaining Time</button><br/>
+                </div>
+                <div class = "input">
+                        <span id="timeremain"></span></br>
                 </div>
             </li>
         </ul>
@@ -175,378 +136,8 @@
 </nav>
 </div>
 <div id="map" style="float: left;"></div>
-<!-- bring in the google maps library -->
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-<script type="text/javascript">
-    var btype = "STANDARD"
-    $(document).ready(function() {
-        $('input[name="optradio"]').on('change', function () {
-
-            if ($(this).val() === "standardbln") {
-                var codeBlock = "<div class = \"input\">\n" +
-                    "                Ascent rate: <input id=\"asc\" type=\"text\" size=\"4\" name=\"asc\"> m/s <br/>\n" +
-                    "                </div>\n" +
-                    "                <div class = \"input\">\n" +
-                    "                Burst altitude: <input id=\"equil\" type=\"text\" size=\"5\" name=\"equil\"> m <br/>\n" +
-                    "                </div>\n" +
-                    "                <div class = \"input\">\n" +
-                    "                Descent rate: <input id=\"desc\" type=\"text\" size=\"4\" name=\"desc\"> m/s <br/>\n" +
-                    "                </div>"
-                document.getElementById("contentwrap").innerHTML = codeBlock;
-                document.getElementById("asc").value = 4;
-                document.getElementById("equil").value = 30000;
-                document.getElementById("desc").value = 8;
-                btype = "STANDARD"
-                document.getElementById("eqtimebtn").style.visibility = "hidden";
-            }
-
-            else if ($(this).val() === "zpbbln") {
-                var codeBlock = "<div class = \"input\">\n" +
-                    "                Ascent rate: <input id=\"asc\" type=\"text\" size=\"4\" name=\"asc\"> m/s <br/>\n" +
-                    "                </div>\n" +
-                    "                <div class = \"input\">\n" +
-                    "                Equilibrium altitude: <input id=\"equil\" type=\"text\" size=\"5\" name=\"equil\"> m <br/>\n" +
-                    "                </div>\n" + "<div class = \"input\">\n" +
-                    "                Time at Equilibrium: <input id=\"eqtime\" type=\"text\" size=\"4\" name=\"eqtime\"> h <br/>\n" +
-                    "                </div>\n" +
-                    "                <div class = \"input\">\n" +
-                    "                Descent rate: <input id=\"desc\" type=\"text\" size=\"4\" name=\"desc\"> m/s <br/>\n" +
-                    "                </div>"
-                document.getElementById("contentwrap").innerHTML = codeBlock;
-                document.getElementById("asc").value = 3.7;
-                document.getElementById("equil").value = 29000;
-                document.getElementById("eqtime").value = 1;
-                document.getElementById("desc").value = 15;
-                btype = "ZPB"
-                document.getElementById("eqtimebtn").style.visibility = "visible";
-
-
-            } else if ($(this).val() === "floatbln") {
-                var codeBlock = "<div class = \"input\">\n" +
-                    "                Floating Coefficient: <input id=\"coeff\" type=\"text\" size=\"4\" name=\"coeff\"> <br/>\n" +
-                    "                </div>\n" +
-                    "                <div class = \"input\">\n" +
-                    "                Simulate for: <input id=\"dur\" type=\"text\" size=\"4\" name=\"dur\"> h <br/>\n" +
-                    "                </div>\n" +
-                    "                <div class = \"input\">\n" +
-                    "                Step Size: <input id=\"step\" type=\"text\" size=\"4\" name=\"step\"> m/s <br/>\n" +
-                    "                </div>"
-                document.getElementById("contentwrap").innerHTML = codeBlock;
-                document.getElementById("coeff").value = 0.5;
-                document.getElementById("dur").value = 48;
-                document.getElementById("step").value = 240;
-                btype = "FLOAT"
-                document.getElementById("eqtimebtn").style.visibility = "hidden";
-
-            }
-        });
-    });
-
-    var waypointsToggle = true;
-    $(function() {
-        $('#toggle-event').change(function() {
-            var state = $(this).prop('checked');
-            if(!state){
-                waypointsToggle = false
-                clearWaypoints();
-            }
-            else{
-                waypointsToggle = true;
-                simulate()
-            }
-        })
-    });
-    var currpaths = new Array();
-
-    async function habmc(){
-        let activemissionurl = "https://stanfordssi.org/transmissions/recent";
-        const proxyurl = "https://cors-anywhere.herokuapp.com/";
-
-        fetch(proxyurl + activemissionurl) // https://cors-anywhere.herokuapp.com/https://example.com
-            .then(response => response.text())
-            .then(contents => show(contents))
-            .catch(() => console.log("Can’t access " + activemissionurl + " response. Blocked by browser?"))
-
-    }
-
-
-    function show(data){
-
-        let data2 = JSON.parse(data);
-        console.log(data2);
-        let datetime = data2["Human Time"];
-        var res = (datetime.substring(0,11)).split("-");
-        var res2 = (datetime.substring(11,20)).split(":");
-        var hourutc = parseInt(res2[0]);
-        if(hourutc >= 24){
-            document.getElementById("hr").value = hourutc - 24;
-        }
-        else{
-            document.getElementById("hr").value = hourutc;
-        }
-        document.getElementById("mn").value = parseInt(res2[1]);
-
-        console.log(res2);
-
-
-        document.getElementById("yr").value = parseInt(res[0]);
-        document.getElementById("mo").value = parseInt(res[1]);
-        document.getElementById("day").value = parseInt(res[2]);
-        document.getElementById("lat").value = parseFloat(data2["latitude"]);
-        document.getElementById("lon").value = parseFloat(data2["longitude"]);
-        document.getElementById("alt").value = parseFloat(data2["altitude_gps"]);
-        let rate = parseFloat(data2["ascentRate"]);
-        if(rate >= 0){
-            document.getElementById("asc").value = rate;
-        }
-        else{
-            document.getElementById("desc").value = rate.abs();
-        }
-    }
-
-    async function simulate() {
-        clearWaypoints();
-        for (path in currpaths) {
-            currpaths[path].setMap(null);
-        }
-        currpaths = new Array();
-        console.log("Clearing");
-        allValues = [];
-        var time = toTimestamp(Number(document.getElementById('yr').value),
-            Number(document.getElementById('mo').value),
-            Number(document.getElementById('day').value),
-            Number(document.getElementById('hr').value),
-            Number(document.getElementById('mn').value));
-        var lat = document.getElementById('lat').value;
-        var lon = document.getElementById('lon').value;
-        var alt = document.getElementById('alt').value;
-        var url = "";
-        allValues.push(time,alt);
-        switch(btype) {
-            case 'STANDARD':
-                // code block
-                var equil = document.getElementById('equil').value;
-                var asc = document.getElementById('asc').value;
-                var desc = document.getElementById('desc').value;
-                url = "https://predict.stanfordssi.org/singlezpb?timestamp="
-                    + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + 0 + "&asc=" + asc + "&desc=" + desc;
-                allValues.push(equil,asc,desc);
-                break;
-            case 'ZPB':
-                // code block
-                var equil = document.getElementById('equil').value;
-                var eqtime = document.getElementById('eqtime').value;
-                var asc = document.getElementById('asc').value;
-                var desc = document.getElementById('desc').value;
-                url = "https://predict.stanfordssi.org/singlezpb?timestamp="
-                    + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + eqtime + "&asc=" + asc + "&desc=" + desc
-                allValues.push(equil,eqtime,asc,desc);
-                break;
-            case 'FLOAT':
-                // code block
-                var coeff = document.getElementById('coeff').value;
-                var step = document.getElementById('step').value;
-                var dur = document.getElementById('dur').value;
-                url = "https://predict.stanfordssi.org/singlepredict?timestamp="
-                    + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&rate=0&coeff=" + coeff + "&step=" + step + "&dur=" + dur
-                allValues.push(coeff,step,dur);
-                break;
-        }
-        var onlyonce = true;
-        if(checkNumPos(allValues) && checkasc(asc,alt,equil)
-            && checkToday(parseInt(document.getElementById('yr').value), parseInt(document.getElementById('mo').value),parseInt(document.getElementById('day').value))){
-            for (i = 1; i < 21; i++) {
-                var url2 = url + "&model=" + i;
-                console.log(url2);
-                await fetch(url2).then(res => res.json()).then(function(resjson){
-                    if(resjson==="error"){
-                        if(onlyonce) {
-                            alert("ERROR: Please make sure all your inputs are correct and try again");
-                            onlyonce = false;
-                        }
-                        //break;
-                     }
-        else {
-                        showpath(resjson);
-                    }
-                });
-            }
-            onlyonce = true;
-        }
-    }
-
-    function checkNumPos(numlist){
-        for (var each in numlist){
-            if(isNaN(numlist[each]) || Math.sign(numlist[each]) === -1 || !numlist[each]){
-                alert("ATTENTION: All values should be positive and numbers, check your inputs again!");
-                return false;
-            }
-        }
-        return true;
-
-    }
-
-    function checkasc(asc,alt,equil){
-        if(alt<equil && asc==="0"){
-            alert("ATTENTION: Ascent rate is 0 while balloon altitude is below its descent ready altitude");
-            return false;
-        }
-        return true;
-    }
-
-    function checkToday(tyr,tmon,tday){
-        if(tyr!==now.getUTCFullYear() || tmon!==(now.getUTCMonth() + 1) || tday!==now.getUTCDate()){
-            alert("ATTENTION: As of now, HABSIM can only simulate launches of the present day");
-            return false;
-        }
-        return true;
-
-    }
-    circleslist = [];
-    function showpath(path) {
-
-        switch(btype) {
-            case 'STANDARD':
-                var rise = path[0];
-                var equil = []
-                var fall = path[2];
-                var fpath = [];
-
-                break;
-            case 'ZPB':
-                var rise = path[0];
-                var equil = path[1]
-                var fall = path[2];
-                var fpath = [];
-                break;
-            // This doesn't work
-
-            case 'FLOAT':
-                var rise = [];
-                var equil = [];
-                var fall = [];
-                var fpath = path;
-        }
-        var allpaths = [rise, equil, fall, fpath];
-        makepaths(btype, allpaths);
-
-    }
-
-    function getcolor(index){
-        switch(index){
-            case '0':
-                return '#DC143C';
-            case '1':
-                return '#0000FF';
-            case '2':
-                return '#000000';
-            case '3': return '#000000';
-        }
-    }
-    function makepaths(btype, allpaths){
-        for (index in allpaths) {
-            var pathpoints = [];
-            for (point in allpaths[index]){
-                (function () {
-                    var position = {
-                        lat: allpaths[index][point][1],
-                        lng: allpaths[index][point][2],
-                    };
-                    pathpoints.push(position);
-                    if(waypointsToggle){
-                        var circle = new google.maps.Circle({
-                            strokeColor: getcolor(index),
-                            strokeOpacity: 0.8,
-                            strokeWeight: 2,
-                            fillColor: getcolor(index),
-                            fillOpacity: 0.35,
-                            map: map,
-                            center: position,
-                            radius: 300,
-                            clickable: true
-                        });
-                        circleslist.push(circle);
-                        // multiplied by 1000 so that the argument is in milliseconds, not seconds.
-                        var date = new Date(allpaths[index][point][0] * 1000);
-                        // Hours part from the timestamp
-                        var hours = date.getHours();
-                        // Minutes part from the timestamp
-                        var minutes = "0" + date.getMinutes();
-                        // Seconds part from the timestamp
-                        var seconds = "0" + date.getSeconds();
-
-                        // Will display time in 10:30:23 format
-                        var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-                        var infowindow = new google.maps.InfoWindow({
-                            content: "Altitude: " + allpaths[index][point][3] + "m \n \n \n Time: " + formattedTime
-                        });
-                        circle.addListener("mouseover", function () {
-                            infowindow.setPosition(circle.getCenter());
-                            infowindow.open(map);
-                        });
-                        circle.addListener("mouseout", function () {
-                            infowindow.close(map);
-                        });
-                    }
-
-                }());
-            }
-            var drawpath = new google.maps.Polyline({
-                path: pathpoints,
-                geodesic: true,
-                strokeColor: getcolor(index),
-                strokeOpacity: 1.0,
-                strokeWeight: 2
-            });
-            drawpath.setMap(map);
-            currpaths.push(drawpath);
-        }
-
-    }
-
-
-    function clearWaypoints() {
-        //Loop through all the markers and remove
-        for (var i = 0; i < circleslist.length; i++) {
-            circleslist[i].setMap(null);
-        }
-        circleslist = [];
-    }
-
-    window.onload = function(){
-        fetch("https://predict.stanfordssi.org/status").then(res => res.text()).then((result) => {
-            document.getElementById("status").textContent = result;
-            if(result === "Ready") {
-                document.getElementById("status").style.color = "#00CC00";
-            }
-            else if(result === "Unavailable" || result === "Initializing. Please check again later."){
-                document.getElementById("status").style.color = "#CC0000";
-            }
-            else{
-                document.getElementById("status").style.color = "#FFB900";
-            }
-
-        });
-
-
-
-    }();
-
-    function getEqtime() {
-        alt = document.getElementById("alt").value;
-        eqalt = document.getElementById("equil").value;
-        ascr = document.getElementById("asc").value;
-        console.log(alt,eqalt,ascr)
-        document.getElementById("eqtime").value = (eqalt - alt)/(3600*ascr);
-    }
-</script>
-<div id="map_canvas" style="width:80%; height:100%"></div>
-<script>
-    document.getElementById("asc").value = 4;
-    document.getElementById("equil").value = 30000;
-    document.getElementById("desc").value = 8;
-</script>
-<script type="text/javascript" src = "common.js"></script>
-
-
+<script type="text/javascript" src = "style.js"></script>
+<script type="text/javascript" src = "paths.js"></script>
+<script type="text/javascript" src = "util.js"></script>
 </body>

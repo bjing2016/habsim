@@ -21,9 +21,25 @@ def zpb():  # pragma: no cover
 def floatonly():  # pragma: no cover
     return Response(open("interface/float.html").read(), mimetype="text/html")
 
-@app.route('/common.js')
-def commonjs():  # pragma: no cover
-    return Response(open("interface/common.js").read(), mimetype="text/html")
+@app.route('/legacycommon.js')
+def legacycommonjs():  # pragma: no cover
+    return Response(open("interface/legacycommon.js").read(), mimetype="text/html")
+
+@app.route('/legacy')
+def legacy():  # pragma: no cover
+    return Response(open("interface/legacy.html").read(), mimetype="text/html")
+
+@app.route('/paths.js')
+def pathsjs():  # pragma: no cover
+    return Response(open("interface/paths.js").read(), mimetype="text/html")
+
+@app.route('/style.js')
+def stylejs():  # pragma: no cover
+    return Response(open("interface/style.js").read(), mimetype="text/html")
+
+@app.route('/util.js')
+def utiljs():  # pragma: no cover
+    return Response(open("interface/util.js").read(), mimetype="text/html")
 
 @app.route('/which')
 def whichgefs():
