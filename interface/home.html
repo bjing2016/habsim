@@ -143,7 +143,8 @@
                 <div class = "input">
                     Launch altitude: <input id="alt" type="text" size="5" name="alt"> m <br/>
                 </div>
-                <button class="btn-sm" onclick="getElev()">Get Ground Elevation</button>
+                <button class="btn-sm" onclick="getElev()">Get Ground Elevation</button><br>
+                <button class="btn-sm" id="eqtimebtn" style= "visibility: hidden;" onclick="getEqtime()">Get Equilibrium Time</button>
             </li>
             <li class="nav-item" id = "contentwrap">
                 <div class = "input">
@@ -156,7 +157,7 @@
                     Descent rate: <input id="desc" type="text" size="4" name="desc"> m/s <br/>
                 </div>
             </li>
-            <li class="nav-item" style="width: 19%">
+            <li class="nav-item" style="width: 15%">
                 <div class = "input">
                     Model run: <span id="run">Unavailable</span></br>
                 </div>
@@ -196,6 +197,7 @@
                 document.getElementById("equil").value = 30000;
                 document.getElementById("desc").value = 8;
                 btype = "STANDARD"
+                document.getElementById("eqtimebtn").style.visibility = "hidden";
             }
 
             else if ($(this).val() === "zpbbln") {
@@ -216,6 +218,7 @@
                 document.getElementById("eqtime").value = 1;
                 document.getElementById("desc").value = 15;
                 btype = "ZPB"
+                document.getElementById("eqtimebtn").style.visibility = "visible";
 
 
             } else if ($(this).val() === "floatbln") {
@@ -233,10 +236,12 @@
                 document.getElementById("dur").value = 48;
                 document.getElementById("step").value = 240;
                 btype = "FLOAT"
+                document.getElementById("eqtimebtn").style.visibility = "hidden";
 
             }
         });
     });
+
     var waypointsToggle = true;
     $(function() {
         $('#toggle-event').change(function() {
@@ -254,15 +259,49 @@
     var currpaths = new Array();
 
     async function habmc(){
-        let activemissionurl = "https://habmc.stanfordssi.org/transmissions/recent";
-        console.log(activemissionurl)
-        await fetch(activemissionurl).then(res => res.json()).then(resjson => show(resjson));
+        let activemissionurl = "https://stanfordssi.org/transmissions/recent";
+        const proxyurl = "https://cors-anywhere.herokuapp.com/";
+
+        fetch(proxyurl + activemissionurl) // https://cors-anywhere.herokuapp.com/https://example.com
+            .then(response => response.text())
+            .then(contents => show(contents))
+            .catch(() => console.log("Can’t access " + activemissionurl + " response. Blocked by browser?"))
 
     }
-    
+
 
     function show(data){
-       document.getElementById("lat").value = data["latitude"];
+
+        let data2 = JSON.parse(data);
+        console.log(data2);
+        let datetime = data2["Human Time"];
+        var res = (datetime.substring(0,11)).split("-");
+        var res2 = (datetime.substring(11,20)).split(":");
+        var hourutc = parseInt(res2[0]);
+        if(hourutc >= 24){
+            document.getElementById("hr").value = hourutc - 24;
+        }
+        else{
+            document.getElementById("hr").value = hourutc;
+        }
+        document.getElementById("mn").value = parseInt(res2[1]);
+
+        console.log(res2);
+
+
+        document.getElementById("yr").value = parseInt(res[0]);
+        document.getElementById("mo").value = parseInt(res[1]);
+        document.getElementById("day").value = parseInt(res[2]);
+        document.getElementById("lat").value = parseFloat(data2["latitude"]);
+        document.getElementById("lon").value = parseFloat(data2["longitude"]);
+        document.getElementById("alt").value = parseFloat(data2["altitude_gps"]);
+        let rate = parseFloat(data2["ascentRate"]);
+        if(rate >= 0){
+            document.getElementById("asc").value = rate;
+        }
+        else{
+            document.getElementById("desc").value = rate.abs();
+        }
     }
 
     async function simulate() {
@@ -272,6 +311,7 @@
         }
         currpaths = new Array();
         console.log("Clearing");
+        allValues = [];
         var time = toTimestamp(Number(document.getElementById('yr').value),
             Number(document.getElementById('mo').value),
             Number(document.getElementById('day').value),
@@ -280,7 +320,8 @@
         var lat = document.getElementById('lat').value;
         var lon = document.getElementById('lon').value;
         var alt = document.getElementById('alt').value;
-        var url = ""
+        var url = "";
+        allValues.push(time,alt);
         switch(btype) {
             case 'STANDARD':
                 // code block
@@ -289,7 +330,7 @@
                 var desc = document.getElementById('desc').value;
                 url = "https://predict.stanfordssi.org/singlezpb?timestamp="
                     + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + 0 + "&asc=" + asc + "&desc=" + desc;
-
+                allValues.push(equil,asc,desc);
                 break;
             case 'ZPB':
                 // code block
@@ -299,7 +340,7 @@
                 var desc = document.getElementById('desc').value;
                 url = "https://predict.stanfordssi.org/singlezpb?timestamp="
                     + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + eqtime + "&asc=" + asc + "&desc=" + desc
-
+                allValues.push(equil,eqtime,asc,desc);
                 break;
             case 'FLOAT':
                 // code block
@@ -308,21 +349,62 @@
                 var dur = document.getElementById('dur').value;
                 url = "https://predict.stanfordssi.org/singlepredict?timestamp="
                     + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&rate=0&coeff=" + coeff + "&step=" + step + "&dur=" + dur
-
+                allValues.push(coeff,step,dur);
                 break;
         }
-
-
-        for (i = 1; i < 21; i++) {
-            var url2 = url + "&model=" + i;
-            console.log(url2);
-            await fetch(url2).then(res => res.json()).then(resjson => showpath(resjson));
+        var onlyonce = true;
+        if(checkNumPos(allValues) && checkasc(asc,alt,equil)
+            && checkToday(parseInt(document.getElementById('yr').value), parseInt(document.getElementById('mo').value),parseInt(document.getElementById('day').value))){
+            for (i = 1; i < 21; i++) {
+                var url2 = url + "&model=" + i;
+                console.log(url2);
+                await fetch(url2).then(res => res.json()).then(function(resjson){
+                    if(resjson==="error"){
+                        if(onlyonce) {
+                            alert("ERROR: Please make sure all your inputs are correct and try again");
+                            onlyonce = false;
+                        }
+                        //break;
+                     }
+        else {
+                        showpath(resjson);
+                    }
+                });
+            }
+            onlyonce = true;
         }
+    }
 
+    function checkNumPos(numlist){
+        for (var each in numlist){
+            if(isNaN(numlist[each]) || Math.sign(numlist[each]) === -1 || !numlist[each]){
+                alert("ATTENTION: All values should be positive and numbers, check your inputs again!");
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+    function checkasc(asc,alt,equil){
+        if(alt<equil && asc==="0"){
+            alert("ATTENTION: Ascent rate is 0 while balloon altitude is below its descent ready altitude");
+            return false;
+        }
+        return true;
+    }
+
+    function checkToday(tyr,tmon,tday){
+        if(tyr!==now.getUTCFullYear() || tmon!==(now.getUTCMonth() + 1) || tday!==now.getUTCDate()){
+            alert("ATTENTION: As of now, HABSIM can only simulate launches of the present day");
+            return false;
+        }
+        return true;
 
     }
     circleslist = [];
     function showpath(path) {
+
         switch(btype) {
             case 'STANDARD':
                 var rise = path[0];
@@ -449,6 +531,14 @@
 
 
     }();
+
+    function getEqtime() {
+        alt = document.getElementById("alt").value;
+        eqalt = document.getElementById("equil").value;
+        ascr = document.getElementById("asc").value;
+        console.log(alt,eqalt,ascr)
+        document.getElementById("eqtime").value = (eqalt - alt)/(3600*ascr);
+    }
 </script>
 <div id="map_canvas" style="width:80%; height:100%"></div>
 <script>
