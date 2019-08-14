@@ -65,6 +65,9 @@ document.getElementById("mn").value = now.getUTCMinutes()
 fetch("https://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
             document.getElementById("run").textContent = result
         });
+fetch("https://predict.stanfordssi.org/status").then(res => res.text()).then((result) => {
+            document.getElementById("status").textContent = result
+        });
 
 
 
