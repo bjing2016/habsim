@@ -38,7 +38,7 @@ def main():
             
     timestamp = nextgefs() if mount else mostrecent()
     while True:
-        command = "python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
+        command = "nice -n 50 python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
         while True:
             try: 
                 os.system(command)
