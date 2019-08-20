@@ -2,8 +2,8 @@ import os
 from datetime import datetime, timedelta
 
 path = "./gefs/"
-
-mount = True
+mount = False
+whichpath = '/gefs/whichgefs' if mount else 'whichgefs'
 
 def mostrecent():
     now = datetime.utcnow()
@@ -11,7 +11,7 @@ def mostrecent():
 
 def nextgefs():
     try:
-        f = open("whichgefs")
+        f = open(whichpath)
         s = f.readline()
         f.close()
     except:
@@ -31,9 +31,8 @@ def main():
         f.write("Running")
     f.close()
 
-    if mount: os.chdir('/gefs')
     try:
-        os.mkdir("gefs")
+        os.mkdir('/gefs/gefs') if mount else os.mkdir("gefs")
     except FileExistsError:
         pass
             
@@ -46,7 +45,7 @@ def main():
                 break
             except:
                 print("Error, restarting downloader process")
-        f = open("whichgefs", "w")
+        f = open(whichpath, "w")
         f.write(timestamp.strftime("%Y%m%d%H"))
         f.close()
 
