@@ -3,6 +3,22 @@ from datetime import datetime, timedelta
 
 path = "./gefs/"
 
+mount = True
+
+def mostrecent():
+    now = datetime.utcnow()
+    return datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) - timedelta(hours=6)
+
+def nextgefs():
+    try:
+        f = open("whichgefs")
+        s = f.readline()
+        f.close()
+    except:
+        return mostrecent()
+    now = datetime.strptime(s, "%Y%m%d%H")
+    return datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) + timedelta(hours=6)
+    
 def main():
 
     f = open("downloaderstatus", 'r')
@@ -15,13 +31,13 @@ def main():
         f.write("Running")
     f.close()
 
+    if mount: os.chdir('/gefs')
     try:
         os.mkdir("gefs")
     except FileExistsError:
         pass
             
-    now = datetime.utcnow()
-    timestamp = datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) - timedelta(hours=6)
+    timestamp = nextgefs() if mount else mostrecent()
     while True:
         command = "python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
         while True:

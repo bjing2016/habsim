@@ -3,8 +3,7 @@ import pygrib
 import urllib.request
 import time
 from datetime import datetime, timedelta
-import multiprocessing
-from multiprocessing import Pool, Process
+from multiprocessing import Pool
 import queue
 import socket
 import sys
@@ -21,7 +20,9 @@ levels = [10, 20, 30, 50, 70,\
 ## One-indexed positions of the above levels in the result of grbs.select
 order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
 
-path = "./gefs/"
+mount = True
+path = "/gefs/gefs/" if mount else "./gefs/"
+statuspath = '/gefs/serverstatus' if mount else 'serverstatus'
 socket.setdefaulttimeout(10)
 
 def worker(tasks):
@@ -103,17 +104,20 @@ def grb2_to_array(filename):
     return dataset
 
 def setBusy():
-    g = open("serverstatus", "r")
-    line = g.readline()
-    g.close()
+    try:
+        g = open(statuspath, "r")
+        line = g.readline()
+        g.close()
+    except:
+        line = ''
     if line != "Data refreshing. Sims may be slower than usual." and line != "Initializing. Please check again later.":
-        g = open("serverstatus", "w")
+        g = open(statuspath, "w")
         g.write("Data refreshing. Sims may be slower than usual.")
         g.close()
 
 if __name__ == "__main__":
     y, m, d, h = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
     complete_run(y,m,d,h)
-    g = open("serverstatus", "w")
+    g = open(statuspath, "w")
     g.write("Ready")
     g.close()

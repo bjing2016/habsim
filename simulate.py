@@ -38,9 +38,12 @@ levels = GEFS
 suffix = ".npy"
 currgefs = "Unavailable"
 
+mount = True
+gefspath = '/gefs/gefs/' if mount else 'gefs/'
+
 def refresh():
     global currgefs
-    f = open("whichgefs")
+    f = open('/gefs/whichgefs') if mount else open("whichgefs")
     s = f.readline()
     f.close()
     if s != currgefs:
@@ -57,7 +60,7 @@ def get_basetime(simtime):
 def get_file(timestamp, model):
     if (timestamp, model) not in filecache.keys():
         name = timestamp.strftime("%Y%m%d%H")
-        filecache[(timestamp, model)] = np.load("gefs/" + currgefs + "_" + name + "_" + str(model).zfill(2) + suffix, "r")
+        filecache[(timestamp, model)] = np.load(gefspath + currgefs + "_" + name + "_" + str(model).zfill(2) + suffix, "r")
     return filecache[(timestamp,model)]
 
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###

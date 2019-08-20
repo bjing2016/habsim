@@ -4,6 +4,8 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+mount = True
+
 import elev
 from datetime import datetime, timezone
 import simulate
@@ -43,17 +45,22 @@ def utiljs():  # pragma: no cover
 
 @app.route('/which')
 def whichgefs():
-    f = open("whichgefs")
+    f = open('/gefs/whichgefs') if mount else open("whichgefs")
     s = f.readline()
     f.close()
     return s
 
 @app.route('/status')
 def status():
-    f = open("serverstatus")
+    f = open('/gefs/serverstatus') if mount else open("serverstatus")
     s = f.readline()
     f.close()
     return s
+
+@app.route('/ls')
+def ls():
+    return jsonify(os.listdir('/gefs/gefs' if mount else 'gefs'))
+
 
 '''
 Returns a json object representing the flight path, given a UTC launch time (yr, mo, day, hr, mn),
@@ -154,9 +161,6 @@ def elevation():
     lat, lon = float(request.args['lat']), float(request.args['lon'])
     return str(elev.getElevation(lat, lon))
 
-@app.route('/ls')
-def ls():
-    return jsonify(os.listdir('gefs'))
 
 
 '''
