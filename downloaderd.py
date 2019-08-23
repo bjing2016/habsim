@@ -1,8 +1,9 @@
 import os
 from datetime import datetime, timedelta
 
-path = "./gefs/"
 mount = True
+
+path = "/gefs/gefs/" if mount else "./gefs/"
 whichpath = '/gefs/whichgefs' if mount else 'whichgefs'
 
 def mostrecent():
