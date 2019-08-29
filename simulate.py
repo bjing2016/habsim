@@ -49,6 +49,8 @@ def refresh():
     if s != currgefs:
         reset()
         currgefs = s
+        return True
+    return False
 
 def reset():
     global filecache
@@ -61,6 +63,7 @@ def get_file(timestamp, model):
     if (timestamp, model) not in filecache.keys():
         name = timestamp.strftime("%Y%m%d%H")
         filecache[(timestamp, model)] = np.load(gefspath + currgefs + "_" + name + "_" + str(model).zfill(2) + suffix, "r")
+        print('Loading', timestamp, model)
     return filecache[(timestamp,model)]
 
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###
@@ -173,3 +176,21 @@ def simulate(simtime, lat, lon, rate, step, max_duration, alt, model, coefficien
         simtime = simtime + timedelta(seconds = step)
     
     return path
+
+import time
+def refreshdaemon():
+    while True:
+        print('Refresh daemon waking.')
+        if refresh(): print('Cache reset by daemon.')
+        currdatetime = get_basetime(datetime.strptime(currgefs, "%Y%m%d%H"))
+        startdatetime = currdatetime - timedelta(hours = 384)
+        enddatetime = currdatetime + timedelta(hours = 384)
+        while startdatetime <= enddatetime:
+            try: get_file(timestamp, model)
+            except: pass
+            startdatetime += timedelta(hours=6)
+        print('Refresh daemon sleeping.')
+        time.sleep(60)
+
+from threading import Thread
+Thread(target = refreshdaemon).start()

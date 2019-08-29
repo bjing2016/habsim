@@ -85,7 +85,7 @@ def singlepredicth():
     simulate.refresh()
     try:
         path = simulate.simulate(datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc), lat, lon, rate, step, dur, alt, model, coefficient=coeff)
-    except (IOError, FileNotFoundError, ValueError, IndexError):
+    except:
         return "error"
     return jsonify(path)
 
@@ -101,7 +101,7 @@ def singlepredict():
     simulate.refresh()
     try:
         path = simulate.simulate(timestamp, lat, lon, rate, step, dur, alt, model, coefficient=coeff)
-    except (IOError, FileNotFoundError, ValueError, IndexError):
+    except:
         return "error"
     return jsonify(path)
 
@@ -121,7 +121,7 @@ def singlezpb(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
         dur = (alt) / desc / 3600
         fall = simulate.simulate(timestamp, lat, lon, -desc, 240, dur, alt, model)
         return (rise, coast, fall)
-    except (IOError, FileNotFoundError, ValueError, IndexError):
+    except:
         return "error"
 
 
@@ -212,8 +212,3 @@ def wind():
     time = datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc)
     u, v, du, dv = simulate.get_wind(time,lat,lon,alt, model)
     return jsonify([u, v, du, dv])
-'''
-import downloaderd
-from multiprocessing import Process
-Process(target=downloaderd.main).start()
-'''
