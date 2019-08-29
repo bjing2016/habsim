@@ -1,10 +1,7 @@
 import numpy
 import math
-'''
-west = numpy.load("30N150W_20101117_gmted_mea150.npy")
-central = numpy.load("30N120W_20101117_gmted_mea150.npy")
-east = numpy.load("30N090W_20101117_gmted_mea150.npy")
-'''
+
+elevdir = '/gefs/elev/'
 
 elev_cache = {} ## south_edge, west_edge
 
@@ -29,7 +26,7 @@ def load_elev(west_edge, south_edge):
     
     path = path + "_20101117_gmted_mea300.npy"
 
-    data = numpy.load("elev/" + path, "r")
+    data = numpy.load(elevdir + path, "r")
     elev_cache[(west_edge, south_edge)] = data
     return data
 
