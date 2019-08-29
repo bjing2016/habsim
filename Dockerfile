@@ -33,7 +33,9 @@ EXPOSE 5000
 # ADD elevinit.sh elevinit.sh
 # RUN bash elevinit.sh
 
-ADD . .
+ADD downloaderd.py downloaderd.py
 RUN python3 downloaderd.py &
+
+ADD . .
 ENV FLASK_APP=api.py
 CMD flask run --host=0.0.0.0
