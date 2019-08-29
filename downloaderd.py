@@ -21,7 +21,7 @@ def nextgefs():
     return datetime(now.year, now.month, now.day, int(now.hour / 6) * 6) + timedelta(hours=6)
     
 def main():
-
+    '''
     f = open("downloaderstatus", 'r')
     if f.readline() == "Running":
         print("Downloader process already running, quitting")
@@ -31,7 +31,7 @@ def main():
     if not __name__ == "__main__":
         f.write("Running")
     f.close()
-
+    '''
     try:
         os.mkdir('/gefs/gefs') if mount else os.mkdir("gefs")
     except FileExistsError:

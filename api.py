@@ -212,7 +212,8 @@ def wind():
     time = datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc)
     u, v, du, dv = simulate.get_wind(time,lat,lon,alt, model)
     return jsonify([u, v, du, dv])
-
+'''
 import downloaderd
 from multiprocessing import Process
 Process(target=downloaderd.main).start()
+'''

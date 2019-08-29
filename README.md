@@ -57,10 +57,10 @@ Time (`yr`, `mo`, `day`, `hr`, `mn`), a location (`lat`, `lon`), and an altitude
 #### Returns
 `[u-wind, v-wind, du/dh, dv/dh]`, where
 
-`u-wind = [u-wind-1, u-wind-2, u-wind-3...u-wind-20]`
-`v-wind = [v-wind-1, v-wind-2, v-wind-3...v-wind-20]`
-`du/dh = [du/dh-1, du/dh-2, du/dh-3...du/dh-20]`
-`dv/dh = [dv/dh-1, dv/dh-2, dv/dh-3...dv/dh-20]`
+- `u-wind = [u-wind-1, u-wind-2, u-wind-3...u-wind-20]`
+- `v-wind = [v-wind-1, v-wind-2, v-wind-3...v-wind-20]`
+- `du/dh = [du/dh-1, du/dh-2, du/dh-3...du/dh-20]`
+- `dv/dh = [dv/dh-1, dv/dh-2, dv/dh-3...dv/dh-20]`
 
 where the numbers are the GEFS model from which the data is extracted.
 
