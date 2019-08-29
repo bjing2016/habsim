@@ -186,8 +186,9 @@ def refreshdaemon():
         startdatetime = currdatetime - timedelta(hours = 384)
         enddatetime = currdatetime + timedelta(hours = 384)
         while startdatetime <= enddatetime:
-            try: get_file(timestamp, model)
-            except: pass
+            for model in range(1, 21):
+                try: get_file(startdatetime, model)
+                except: pass
             startdatetime += timedelta(hours=6)
         print('Refresh daemon sleeping.')
         time.sleep(60)
