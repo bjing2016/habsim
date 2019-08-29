@@ -35,5 +35,4 @@ EXPOSE 5000
 
 ADD . .
 ENV FLASK_APP=api.py
-CMD python3 downloaderd.py &
-CMD flask run --host=0.0.0.0
+CMD python3 downloaderd.py & CMD flask run --host=0.0.0.0
