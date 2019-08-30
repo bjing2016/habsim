@@ -63,8 +63,6 @@ def single_run(y,m,d,h,t,n):
     pred = base + timedelta(hours=t)
     predstring = pred.strftime("%Y%m%d%H")
     savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
-
-    print("Processing " + savename)
     
     if os.path.exists(path+'/'+savename+".npy"):
         print("Skipping " + savename)
@@ -83,6 +81,8 @@ def single_run(y,m,d,h,t,n):
     
     #print("Saving " + savename)
     np.save(path + savename + ".npy", data)
+
+    print("Processed " + savename)
     
     #print("Deleting " + savename)
     os.remove(path + savename + ".grb2")
