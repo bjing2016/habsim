@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timedelta
+import time
 
 mount = True
 
@@ -38,7 +39,8 @@ def main():
         f = open(whichpath, "w")
         f.write(timestamp.strftime("%Y%m%d%H"))
         f.close()
-
+        
+        time.sleep(300)
         prev_timestamp = timestamp - timedelta(hours=6)
         os.system("rm " + path + prev_timestamp.strftime("%Y%m%d%H") + "*")
         timestamp = timestamp + timedelta(hours=6)

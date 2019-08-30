@@ -82,7 +82,7 @@ def singlepredicth():
     model = int(args['model'])
     coeff = float(args['coeff'])
     alt = float(args['alt'])
-    simulate.refresh()
+    #simulate.refresh()
     try:
         path = simulate.simulate(datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc), lat, lon, rate, step, dur, alt, model, coefficient=coeff)
     except:
@@ -98,7 +98,7 @@ def singlepredict():
     model = int(args['model'])
     coeff = float(args['coeff'])
     alt = float(args['alt'])
-    simulate.refresh()
+    #simulate.refresh()
     try:
         path = simulate.simulate(timestamp, lat, lon, rate, step, dur, alt, model, coefficient=coeff)
     except:
@@ -107,7 +107,7 @@ def singlepredict():
 
 
 def singlezpb(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
-    simulate.refresh()
+    #simulate.refresh()
     try:
         dur = 0 if equil == alt else (equil - alt) / asc / 3600
         rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt, model, elevation=False)
@@ -176,7 +176,7 @@ where the numbers are the GEFS model from which the data is extracted.
 '''
 @app.route('/windensemble')
 def windensemble():
-    simulate.refresh()
+    #simulate.refresh()
     args = request.args
     lat, lon = float(args['lat']), float(args['lon'])
     alt = float(args['alt'])
@@ -203,7 +203,7 @@ extracted from that model.
 '''
 @app.route('/wind')
 def wind():
-    simulate.refresh()
+    #simulate.refresh()
     args = request.args
     lat, lon = float(args['lat']), float(args['lon'])
     model = int(args['model'])
