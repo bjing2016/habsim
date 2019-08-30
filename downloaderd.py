@@ -42,6 +42,13 @@ def main():
         
         time.sleep(300)
         prev_timestamp = timestamp - timedelta(hours=6)
+        to_keep = timestamp - timedelta(hours=384)
+        while to_keep < timestamp:
+            cmd = 'mv ' + path + prev_timestamp.strftime("%Y%m%d%H")+'_'+to_keep.strftime("%Y%m%d%H")+'.npy ' \
+                + path + timestamp.strftime("%Y%m%d%H")+'_'+to_keep.strftime("%Y%m%d%H")+'.npy'
+            try: os.system(cmd)
+            except: pass
+            to_keep += timedelta(hours=6)
         os.system("rm " + path + prev_timestamp.strftime("%Y%m%d%H") + "*")
         timestamp = timestamp + timedelta(hours=6)
 

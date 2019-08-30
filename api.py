@@ -45,10 +45,7 @@ def utiljs():  # pragma: no cover
 
 @app.route('/which')
 def whichgefs():
-    f = open('/gefs/whichgefs') if mount else open("whichgefs")
-    s = f.readline()
-    f.close()
-    return s
+    return simulate.currgefs
 
 @app.route('/status')
 def status():
@@ -60,7 +57,6 @@ def status():
 @app.route('/ls')
 def ls():
     return jsonify(os.listdir('/gefs/gefs' if mount else 'gefs'))
-
 
 '''
 Returns a json object representing the flight path, given a UTC launch time (yr, mo, day, hr, mn),
