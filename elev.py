@@ -6,7 +6,7 @@ data = np.load(elevfile, 'r')
 resolution = 120 ## points per degree
 
 def getElevation(lat, lon):
-    x = int(round((lon + 180) * resolution) / resolution)
-    y = int(round((90 - lat) * resolution) / resolution)
-    try: return max(0, data[x,y])
+    x = int(round((lon + 180) * resolution))
+    y = int(round((90 - lat) * resolution))
+    try: return max(0, data[y, x])
     except: return 0
