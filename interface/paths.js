@@ -184,8 +184,7 @@ async function simulate() {
             break;
     }
     var onlyonce = true;
-    if(checkNumPos(allValues) && checkasc(asc,alt,equil)
-        && checkToday(parseInt(document.getElementById('yr').value), parseInt(document.getElementById('mo').value),parseInt(document.getElementById('day').value))){
+    if(checkNumPos(allValues) && checkasc(asc,alt,equil)){
         for (i = 1; i < 21; i++) {
             var url2 = url + "&model=" + i;
             console.log(url2);
@@ -201,6 +200,10 @@ async function simulate() {
                     showpath(resjson);
                 }
             });
+            if (Number(document.getElementById('yr').value) < 2019){
+                console.log("Historical flight, breaking after one run");
+                break;
+            }
         }
         onlyonce = true;
     }

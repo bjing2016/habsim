@@ -40,6 +40,7 @@ currgefs = "Unavailable"
 
 mount = True
 gefspath = '/gefs/gefs/' if mount else 'gefs/'
+gfshistpath = '/gefs/gfshist/'
 
 def refresh():
     global currgefs
@@ -62,7 +63,10 @@ def get_basetime(simtime):
 def get_file(timestamp, model):
     if (timestamp, model) not in filecache.keys():
         name = timestamp.strftime("%Y%m%d%H")
-        filecache[(timestamp, model)] = np.load(gefspath + currgefs + "_" + name + "_" + str(model).zfill(2) + suffix, "r")
+        if timestamp.year < 2019:
+            filecache[(timestamp, model)] = np.load(gfshistpath + name + suffix, "r")
+        else:
+            filecache[(timestamp, model)] = np.load(gefspath + currgefs + "_" + name + "_" + str(model).zfill(2) + suffix, "r")
         print('Loading', timestamp, model)
     return filecache[(timestamp,model)]
 

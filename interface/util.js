@@ -100,14 +100,6 @@ function checkasc(asc,alt,equil){
     return true;
 }
 
-function checkToday(tyr,tmon,tday){
-    /*if(tyr!==now.getUTCFullYear() || tmon!==(now.getUTCMonth() + 1) || tday!==now.getUTCDate()){
-        alert("ATTENTION: As of now, HABSIM can only simulate launches of the present day");
-        return false;
-    }*/
-    return true
-}
-
 function habmcshow(data){
     let data2 = JSON.parse(data);
     console.log(data2);
