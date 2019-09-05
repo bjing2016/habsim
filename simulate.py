@@ -11,10 +11,20 @@ import time
 EARTH_RADIUS = float(6.371e6)
 DATA_STEP = 6 # hrs
 
-GFSANL = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
+GFSHIST = [1, 2, 3, 5, 7, 10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
           500, 550, 600, 650, 700, 750, 800, 850,\
           900, 925, 950, 975, 1000]
+
+GFSHIST_ALT = [45385, 40989, 38417, 35178, 33044, 30782, \
+                26386, 23815, 20576, 18442, 16180, 13608, \
+                11784, 10363, 9164, 8117, 7186, 6344, 5575, \
+                4865, 4206, 3591, 3012, 2466, 1949, 1457, 989, 762, 540, 323, 111]
+
+GFSHIST_ALT_DIFFS = [-4396, -2572, -3239, -2134, -2262, -4396, -2571,\
+                 -3239, -2134, -2262, -2572, -1824, -1421, -1199, -1047, -931, \
+                 -842, -769, -710, -659, -615, -579, -546, -517, -492, \
+                 -468, -227, -222, -217, -212]
 
 GEFS = [10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
@@ -34,7 +44,6 @@ GEFS_ALT_DIFFS = [-4396, -2571, -3239, -2134, -2262, -2572, -1824, -1421, -1199,
 ### Filecache is in the form (currgefs, modelnumber). ###
 filecache = {}
 
-levels = GEFS
 suffix = ".npy"
 currgefs = "Unavailable"
 
@@ -73,7 +82,7 @@ def get_file(timestamp, model):
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###
 ### Handles file and cache import ###
 
-def get_wind_helper(lat_res, lon_res, level_res, time_res, model):
+def get_wind_helper(lat_res, lon_res, level_res, time_res, model, diffs):
     lat_i, lat_f = lat_res
     lon_i, lon_f = lon_res
     level_i, level_f = level_res
@@ -95,7 +104,7 @@ def get_wind_helper(lat_res, lon_res, level_res, time_res, model):
 
     line_t = line1 * time_f + line2 * (1-time_f)
     du, dv = np.diff(line_t, axis=1).flatten()
-    dh = GEFS_ALT_DIFFS[level_i]
+    dh = diffs[level_i]
 
     u, v = (line_t * pressure_filter).sum(axis=1).flatten()
 
@@ -114,7 +123,7 @@ def get_wind_helper(lat_res, lon_res, level_res, time_res, model):
 
 ## Note: this returns bounds as array indices ##
 ###     return lat_res, lon_res, pressure_res, time_res ###
-def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
+def get_bounds_and_fractions (lat, lon, alt, sim_timestamp, levels):
     lat_res, lon_res, pressure_res = None, None, None
         
     lat = 90 - lat
@@ -128,10 +137,10 @@ def get_bounds_and_fractions (lat, lon, alt, sim_timestamp):
     time_f = 1-float(offset.seconds)/(3600*6)
     time_res = (base_timestamp, time_f)
     
-    pressure_res = get_pressure_bound(alt)
+    pressure_res = get_pressure_bound(alt, levels)
     return lat_res, lon_res, pressure_res, time_res
 
-def get_pressure_bound(alt):
+def get_pressure_bound(alt, levels):
     pressure = alt_to_hpa(alt)
     pressure_i = bisect.bisect_left(levels, pressure)
     if pressure_i == len(levels):
@@ -159,17 +168,18 @@ def lin_to_angular_velocities(lat, lon, u, v):
     dlon = math.degrees(u / (EARTH_RADIUS * math.cos(math.radians(lat))))
     return dlat, dlon
 
-def get_wind(simtime, lat, lon, alt, model):
-    bounds = get_bounds_and_fractions(lat, lon, alt, simtime)  
-    u, v, du, dv = get_wind_helper(*bounds, model)
+def get_wind(simtime, lat, lon, alt, model, levels):
+    bounds = get_bounds_and_fractions(lat, lon, alt, simtime, levels)  
+    diffs = GEFS_ALT_DIFFS if levels == GEFS else GFSHIST_ALT_DIFFS
+    u, v, du, dv = get_wind_helper(*bounds, model, diffs)
     return u, v, du, dv
 
 def simulate(simtime, lat, lon, rate, step, max_duration, alt, model, coefficient=1, elevation=True):
-    
+    levels = GFSHIST if simtime.year < 2019 else GEFS
     end = simtime + timedelta(hours=max_duration)
     path = list()
     while True:
-        u, v, du, dv = get_wind(simtime, lat, lon, alt, model)
+        u, v, du, dv = get_wind(simtime, lat, lon, alt, model, levels)
         path.append((simtime.timestamp(), lat, lon, alt, u, v, du, dv))
         if simtime >= end or (elevation and elev.getElevation(lat, lon) > alt):
             break
