@@ -106,9 +106,9 @@ function habmcshow(data){
     let datetime = data2["Human Time"];
     var res = (datetime.substring(0,11)).split("-");
     var res2 = (datetime.substring(11,20)).split(":");
-    var hourutc = parseInt(res2[0]);
+    var hourutc = parseInt(res2[0]) + 7;// Fix this for daylight savings...
     if(hourutc >= 24){
-        document.getElementById("hr").value = hourutc - 24 + 7; // Fix this for daylight savings...
+        document.getElementById("hr").value = hourutc - 24; 
     }
     else{
         document.getElementById("hr").value = hourutc;
