@@ -183,8 +183,10 @@ def windensemble():
     duList = list()
     dvList = list()
 
+    levels = simulate.GFSHIST if yr < 2019 else simulate.GEFS
+
     for i in range(1, 21):
-        u, v, du, dv = simulate.get_wind(time,lat,lon,alt, i)
+        u, v, du, dv = simulate.get_wind(time,lat,lon,alt, i, levels)
         uList.append(u)
         vList.append(v)
         duList.append(du)
@@ -205,6 +207,7 @@ def wind():
     model = int(args['model'])
     alt = float(args['alt'])
     yr, mo, day, hr, mn = int(args['yr']), int(args['mo']), int(args['day']), int(args['hr']), int(args['mn'])
+    levels = simulate.GFSHIST if yr < 2019 else simulate.GEFS
     time = datetime(yr, mo, day, hr, mn).replace(tzinfo=timezone.utc)
-    u, v, du, dv = simulate.get_wind(time,lat,lon,alt, model)
+    u, v, du, dv = simulate.get_wind(time,lat,lon,alt, model, levels)
     return jsonify([u, v, du, dv])
