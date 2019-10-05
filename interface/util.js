@@ -120,8 +120,39 @@ function habmcshow(data){
     document.getElementById("yr").value = parseInt(res[0]);
     document.getElementById("mo").value = parseInt(res[1]);
     document.getElementById("day").value = parseInt(res[2]);
-    document.getElementById("lat").value = parseFloat(data2["latitude"]);
-    document.getElementById("lon").value = parseFloat(data2["longitude"]);
+    document.getElementById("lat").value = lat = parseFloat(data2["latitude"]);
+    document.getElementById("lon").value = lon = parseFloat(data2["longitude"]);
+    position = {
+        lat: lat,
+        lng: lon,
+    };
+    var circle = new google.maps.Circle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FF0000',
+        fillOpacity: 0.35,
+        map: map,
+        center: position,
+        radius: 5000,
+        clickable: true
+    });
+    //var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+    var infowindow = new google.maps.InfoWindow({
+                content: "Altitude: " + data2["altitude_gps"] + " Ground speed: " + data2["groundSpeed"] + data2["direction"] + " Ascent rate " + data2["ascentRate"]
+    });
+
+    //{"Human Time":"2019-10-05 14:47:14 -0700","transmit_time":1570312034000,"internal_temp":"-18.6","pressure":"  9632","altitude_barometer":"16002","latitude":"  37.082","longitude":"-119.419","altitude_gps":"16892","ballast_time":"0","vent_time":"0","iridium_latitude":"37.1840","iridium_longitude":"-119.5492","iridium_cep":5.0,"imei":"300234067160720","momsn":"93","id":19710,"updated_at":"2019-10-05 14:47:18 -0700","flightTime":15134,"batteryPercent":"NaN","ballastRemaining":0.0,"ballastPercent":"NaN","filtered_iridium_lat":36.911748,"filtered_iridium_lon":-120.754041,"raw_data":"2d31382e362c2020393633322c31363030322c202033372e3038322c2d3131392e3431392c31363839322c302c30","mission":66,"ascentRate":-0.03,"groundSpeed":8.88,"direction":"NORTH-EAST"}
+    
+    circle.addListener("mouseover", function () {
+        infowindow.setPosition(circle.getCenter());
+        infowindow.open(map);
+    });
+    circle.addListener("mouseout", function () {
+        infowindow.close(map);
+    });
+    map.panTo(new google.maps.LatLng(lat, lon));
+    
     alt = parseFloat(data2["altitude_gps"]);
     document.getElementById("alt").value = alt;
     rate = parseFloat(data2["ascentRate"]);
