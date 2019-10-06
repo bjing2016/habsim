@@ -113,6 +113,7 @@ function habmcshow(data){
     }
     else{
         document.getElementById("hr").value = hourutc;
+        document.getElementById("day").value = parseInt(res[2]);
     }
     document.getElementById("mn").value = parseInt(res2[1]);
 
@@ -120,7 +121,6 @@ function habmcshow(data){
 
     document.getElementById("yr").value = parseInt(res[0]);
     document.getElementById("mo").value = parseInt(res[1]);
-    document.getElementById("day").value = parseInt(res[2]);
     document.getElementById("lat").value = lat = parseFloat(data2["latitude"]);
     document.getElementById("lon").value = lon = parseFloat(data2["longitude"]);
     position = {
