@@ -109,6 +109,7 @@ function habmcshow(data){
     var hourutc = parseInt(res2[0]) + 7;// Fix this for daylight savings...
     if(hourutc >= 24){
         document.getElementById("hr").value = hourutc - 24; 
+        document.getElementById("day").value = parseInt(res[2]) + 1;
     }
     else{
         document.getElementById("hr").value = hourutc;
