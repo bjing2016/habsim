@@ -102,7 +102,17 @@
                     Launch altitude: <input id="alt" type="text" size="5" name="alt"> m <br/>
                 </div>
                 <button class="btn-sm" onclick="getElev()">Get Ground elevation</button><br>
-                <button class="btn-sm btn-warning" onclick="habmc()">Get Live HABMC Data</button><br>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-warning btn-sm" onclick="habmc()">Get Live HABMC Data</button>
+                    <button type="button" class="btn btn-warning dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <div class="dropdown-menu">
+                    </div>
+                </div>
+                <br>
+                <p style="font-size: 12px;" id="activeMission">SSI-</p>
+
                 
             </li>
             <li class="nav-item" id = "contentwrap">

@@ -59,6 +59,8 @@ $(document).ready(function() {
             document.getElementById("timeremain").style.visibility = "hidden";
         }
     });
+
+    setMissions();
 });
 
 var waypointsToggle = true;
@@ -101,3 +103,35 @@ fetch("https://predict.stanfordssi.org/status").then(res => res.text()).then((re
 document.getElementById("asc").value = 4;
 document.getElementById("equil").value = 30000;
 document.getElementById("desc").value = 8;
+
+
+//ACTIVE MISSIONS
+
+
+let activeMissions = {
+    'SSI-95': 68,
+    'SSI-93': 67,
+    'SSI-92': 66
+};
+
+let ssilist = Object.keys(activeMissions);
+
+let CURRENT_MISSION = ssilist[0];
+
+//Set up active missions
+function setMissions(){
+    document.getElementById("activeMission").innerText = ssilist[0];
+    for (let eachm in ssilist){
+        var newmiss = document.createElement("a");
+        newmiss.className = "dropdown-item";
+        newmiss.text = ssilist[eachm];
+        newmiss.value = ssilist[eachm];
+        newmiss.setAttribute('onClick',"setActiveMission('"+ ssilist[eachm] +"')");
+        $('.dropdown-menu').append(newmiss);
+    }
+}
+
+function setActiveMission(msn){
+    CURRENT_MISSION = msn;
+    document.getElementById("activeMission").innerText = CURRENT_MISSION;
+}

@@ -73,7 +73,7 @@ async function habmc(){
     await fetch(proxyurl + activemissionurl) // https://cors-anywhere.herokuapp.com/https://example.com
         .then(response => response.text())
         .then(contents => habmcshow(contents))
-        .catch(() => console.log("Can’t access " + activemissionurl + " response. Blocked by browser?"));
+        .catch(() => console.log("Cant access " + activemissionurl + " response. Blocked by browser?"));
     getTimeremain();
     
 }
@@ -101,14 +101,27 @@ function checkasc(asc,alt,equil){
 }
 
 function habmcshow(data){
-    let data2 = JSON.parse(data);
-    console.log(data2);
+    let jsondata = JSON.parse(data);
+    let checkmsn = activeMissions[CURRENT_MISSION];
+    for (let transmission in jsondata) {
+        //console.log(activeMissions[jsondata[transmission]['mission']]);
+        //console.log()
+
+        if(jsondata[transmission]['mission'] === checkmsn){
+            console.log(jsondata[transmission]);
+            habmcshoweach(jsondata[transmission]);
+        }
+    }
+
+}
+
+function habmcshoweach(data2){
     let datetime = data2["Human Time"];
     var res = (datetime.substring(0,11)).split("-");
     var res2 = (datetime.substring(11,20)).split(":");
     var hourutc = parseInt(res2[0]) + 7;// Fix this for daylight savings...
     if(hourutc >= 24){
-        document.getElementById("hr").value = hourutc - 24; 
+        document.getElementById("hr").value = hourutc - 24;
         document.getElementById("day").value = parseInt(res[2]) + 1;
     }
     else{
@@ -140,11 +153,11 @@ function habmcshow(data){
     });
     //var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
     var infowindow = new google.maps.InfoWindow({
-                content: "Altitude: " + data2["altitude_gps"] + " Ground speed: " + data2["groundSpeed"] + data2["direction"] + " Ascent rate " + data2["ascentRate"]
+        content: "Altitude: " + data2["altitude_gps"] + " Ground speed: " + data2["groundSpeed"] + data2["direction"] + " Ascent rate " + data2["ascentRate"]
     });
 
     //{"Human Time":"2019-10-05 14:47:14 -0700","transmit_time":1570312034000,"internal_temp":"-18.6","pressure":"  9632","altitude_barometer":"16002","latitude":"  37.082","longitude":"-119.419","altitude_gps":"16892","ballast_time":"0","vent_time":"0","iridium_latitude":"37.1840","iridium_longitude":"-119.5492","iridium_cep":5.0,"imei":"300234067160720","momsn":"93","id":19710,"updated_at":"2019-10-05 14:47:18 -0700","flightTime":15134,"batteryPercent":"NaN","ballastRemaining":0.0,"ballastPercent":"NaN","filtered_iridium_lat":36.911748,"filtered_iridium_lon":-120.754041,"raw_data":"2d31382e362c2020393633322c31363030322c202033372e3038322c2d3131392e3431392c31363839322c302c30","mission":66,"ascentRate":-0.03,"groundSpeed":8.88,"direction":"NORTH-EAST"}
-    
+
     circle.addListener("mouseover", function () {
         infowindow.setPosition(circle.getCenter());
         infowindow.open(map);
@@ -153,7 +166,7 @@ function habmcshow(data){
         infowindow.close(map);
     });
     map.panTo(new google.maps.LatLng(lat, lon));
-    
+
     alt = parseFloat(data2["altitude_gps"]);
     document.getElementById("alt").value = alt;
     rate = parseFloat(data2["ascentRate"]);
