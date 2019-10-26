@@ -109,7 +109,10 @@ document.getElementById("desc").value = 8;
 
 
 let activeMissions = {
+
     'SSI-95': 68,
+    'SSI-94': 69,
+    'SSI-96': 70,
     'SSI-93': 67,
     'SSI-92': 66
 };
