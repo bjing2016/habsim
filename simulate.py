@@ -41,7 +41,7 @@ GEFS_ALT_DIFFS = [-4396, -2571, -3239, -2134, -2262, -2572, -1824, -1421, -1199,
         -517,  -492,  -468,  -227,  -222,  -217,  -212]
 
 ### Cache of datacubes and files. ###
-### Filecache is in the form (currgefs, modelnumber). ###
+### Filecache is in the form (timestamp, modelnumber). ###
 filecache = {}
 
 suffix = ".npy"
@@ -194,7 +194,6 @@ def simulate(simtime, lat, lon, rate, step, max_duration, alt, model, coefficien
 import time
 def refreshdaemon():
     while True:
-        print('Refresh daemon waking.')
         if refresh(): print('Cache reset by daemon.')
         currdatetime = get_basetime(datetime.strptime(currgefs, "%Y%m%d%H"))
         startdatetime = currdatetime - timedelta(hours = 384)
@@ -204,7 +203,6 @@ def refreshdaemon():
                 try: get_file(startdatetime, model)
                 except: pass
             startdatetime += timedelta(hours=6)
-        print('Refresh daemon sleeping.')
         time.sleep(60)
 
 from threading import Thread

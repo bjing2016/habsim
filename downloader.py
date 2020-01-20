@@ -24,17 +24,23 @@ mount = True
 path = "/gefs/gefs/" if mount else "./gefs/"
 statuspath = '/gefs/serverstatus' if mount else 'serverstatus'
 socket.setdefaulttimeout(10)
+skip_threshhold = timedelta(hours = 24)
+skip = False
+skip_code = 3
 
 def worker(tasks):
     for task in tasks:
         while True:
+            if skip: return
             try:
                 single_run(*task)
                 break
-            except: # (TimeoutError, urllib.error.URLError, ConnectionResetError, socket.timeout, IndexError, ValueError):
-                #print("Error " + str(task) + ", trying again in 10s")
+            except:
                 time.sleep(10)
-    
+                y, m, d, h, t, n = task
+                if datetime.utcnow() - datetime(y, m, d, h) > skip_threshhold:
+                    print('Setting skip signal')
+                    global skip; skip = True
         
 def complete_run(y, m, d, h):
     print("Starting run")
@@ -47,13 +53,16 @@ def complete_run(y, m, d, h):
             tasks[j % k].append((y,m,d,h,t,n))
             j = j + 1
             if j % max_tasks == 0 or j == (384/6 + 1)*20:
-                print("Starting pool with task list")
+                #print("Starting pool with task list")
                 print(tasks)
                 p = Pool(k)
                 p.map(worker, tasks)
                 p.close()
-                print("Finished pool")
-                tasks = [list() for i in range(k)]            
+                #print("Finished pool")
+                tasks = [list() for i in range(k)]    
+    if skip:
+        exit(skip_code)
+        print('Skipping run')        
     print("Finished run")
 
 def single_run(y,m,d,h,t,n):
@@ -64,27 +73,17 @@ def single_run(y,m,d,h,t,n):
     predstring = pred.strftime("%Y%m%d%H")
     savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
     
-    if os.path.exists(path+'/'+savename+".npy"):
-        print("Skipping " + savename)
-        return
+    if os.path.exists(path+'/'+savename+".npy"): return
 
-    #print("Downloading " + savename)
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
     urllib.request.urlretrieve(url, path + savename + ".grb2")
 
     setBusy()
 
-    #print("Unpacking " + savename)
     data = grb2_to_array(path + savename)
     data = np.float32(data)
-    
-    #print("Saving " + savename)
     np.save(path + savename + ".npy", data)
-
-    print("Processed " + savename)
-    
-    #print("Deleting " + savename)
     os.remove(path + savename + ".grb2")
 
 def grb2_to_array(filename): 
