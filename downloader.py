@@ -29,6 +29,7 @@ skip = False
 skip_code = 3
 
 def worker(tasks):
+    global skip
     for task in tasks:
         while True:
             if skip: return
@@ -39,8 +40,7 @@ def worker(tasks):
                 time.sleep(10)
                 y, m, d, h, t, n = task
                 if datetime.utcnow() - datetime(y, m, d, h) > skip_threshhold:
-                    print('Setting skip signal')
-                    global skip; skip = True
+                    print('Setting skip signal'); skip = True
         
 def complete_run(y, m, d, h):
     print("Starting run")
