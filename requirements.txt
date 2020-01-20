@@ -1,0 +1,3 @@
+flask
+numpy
+flask-cors
