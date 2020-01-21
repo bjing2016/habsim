@@ -48,7 +48,7 @@ def worker(tasks):
                 time.sleep(10)
                 y, m, d, h, t, n = task
                 if datetime.utcnow() - datetime(y, m, d, h) > skip_threshhold:
-                    log("Giving up {}".format(, task))
+                    log("Giving up {}".format(task))
                     print('Worker giving up'); return 1
     return 0
         
