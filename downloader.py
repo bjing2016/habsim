@@ -90,15 +90,18 @@ def single_run(y,m,d,h,t,n):
     predstring = pred.strftime("%Y%m%d%H")
     savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
     
-    if os.path.exists(path+'/'+savename+".npy"): return
+    if os.path.exists(path+'/'+savename+".npy"): 
+        log(datetime.utcnow() + "{} Exists; skipping {}".format(os.getpid(), savename))
+        return
 
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
-    log(datetime.utcnow() + "{} {}".format(os.getpid(), url))
+    log(datetime.utcnow() + "{} Downloading {} {}".format(os.getpid(), savename, url))
     urllib.request.urlretrieve(url, path + savename + ".grb2")
 
     setBusy()
 
+    log(datetime.utcnow() + "{} Unpacking {}".format(os.getpid(), savename))
     data = grb2_to_array(path + savename)
     data = np.float32(data)
     np.save(path + savename + ".npy", data)
@@ -121,7 +124,6 @@ def grb2_to_array(filename):
     return dataset
 
 def setBusy():
-    log(datetime.utcnow() + " {} Setting status to busy".format(os.getpid()))
     try:
         g = open(statuspath, "r")
         line = g.readline()
