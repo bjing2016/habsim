@@ -54,9 +54,11 @@ def complete_run(y, m, d, h):
             if j % max_tasks == 0 or j == (384/6 + 1)*20:
                 p = Pool(k)
                 codes = p.map(worker, tasks)
-                if sum(codes) > 0: skip = True
                 p.close()
+                if sum(codes) > 0:
+                    skip = True; break
                 tasks = [list() for i in range(k)]    
+        if skip: break
     if skip:
         print("Skipping run {} {} {} {}".format(y, m, d, h))
         exit(skip_code)
