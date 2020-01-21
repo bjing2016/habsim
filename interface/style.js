@@ -92,11 +92,11 @@ fetch("https://predict.stanfordssi.org/status").then(res => res.text()).then((re
     if(result === "Ready") {
         document.getElementById("status").style.color = "#00CC00";
     }
-    else if(result === "Unavailable" || result === "Initializing. Please check again later."){
-        document.getElementById("status").style.color = "#CC0000";
+    else if(result === "Data refreshing. Sims may be slower than usual."){
+        document.getElementById("status").style.color = "#FFB900";
     }
     else{
-        document.getElementById("status").style.color = "#FFB900";
+        document.getElementById("status").style.color = "#CC0000";
     }});
 
 // We need to keep this because standard code does not execute until you choose the button

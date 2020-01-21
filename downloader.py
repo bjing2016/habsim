@@ -25,14 +25,11 @@ path = "/gefs/gefs/" if mount else "./gefs/"
 statuspath = '/gefs/serverstatus' if mount else 'serverstatus'
 socket.setdefaulttimeout(10)
 skip_threshhold = timedelta(hours = 24)
-skip = False
 skip_code = 3
 
 def worker(tasks):
-    global skip
     for task in tasks:
         while True:
-            if skip: return
             try:
                 single_run(*task)
                 break
@@ -40,10 +37,12 @@ def worker(tasks):
                 time.sleep(10)
                 y, m, d, h, t, n = task
                 if datetime.utcnow() - datetime(y, m, d, h) > skip_threshhold:
-                    print('Setting skip signal'); skip = True
+                    print('Worker giving up'); return 1
+    return 0
         
 def complete_run(y, m, d, h):
     print("Starting run {} {} {} {}".format(y, m, d, h))
+    skip = False
     k = 4 # workers per pool
     max_tasks = 50 # number of tasks per pool
     tasks = [list() for i in range(k)]
@@ -54,7 +53,8 @@ def complete_run(y, m, d, h):
             j = j + 1
             if j % max_tasks == 0 or j == (384/6 + 1)*20:
                 p = Pool(k)
-                p.map(worker, tasks)
+                codes = p.map(worker, tasks)
+                if sum(codes) > 0: skip = True
                 p.close()
                 tasks = [list() for i in range(k)]    
     if skip:
