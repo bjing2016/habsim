@@ -10,7 +10,7 @@ import sys
 import os
 
 def log(string):
-    string = '{} {} {}\n'.format.(datetime.utcnow(), os.getpid(), string)
+    string = '{} {} {}\n'.format(datetime.utcnow(), os.getpid(), string)
     with open('log.txt', 'a+') as f:
         f.write(string)
 
