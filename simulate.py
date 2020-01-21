@@ -76,7 +76,6 @@ def get_file(timestamp, model):
             filecache[(timestamp, model)] = np.load(gfshistpath + name + suffix, "r")
         else:
             filecache[(timestamp, model)] = np.load(gefspath + currgefs + "_" + name + "_" + str(model).zfill(2) + suffix, "r")
-        print('Loading', timestamp, model)
     return filecache[(timestamp,model)]
 
 ### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###

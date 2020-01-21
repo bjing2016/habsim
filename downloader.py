@@ -43,7 +43,7 @@ def worker(tasks):
                     print('Setting skip signal'); skip = True
         
 def complete_run(y, m, d, h):
-    print("Starting run")
+    print("Starting run {} {} {} {}".format(y, m, d, h))
     k = 4 # workers per pool
     max_tasks = 50 # number of tasks per pool
     tasks = [list() for i in range(k)]
@@ -53,17 +53,14 @@ def complete_run(y, m, d, h):
             tasks[j % k].append((y,m,d,h,t,n))
             j = j + 1
             if j % max_tasks == 0 or j == (384/6 + 1)*20:
-                #print("Starting pool with task list")
-                print(tasks)
                 p = Pool(k)
                 p.map(worker, tasks)
                 p.close()
-                #print("Finished pool")
                 tasks = [list() for i in range(k)]    
     if skip:
+        print("Skipping run {} {} {} {}".format(y, m, d, h))
         exit(skip_code)
-        print('Skipping run')        
-    print("Finished run")
+    print("Finished run {} {} {} {}".format(y, m, d, h))
 
 def single_run(y,m,d,h,t,n):
     
