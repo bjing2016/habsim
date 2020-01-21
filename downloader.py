@@ -9,9 +9,10 @@ import socket
 import sys
 import os
 
-def log(str):
+def log(string):
+    string = '{} {} {}\n'.format.(datetime.utcnow(), os.getpid(), string)
     with open('log.txt', 'a+') as f:
-        f.write(str + '\n')
+        f.write(string)
 
 
 levels = [10, 20, 30, 50, 70,\
@@ -33,27 +34,27 @@ skip_threshhold = timedelta(hours = 24)
 skip_code = 3
 
 def worker(tasks):
-    log(datetime.utcnow() + " {} Worker launched".format(os.getpid()))
+    log("Worker launched")
     for task in tasks:
-        log(datetime.utcnow() + " {} Worker assigned task {}".format(os.getpid(), task))
+        log("Worker assigned task {}".format(task))
         while True:
             try:
-                log(datetime.utcnow() + " {} Attempting {}".format(os.getpid(), task))
+                log("Attempting {}".format(task))
                 single_run(*task)
-                log(datetime.utcnow() + " {} Success {}".format(os.getpid(), task))
+                log("Success {}".format(task))
                 break
             except:
-                log(datetime.utcnow() + " {} Error {}".format(os.getpid(), task))
+                log("Error {}".format(task))
                 time.sleep(10)
                 y, m, d, h, t, n = task
                 if datetime.utcnow() - datetime(y, m, d, h) > skip_threshhold:
-                    log(datetime.utcnow() + " {} Giving up {}".format(os.getpid(), task))
+                    log("Giving up {}".format(, task))
                     print('Worker giving up'); return 1
     return 0
         
 def complete_run(y, m, d, h):
     print("Starting run {} {} {} {}".format(y, m, d, h))
-    log(datetime.utcnow() + ' {} Downloader starting run {}{}{}{}'.format(os.getpid(), y,m,d,h))
+    log('Downloader starting run {}{}{}{}'.format(y,m,d,h))
     skip = False
     k = 4 # workers per pool
     max_tasks = 50 # number of tasks per pool
@@ -65,22 +66,22 @@ def complete_run(y, m, d, h):
             j = j + 1
             if j % max_tasks == 0 or j == (384/6 + 1)*20:
                 p = Pool(k)
-                log(datetime.utcnow() + ' {} Starting pool {}'.format(os.getpid(), tasks))
+                log('Starting pool {}'.format(tasks))
                 codes = p.map(worker, tasks)
-                log(datetime.utcnow() + ' Closing pool {}'.format(tasks))
+                log('Closing pool {}'.format(tasks))
                 p.close()
                 if sum(codes) > 0:
-                    log(datetime.utcnow() + ' {} Pool gave up, breaking loop'.format(os.getpid()))
+                    log('Pool gave up, breaking loop')
                     skip = True; break
-                log(datetime.utcnow() + ' {} Pool success'.format(os.getpid()))
+                log('Pool success')
                 tasks = [list() for i in range(k)]    
         if skip: break
     if skip:
-        log(datetime.utcnow() + " {} Skipping run {} {} {} {}".format(os.getpid(), y, m, d, h))
+        log("Skipping run {} {} {} {}".format(y, m, d, h))
         print("Skipping run {} {} {} {}".format(y, m, d, h))
         exit(skip_code)
     print("Finished run {} {} {} {}".format(y, m, d, h))
-    log(datetime.utcnow() + "{} Finished run {} {} {} {}".format(os.getpid(), y, m, d, h))
+    log("Finished run {} {} {} {}".format(y, m, d, h))
 
 def single_run(y,m,d,h,t,n):
     
@@ -91,17 +92,17 @@ def single_run(y,m,d,h,t,n):
     savename = basestring + "_" + predstring + "_" + str(n).zfill(2)
     
     if os.path.exists(path+'/'+savename+".npy"): 
-        log(datetime.utcnow() + "{} Exists; skipping {}".format(os.getpid(), savename))
+        log("Exists; skipping {}".format(savename))
         return
 
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
-    log(datetime.utcnow() + "{} Downloading {} {}".format(os.getpid(), savename, url))
+    log("Downloading {} {}".format(savename, url))
     urllib.request.urlretrieve(url, path + savename + ".grb2")
 
     setBusy()
 
-    log(datetime.utcnow() + "{} Unpacking {}".format(os.getpid(), savename))
+    log("Unpacking {}".format(savename))
     data = grb2_to_array(path + savename)
     data = np.float32(data)
     np.save(path + savename + ".npy", data)
@@ -141,4 +142,4 @@ if __name__ == "__main__":
     g = open(statuspath, "w")
     g.write("Ready")
     g.close()
-    log(datetime.utcnow() + " {} Setting status to ready".format(os.getpid()))
+    log("Setting status to ready")
