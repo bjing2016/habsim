@@ -9,6 +9,11 @@ import socket
 import sys
 import os
 
+def log(str):
+    with open('log.txt', 'a+') as f:
+        f.write(str + '\n')
+
+
 levels = [10, 20, 30, 50, 70,\
           100, 150, 200, 250, 300, 350, 400, 450,\
           500, 550, 600, 650, 700, 750, 800, 850,\
@@ -28,20 +33,27 @@ skip_threshhold = timedelta(hours = 24)
 skip_code = 3
 
 def worker(tasks):
+    log(datetime.utcnow() + " {} Worker launched".format(os.getpid()))
     for task in tasks:
+        log(datetime.utcnow() + " {} Worker assigned task {}".format(os.getpid(), task))
         while True:
             try:
+                log(datetime.utcnow() + " {} Attempting {}".format(os.getpid(), task))
                 single_run(*task)
+                log(datetime.utcnow() + " {} Success {}".format(os.getpid(), task))
                 break
             except:
+                log(datetime.utcnow() + " {} Error {}".format(os.getpid(), task))
                 time.sleep(10)
                 y, m, d, h, t, n = task
                 if datetime.utcnow() - datetime(y, m, d, h) > skip_threshhold:
+                    log(datetime.utcnow() + " {} Giving up {}".format(os.getpid(), task))
                     print('Worker giving up'); return 1
     return 0
         
 def complete_run(y, m, d, h):
     print("Starting run {} {} {} {}".format(y, m, d, h))
+    log(datetime.utcnow() + ' {} Downloader starting run {}{}{}{}'.format(os.getpid(), y,m,d,h))
     skip = False
     k = 4 # workers per pool
     max_tasks = 50 # number of tasks per pool
@@ -53,16 +65,22 @@ def complete_run(y, m, d, h):
             j = j + 1
             if j % max_tasks == 0 or j == (384/6 + 1)*20:
                 p = Pool(k)
+                log(datetime.utcnow() + ' {} Starting pool {}'.format(os.getpid(), tasks))
                 codes = p.map(worker, tasks)
+                log(datetime.utcnow() + ' Closing pool {}'.format(tasks))
                 p.close()
                 if sum(codes) > 0:
+                    log(datetime.utcnow() + ' {} Pool gave up, breaking loop'.format(os.getpid()))
                     skip = True; break
+                log(datetime.utcnow() + ' {} Pool success'.format(os.getpid()))
                 tasks = [list() for i in range(k)]    
         if skip: break
     if skip:
+        log(datetime.utcnow() + " {} Skipping run {} {} {} {}".format(os.getpid(), y, m, d, h))
         print("Skipping run {} {} {} {}".format(y, m, d, h))
         exit(skip_code)
     print("Finished run {} {} {} {}".format(y, m, d, h))
+    log(datetime.utcnow() + "{} Finished run {} {} {} {}".format(os.getpid(), y, m, d, h))
 
 def single_run(y,m,d,h,t,n):
     
@@ -76,6 +94,7 @@ def single_run(y,m,d,h,t,n):
 
     url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
         .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
+    log(datetime.utcnow() + "{} {}".format(os.getpid(), url))
     urllib.request.urlretrieve(url, path + savename + ".grb2")
 
     setBusy()
@@ -102,6 +121,7 @@ def grb2_to_array(filename):
     return dataset
 
 def setBusy():
+    log(datetime.utcnow() + " {} Setting status to busy".format(os.getpid()))
     try:
         g = open(statuspath, "r")
         line = g.readline()
@@ -119,3 +139,4 @@ if __name__ == "__main__":
     g = open(statuspath, "w")
     g.write("Ready")
     g.close()
+    log(datetime.utcnow() + " {} Setting status to ready".format(os.getpid()))

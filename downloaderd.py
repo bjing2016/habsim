@@ -4,6 +4,10 @@ import time
 
 mount = True
 
+def log(str):
+    with open('log.txt', 'a+') as f:
+        f.write(str + '\n')
+
 path = "/gefs/gefs/" if mount else "./gefs/"
 whichpath = '/gefs/whichgefs' if mount else 'whichgefs'
 skip_code = 3
@@ -24,10 +28,15 @@ def currgefs():
     
 def download(timestamp):
     while True: # Loop so that we can skip, if necessary
+        log(datetime.utcnow() + ' {} Daemon launching run {}'.format(os.getpid(), timestamp))
         command = "nice -n 50 python3 downloader.py " + str(timestamp.year) + " " + str(timestamp.month) + " " + str(timestamp.day) + " " + str(timestamp.hour)
         err = os.system(command)
-        if err == 0: return timestamp
+        if err == 0: 
+            log(datetime.utcnow() + ' {} Daemon registering success {}'.format(os.getpid(), timestamp))
+            return timestamp
         if err == 256 * skip_code:
+            log(datetime.utcnow() + ' {} Daemon registering skip {}'.format(os.getpid(), timestamp))
+            os.system("rm " + path + timestamp.strftime("%Y%m%d%H") + "*")
             timestamp += timedelta(hours=6)
 
 def move(prev, new):
@@ -56,8 +65,10 @@ def main():
         f = open(whichpath, "w")
         f.write(actual_run.strftime("%Y%m%d%H"))
         f.close()
+        log(datetime.utcnow() + ' {} Daemon updating which to {}'.format(os.getpid(), actual_run))
         time.sleep(300)
 
+        log(datetime.utcnow() + ' {} Daemon moving and deleting files'.format(os.getpid()))
         move(curr_run, actual_run)
 
 if __name__ == "__main__":
