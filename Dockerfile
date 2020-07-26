@@ -1,3 +1,5 @@
+## This Dockerfile is not in current use but contains the correct commands for environment setup.
+
 FROM ubuntu:18.04
 
 # Install system dependencies
@@ -34,5 +36,5 @@ EXPOSE 5000
 # RUN bash elevinit.sh
 
 ADD . .
-ENV FLASK_APP=api.py
 CMD python3 downloaderd.py & flask run --host=0.0.0.0 --no-reload
+# Run with --port=80 as suitable.

@@ -87,17 +87,11 @@ Exports API described above and initialized downloader service
 ### Dockerfile 
 Needed for server setup
 
-### docker-compose.yml
-Needed for server setup
-
 ### downloader.py
 Takes command line args [year month day hour] and downloads the entire dataset corresponding to that GEFS timestamp in directory gefs/ from ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod. Implements multiprocessing and broad exception handling, including premature execution, corrupted data, and interrupted downloads. Converts entire dataset to npy.
 
 ### downloaderd.py
 Daemon-like downloader service. Repeatedly executes downloader.py for each new dataset.
-
-### serverstatus
-Reports server status (initializing, refreshing, or ready)
 
 ### elev.py
 Tools for fetching elevation data from .npy files. File names and contents must be from the format in https://topotools.cr.usgs.gov/gmted_viewer/viewer.htm, converted into .npy format. Usage: exports getElevation(lat, lon) function. No interpolation; rounds to nearest 1/120 of a degree.
