@@ -1,10 +1,8 @@
-## This Dockerfile is not in current use but contains the correct commands for environment setup.
-
 FROM ubuntu:18.04
 
 # Install system dependencies
 RUN apt-get update
-RUN apt-get install -qq -y git curl wget nano pkg-config libfreetype6-dev libpng-dev zlib1g-dev gfortran apt-utils cron
+RUN apt-get install -qq -y git curl wget nano pkg-config libfreetype6-dev libpng-dev zlib1g-dev gfortran apt-utils cron htop lsof
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
@@ -29,6 +27,7 @@ RUN pip3 install flask-cors
 # RUN touch /var/log/cron.log
 
 RUN mkdir -p /home/run
+RUN mkdir -p /gefs/gefs
 WORKDIR /home/run
 EXPOSE 5000
 
@@ -36,5 +35,5 @@ EXPOSE 5000
 # RUN bash elevinit.sh
 
 ADD . .
-CMD python3 downloaderd.py & flask run --host=0.0.0.0 --no-reload
+CMD python3 downloaderd.py & flask run --host=0.0.0.0 --no-reload & while sleep 10000; do sleep 10000; done
 # Run with --port=80 as suitable.
