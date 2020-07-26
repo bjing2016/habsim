@@ -42,7 +42,7 @@ function displayCoordinates(pnt) {
 function getElev() {
     lat = document.getElementById("lat").value;
     lng = document.getElementById("lon").value;
-    fetch("https://predict.stanfordssi.org/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((result) => {
+    fetch(URL_ROOT + "/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((result) => {
         document.getElementById("alt").value = result
     })
 }
@@ -60,7 +60,7 @@ function getTimeremain() {
         descr = document.getElementById("desc").value;
         lat = document.getElementById("lat").value;
         lng = document.getElementById("lon").value;
-        fetch("https://predict.stanfordssi.org/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((ground) => {
+        fetch(URL_ROOT + "/elev?lat=" + lat + "&lon=" + lng).then(res => res.json()).then((ground) => {
             time = (alt - ground)/(3600*descr);
             document.getElementById("timeremain").textContent = time.toFixed(2) + " hr descent remaining"
         })

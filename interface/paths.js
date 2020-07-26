@@ -1,3 +1,4 @@
+// Controls fetching and rendering of trajectories.
 
 // Cache of compount paths
 rawpathcache = []
@@ -159,7 +160,7 @@ async function simulate() {
             var equil = document.getElementById('equil').value;
             var asc = document.getElementById('asc').value;
             var desc = document.getElementById('desc').value;
-            url = "https://predict.stanfordssi.org/singlezpb?timestamp="
+            url = URL_ROOT + "/singlezpb?timestamp="
                 + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + 0 + "&asc=" + asc + "&desc=" + desc;
             allValues.push(equil,asc,desc);
             break;
@@ -169,7 +170,7 @@ async function simulate() {
             var eqtime = document.getElementById('eqtime').value;
             var asc = document.getElementById('asc').value;
             var desc = document.getElementById('desc').value;
-            url = "https://predict.stanfordssi.org/singlezpb?timestamp="
+            url = URL_ROOT + "/singlezpb?timestamp="
                 + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&equil=" + equil + "&eqtime=" + eqtime + "&asc=" + asc + "&desc=" + desc
             allValues.push(equil,eqtime,asc,desc);
             break;
@@ -178,7 +179,7 @@ async function simulate() {
             var coeff = document.getElementById('coeff').value;
             var step = document.getElementById('step').value;
             var dur = document.getElementById('dur').value;
-            url = "https://predict.stanfordssi.org/singlepredict?timestamp="
+            url = URL_ROOT + "/singlepredict?timestamp="
                 + time + "&lat=" + lat + "&lon=" + lon + "&alt=" + alt + "&rate=0&coeff=" + coeff + "&step=" + step + "&dur=" + dur
             allValues.push(coeff,step,dur);
             break;

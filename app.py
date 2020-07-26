@@ -15,22 +15,6 @@ import os
 def home():  # pragma: no cover
     return Response(open("interface/home.html").read(), mimetype="text/html")
 
-@app.route('/zpb')
-def zpb():  # pragma: no cover
-    return Response(open("interface/zpb.html").read(), mimetype="text/html")
-
-@app.route('/float')
-def floatonly():  # pragma: no cover
-    return Response(open("interface/float.html").read(), mimetype="text/html")
-
-@app.route('/legacycommon.js')
-def legacycommonjs():  # pragma: no cover
-    return Response(open("interface/legacycommon.js").read(), mimetype="text/html")
-
-@app.route('/legacy')
-def legacy():  # pragma: no cover
-    return Response(open("interface/legacy.html").read(), mimetype="text/html")
-
 @app.route('/paths.js')
 def pathsjs():  # pragma: no cover
     return Response(open("interface/paths.js").read(), mimetype="text/html")

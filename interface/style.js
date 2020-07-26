@@ -84,10 +84,10 @@ document.getElementById("mo").value = now.getUTCMonth() + 1
 document.getElementById("day").value = now.getUTCDate()
 document.getElementById("hr").value = now.getUTCHours()
 document.getElementById("mn").value = now.getUTCMinutes()
-fetch("https://predict.stanfordssi.org/which").then(res => res.text()).then((result) => {
+fetch(URL_ROOT + "/which").then(res => res.text()).then((result) => {
             document.getElementById("run").textContent = result
         });
-fetch("https://predict.stanfordssi.org/status").then(res => res.text()).then((result) => {
+fetch(URL_ROOT + "/status").then(res => res.text()).then((result) => {
     document.getElementById("status").textContent = result;
     if(result === "Ready") {
         document.getElementById("status").style.color = "#00CC00";
