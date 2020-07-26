@@ -39,6 +39,9 @@ def download(timestamp):
             log('Daemon registering skip {}'.format(timestamp))
             os.system("rm " + path + timestamp.strftime("%Y%m%d%H") + "*")
             timestamp += timedelta(hours=6)
+        else:
+            log("Daemon registering failure {}, trying again in 5 minutes".format(timestamp))
+            time.sleep(300)
 
 def move(prev, new):
     to_keep = new - timedelta(hours=384)
