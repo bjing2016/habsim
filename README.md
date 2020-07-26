@@ -1,6 +1,6 @@
 # HABSIM
 High Altitude Balloon Simulator
-https://predict.stanfordssi.org
+http://habsim.org
 
 ## Overview
 This is a prediction server developed for the Stanford Space Initiative's Balloons team. The aims of the prediction server, in comparison to existing ones, are as follows:
