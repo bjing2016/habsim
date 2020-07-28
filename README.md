@@ -1,6 +1,6 @@
 # HABSIM
 High Altitude Balloon Simulator
-https://predict.stanfordssi.org
+http://habsim.org
 
 ## Overview
 This is a prediction server developed for the Stanford Space Initiative's Balloons team. The aims of the prediction server, in comparison to existing ones, are as follows:
@@ -12,8 +12,8 @@ This is a prediction server developed for the Stanford Space Initiative's Balloo
 - Offer a web-based UI which captures the functionality and flexibility of the API
 
 ## Status / Operation
-The server automatically downloads and curates GEFS data from https://nomads.ncdc.noaa.gov/data/gfsanl/ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod every 6 hrs. Data is usually available 6 hrs after the GEFS timestamp; this can be checked at https://predict.stanfordssi.org/which.
-Download progress may be manually checked at https://predict.stanfordssi.org/ls.
+The server automatically downloads and curates GEFS data from ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod every 6 hrs. Data is usually available 6 hrs after the GEFS timestamp; this can be checked at http://habsim.org/which.
+Download progress may be manually checked at http://habsim.org/ls.
 
 ## API Usage
 ### `/singlepredicth`
