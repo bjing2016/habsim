@@ -39,12 +39,12 @@ def download(timestamp):
             log('Daemon registering skip {}'.format(timestamp))
             os.system("rm " + path + timestamp.strftime("%Y%m%d%H") + "*")
             timestamp += timedelta(hours=6)
-        else:
-            log("Daemon registering failure {}, trying again in 5 minutes".format(timestamp))
-            time.sleep(300)
+#        else:
+#            log("Daemon registering failure {}, trying again in 5 minutes".format(timestamp))
+#            time.sleep(300)
 
 def move(prev, new):
-    to_keep = new - timedelta(hours=384)
+    to_keep = new - timedelta(hours=192)
     while to_keep < new:
         for model in range(1, 21):
             cmd = 'mv ' + path + prev.strftime("%Y%m%d%H")+'_'+to_keep.strftime("%Y%m%d%H")+'_'+str(model).zfill(2)+'.npy ' \
