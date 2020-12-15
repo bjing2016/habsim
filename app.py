@@ -13,6 +13,7 @@ import os
 
 @app.route('/')
 def home():  # pragma: no cover
+    simulate.refresh()
     return Response(open("interface/home.html").read(), mimetype="text/html")
 
 @app.route('/paths.js')

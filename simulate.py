@@ -204,5 +204,5 @@ def refreshdaemon():
             startdatetime += timedelta(hours=6)
         time.sleep(60)
 
-from threading import Thread
-Thread(target = refreshdaemon).start()
+#from threading import Thread
+#Thread(target = refreshdaemon).start()
