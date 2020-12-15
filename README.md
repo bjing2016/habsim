@@ -111,3 +111,7 @@ If you still want to do this yourself, download and install eccodes: https://con
 Follow the instructions to unpack the tar and install eccodes. Make sure you have CMake and gfortran installed.
 
 To expediate pygrib installation, make sure you install eccodes in your preprocessor/linker path, or otherwise set said path to the eccodes directory.
+
+### Running the server
+`docker build . -t habsim-root`
+`docker run -d -v $(pwd):/home/run -v /gefs:/gefs --name=habsim-$USER -p 80:5000 habsim-root`

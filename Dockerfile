@@ -34,6 +34,5 @@ EXPOSE 5000
 # ADD elevinit.sh elevinit.sh
 # RUN bash elevinit.sh
 
-ADD . .
-CMD python3 downloaderd.py & flask run --host=0.0.0.0 --no-reload & while sleep 10000; do sleep 10000; done
+CMD flask run --host=0.0.0.0
 # Run with --port=80 as suitable.
