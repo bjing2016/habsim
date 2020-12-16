@@ -77,19 +77,19 @@ $(function() {
         }
     })
 });
-/*
+
 var now = new Date(Date.now());
 document.getElementById("yr").value = now.getUTCFullYear()
 document.getElementById("mo").value = now.getUTCMonth() + 1
 document.getElementById("day").value = now.getUTCDate()
 document.getElementById("hr").value = now.getUTCHours()
 document.getElementById("mn").value = now.getUTCMinutes()
-*/
-document.getElementById("yr").value = 2020
+
+/*document.getElementById("yr").value = 2020
 document.getElementById("mo").value = 9
 document.getElementById("day").value = 23
 document.getElementById("hr").value = 12
-document.getElementById("mn").value = 00
+document.getElementById("mn").value = 00*/
 
 fetch(URL_ROOT + "/which").then(res => res.text()).then((result) => {
             document.getElementById("run").textContent = result

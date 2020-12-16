@@ -14,17 +14,10 @@ def log(string):
     with open('log.txt', 'a+') as f:
         f.write(string)
 
-
-levels = [10, 20, 30, 50, 70,\
-          100, 150, 200, 250, 300, 350, 400, 450,\
-          500, 550, 600, 650, 700, 750, 800, 850,\
-          900, 925, 950, 975, 1000]
+levels = [1, 2, 3, 5, 7, 20, 30, 70, 150, 350, 450, 550, 600, 650, 750, 800, 900, 950, 975]
 
 ## Array format: array[u,v][Pressure][Lat][Lon] ##
 ## Currently [lat 90 to -90][lon 0 to 359]
-
-## One-indexed positions of the above levels in the result of grbs.select
-order = [1, 13, 14, 2, 15, 3, 16, 4, 5, 6, 17, 7, 18, 8, 19, 20, 21, 9, 22, 23, 10, 24, 11, 25, 26, 12]
 
 mount = True
 path = "/gefs/gefs/" if mount else "./gefs/"
@@ -95,8 +88,9 @@ def single_run(y,m,d,h,t,n):
         log("Exists; skipping {}".format(savename))
         return
 
-    url = "ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{}{}{}/{}/pgrb2/gep{}.t{}z.pgrb2f{}"\
-        .format(y, str(m).zfill(2), str(d).zfill(2), str(h).zfill(2), str(n).zfill(2), str(h).zfill(2), str(t).zfill(2))
+    m, d, h, n = map(lambda x: str(x).zfill(2), [m, d, h, n])
+    t = str(t).zfill(3)
+    url = f"https://nomads.ncep.noaa.gov/pub/data/nccf/com/gens/prod/gefs.{y}{m}{d}/{h}/atmos/pgrb2bp5/gep{n}.t{h}z.pgrb2b.0p50.f{t}"
     log("Downloading {} {}".format(savename, url))
     urllib.request.urlretrieve(url, path + savename + ".grb2")
 
@@ -104,7 +98,7 @@ def single_run(y,m,d,h,t,n):
 
     log("Unpacking {}".format(savename))
     data = grb2_to_array(path + savename)
-    data = np.float32(data)
+    data = np.float16(data)
     np.save(path + savename + ".npy", data)
     os.remove(path + savename + ".grb2")
 
@@ -115,13 +109,17 @@ def grb2_to_array(filename):
     
     dataset = np.zeros((2, len(levels), 181, 360))
 
-    u = grbs.select(shortName='u',typeOfLevel='isobaricInhPa', level = levels)
-    v = grbs.select(shortName='v',typeOfLevel='isobaricInhPa', level = levels)
+    u = grbs.select(shortName='u', typeOfLevel='isobaricInhPa')
+    v = grbs.select(shortName='v', typeOfLevel='isobaricInhPa')
     grbs.close()
 
-    for i in range(len(levels)):
-        dataset[0][i] = u[order[i]-1].data()[0]
-        dataset[1][i] = v[order[i]-1].data()[0]
+    assert(len(u) == len(levels))
+
+    for i, level in enumerate(levels):
+        assert(u[i]['level'] == level)
+        assert(v[i]['level'] == level)
+        dataset[0][i] = u[i].data()[0][::2, ::2]
+        dataset[1][i] = v[i].data()[0][::2, ::2]
     return dataset
 
 def setBusy():

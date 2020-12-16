@@ -41,7 +41,12 @@ def status():
 
 @app.route('/ls')
 def ls():
-    return jsonify(os.listdir('/gefs/gefs' if mount else 'gefs'))
+    files = os.listdir('/gefs/gefs' if mount else 'gefs')
+    return jsonify({
+        "count": len(files),
+        "files": files
+    })
+
 
 '''
 Returns a json object representing the flight path, given a UTC launch time (yr, mo, day, hr, mn),
@@ -88,8 +93,8 @@ def singlepredict():
 
 
 def singlezpb(timestamp, lat, lon, alt, equil, eqtime, asc, desc, model):
-    #simulate.refresh()
     try:
+        simulate.refresh()
         dur = 0 if equil == alt else (equil - alt) / asc / 3600
         rise = simulate.simulate(timestamp, lat, lon, asc, 240, dur, alt, model, elevation=False)
         if len(rise) > 0:
