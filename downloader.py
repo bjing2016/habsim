@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 levels = [1, 2, 3, 5, 7, 20, 30, 70, 150, 350, 450, 550, 600, 650, 750, 800, 900, 950, 975]
-NUM_MEMBERS = 5
+NUM_MEMBERS = 20
 
 def main():
     model_timestamp = datetime.strptime(args.timestamp, "%Y%m%d%H")
@@ -38,7 +38,7 @@ def complete_run(model_timestamp):
     y, m = model_timestamp.year, model_timestamp.month
     d, h = model_timestamp.day, model_timestamp.hour
 
-    for t in range(0, 6, 6):
+    for t in range(0, 384+6, 6):
         for n in range(1, 1+NUM_MEMBERS):
             single_run(y, m, d, h, t, n)
         logger.info(f'Successfully completed {args.timestamp}+{t}')
