@@ -1,3 +1,5 @@
+# Note: we are no longer using Docker
+
 FROM ubuntu:18.04
 
 # Install system dependencies
