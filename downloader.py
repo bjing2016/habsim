@@ -23,7 +23,8 @@ logging.basicConfig(
 )
 
 levels = [1, 2, 3, 5, 7, 20, 30, 70, 150, 350, 450, 550, 600, 650, 750, 800, 900, 950, 975]
-NUM_MEMBERS = 5
+NUM_MEMBERS = 20
+MAX_HOURS = 384
 
 def main():
     model_timestamp = datetime.strptime(args.timestamp, "%Y%m%d%H")
@@ -38,7 +39,7 @@ def complete_run(model_timestamp):
     y, m = model_timestamp.year, model_timestamp.month
     d, h = model_timestamp.day, model_timestamp.hour
 
-    for t in range(0, 6, 6):
+    for t in range(0, 6+MAX_HOURS, 6):
         for n in range(1, 1+NUM_MEMBERS):
             single_run(y, m, d, h, t, n)
         logger.info(f'Successfully completed {args.timestamp}+{t}')
@@ -53,10 +54,9 @@ def single_run(y,m,d,h,t,n):
         return
 
     url = get_url(y,m,d,h,t,n)
-    logger.debug("Downloading {}".format(url))
+    logger.debug("Downloading {}".format(savename))
 
-    func = lambda: urllib.request.urlretrieve(url, f"{args.savedir}/{savename}.grb2")
-    try_func(func, 30, 10) # wait 5 minutes for any new file to appear
+    download(url, f"{args.savedir}/{savename}.grb2")
 
     logger.debug("Unpacking {}".format(savename))
     data = grb2_to_array(f"{args.savedir}/{savename}")
@@ -64,20 +64,24 @@ def single_run(y,m,d,h,t,n):
     np.save(f"{args.savedir}/{savename}.npy", data)
     os.remove(f"{args.savedir}/{savename}.grb2")
 
-def try_func(func, times, interval):
+def download(url, path):
+    MAX_ATTEMPTS = 10
+    INTERVAL = 30
+    
     attempts = 0
-    while attempts < times:
+    while attempts < MAX_ATTEMPTS:
         attempts += 1
         try:
-            func()
+            urllib.request.urlretrieve(url, path)
             return
         except Exception as e:
-            if attempts < times:
-                logger.info(f'{e} --- retrying in {interval} seconds.')
+            if attempts < MAX_ATTEMPTS:
+                logger.debug(f'{e} --- retrying in {INTERVAL} seconds.')
             else:
-                logger.warning(f'{e} --- failed after {times} retries')
-                raise
-        time.sleep(interval)
+                logger.warning(f'{e} --- failed after {MAX_ATTEMPTS} retries. Quitting run.')
+                exit(1)
+                
+        time.sleep(INTERVAL)
 
 def get_savename(y,m,d,h,t,n):
     base = datetime(y, m, d, h)

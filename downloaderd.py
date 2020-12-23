@@ -73,6 +73,8 @@ class DownloadManager:
         self.next += timedelta(hours=6)
 
     def wait(self):
+        INTERVAL = 300
+
         logger.info(f"Waiting for run {fmt(self.next)} to become available.")
         url = get_url(self.next)
         logger.info(f"Checking URL {url}")
@@ -83,8 +85,8 @@ class DownloadManager:
                 logger.info(f"Found URL {url}")
                 return True
             except Exception as e:
-                logger.debug(f"{e} --- waiting 30 seconds")
-            time.sleep(30)
+                logger.debug(f"{e} --- waiting {INTERVAL} seconds")
+            time.sleep(INTERVAL)
             if self.should_skip():
                 logger.warning(f"Waited too long; skipping run {fmt(self.next)}")
                 return False
