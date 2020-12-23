@@ -58,7 +58,7 @@ class DownloadManager:
         logger.info(f"Run {fmt(self.next)} ready to start")
         
         cmd = f"python3 downloader.py --savedir={args.savedir} {fmt(self.next)}"
-        if args.logfile: cmd += f" --logfile={logfile}"
+        if args.logfile: cmd += f" --logfile={args.logfile}"
         logger.info(cmd)
         
         retval = os.system(cmd)
