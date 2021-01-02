@@ -156,18 +156,5 @@ def combine_npy_for_member(file_list):
     data = np.transpose(data, (3, 4, 2, 0, 1))
     return data
 
-def validate():
-    dataset = np.load(f"{args.savedir}/2020123100_01.npz")
-    data = np.load(f"{args.savedir}/temp/2020123100_006_2020123106_01.npy")
-
-    print("data:", data[0][6][65][161])
-    print("dataset", dataset['data'][65][161][6][1][0])
-    print(dataset['interval'])
-
-def test_main():
-    #combine_files()
-    validate()
-
 if __name__ == "__main__":
-    #test_main()
     main()
