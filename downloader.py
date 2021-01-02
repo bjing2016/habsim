@@ -1,7 +1,7 @@
 import numpy as np
 import pygrib
 import urllib.request
-import time, logging, socket, sys, os, argparse, shutil
+import time, logging, socket, sys, os, argparse, shutil, glob
 from datetime import datetime, timedelta
 socket.setdefaulttimeout(10)
 
@@ -25,7 +25,7 @@ logging.basicConfig(
 levels = [1, 2, 3, 5, 7, 20, 30, 70, 150, 350, 450, 550, 600, 650, 750, 800, 900, 950, 975]
 NUM_MEMBERS = 20
 MAX_HOURS = 384
-INTERVAL = 21600
+FORECAST_INTERVAL = 6
 
 def main():
     model_timestamp = datetime.strptime(args.timestamp, "%Y%m%d%H")
@@ -45,7 +45,7 @@ def complete_run(model_timestamp):
         
     os.mkdir(f'{args.savedir}/temp')
 
-    for t in range(0, 6+MAX_HOURS, 6):
+    for t in range(0, FORECAST_INTERVAL+MAX_HOURS, FORECAST_INTERVAL):
         for n in range(1, 1+NUM_MEMBERS):
             single_run(y, m, d, h, t, n)
         logger.info(f'Successfully completed {args.timestamp}+{t}')
@@ -128,42 +128,46 @@ def grb2_to_array(filename):
 ## save data as npz file of ['data', 'timestamp (unix)', 'interval', 'levels']
 def combine_files():
     file_list = os.listdir(f'{args.savedir}/temp')
-    filesets = [['']]
+    filesets = []
     
-    for i in range(NUM_MEMBERS-1):
-        filesets.append([''])
-    for f in file_list:
-        n = int(f[26:28])
-        filesets[n-1].append(f)
+    for i in range(1, NUM_MEMBERS+1):
+        files = glob.glob(f'{args.savedir}/temp/{args.timestamp}_*_*_{str(i).zfill(2)}.npy')
+        files.sort()
+        filesets.append(files)
 
-    for i in filesets:
-        member = i[1][26:28]
-        data = combine_npy_for_member(member , i[1:])
+    for i in range(len(filesets)):
+        data = combine_npy_for_member(filesets[i])
         data = np.float16(data)
-        logger.info(f'Completed combining files for {member}')
+        logger.info(f'Completed combining files for {i+1}')
         
-        savename = str(i[1][0:11] + str(member).zfill(2) + ".npz")
-        dt = datetime(int(savename[0:4]), int(savename[4:6]), int(savename[6:8]), int(savename[8:10]))
+        savename = args.timestamp + "_" + str(i+1).zfill(2) + ".npz"
+        dt = datetime.strptime(args.timestamp, "%Y%m%d%H")
         timestamp = (dt - datetime(1970, 1, 1)).total_seconds()
-
-        np.savez(f'{args.savedir}/' + savename, data=data, timestamp=timestamp, interval=INTERVAL, levels=levels)
+        
+        np.savez(f'{args.savedir}/' + savename, data=data, timestamp=timestamp, interval=FORECAST_INTERVAL*3600, levels=levels)
         logger.info(f'File saved as {savename}')
 
     logger.info('Completed combining files')
 
 ## change shape of data from (2, 19, 181, 360) to (181, 360, 19, 65, 2), with the 65 timestamps added
-def combine_npy_for_member(n, file_list):
-    dataset = np.zeros((181, 360, 19, 65, 2))
-    for fil in file_list:
-        time_index = int(fil[11:14])//6
-        data = np.load(f'{args.savedir}/temp/' + fil)
+def combine_npy_for_member(file_list):
+    data = np.array(list(map(np.load, file_list)))
+    np.stack(data, axis=0)
+    data = np.transpose(data, (3, 4, 2, 0, 1))
+    return data
 
-        for i in range(181):
-            for j in range(360):
-                for k in range(19):
-                    dataset[i][j][k][time_index][0] = data[0][k][i][j]
-                    dataset[i][j][k][time_index][1] = data[1][k][i][j]
-    return dataset
+def validate():
+    dataset = np.load(f"{args.savedir}/2020123100_01.npz")
+    data = np.load(f"{args.savedir}/temp/2020123100_006_2020123106_01.npy")
+
+    print("data:", data[0][6][65][161])
+    print("dataset", dataset['data'][65][161][6][1][0])
+    print(dataset['interval'])
+
+def test_main():
+    #combine_files()
+    validate()
 
 if __name__ == "__main__":
+    #test_main()
     main()
