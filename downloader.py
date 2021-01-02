@@ -75,7 +75,6 @@ def single_run(y,m,d,h,t,n):
 def download(url, path):
     MAX_ATTEMPTS = 10
     INTERVAL = 30
-    logger.debug(f'url: {url}')
     attempts = 0
     while attempts < MAX_ATTEMPTS:
         attempts += 1
