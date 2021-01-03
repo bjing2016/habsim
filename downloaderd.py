@@ -1,4 +1,4 @@
-import os, time, logging, argparse, glob
+import os, time, logging, argparse, glob, shutil
 import urllib.request
 from datetime import datetime, timedelta
 
@@ -110,6 +110,8 @@ class DownloadManager:
         logger.warning(f"Removing incomplete download {fmt(self.next)}")
         for f in glob.glob(f"{args.savedir}/{fmt(self.next)}*"):
             os.remove(f)
+        if os.path.exists(f"{args.savedir}/temp"):
+            shutil.rmtree(f"{args.savedir}/temp")
 
 def curr_gefs():
     if not os.path.exists(args.statusfile): return None

@@ -26,6 +26,8 @@ levels = [1, 2, 3, 5, 7, 20, 30, 70, 150, 350, 450, 550, 600, 650, 750, 800, 900
 NUM_MEMBERS = 20
 MAX_HOURS = 384
 FORECAST_INTERVAL = 6
+TIMEOUT = timedelta(hours=6)
+start = datetime.now()
 
 def main():
     model_timestamp = datetime.strptime(args.timestamp, "%Y%m%d%H")
@@ -50,10 +52,9 @@ def complete_run(model_timestamp):
             single_run(y, m, d, h, t, n)
         logger.info(f'Successfully completed {args.timestamp}+{t}')
 
-    logger.info(f'Downloader finished run {args.timestamp}')
     combine_files()
-
     shutil.rmtree(f'{args.savedir}/temp')
+    logger.info(f'Downloader finished run {args.timestamp}')
 
 def single_run(y,m,d,h,t,n):
     savename = get_savename(y,m,d,h,t,n)
@@ -73,23 +74,15 @@ def single_run(y,m,d,h,t,n):
     os.remove(f"{args.savedir}/temp/{savename}.grb2")
 
 def download(url, path):
-    MAX_ATTEMPTS = 10
-    INTERVAL = 30
-    attempts = 0
-    while attempts < MAX_ATTEMPTS:
-        attempts += 1
+    RETRY_INTERVAL = 30
+    while datetime.now() - start < TIMEOUT:
         try:
-            urllib.request.urlretrieve(url, path)
-            return
+            urllib.request.urlretrieve(url, path); return
         except Exception as e:
-
-            if attempts < MAX_ATTEMPTS:
-                logger.debug(f'{e} --- retrying in {INTERVAL} seconds.')
-            else:
-                logger.warning(f'{e} --- failed after {MAX_ATTEMPTS} retries. Quitting run.')
-                exit(1)
-                
-        time.sleep(INTERVAL)
+            logger.debug(f'{e} --- retrying in {INTERVAL} seconds.')
+        time.sleep(RETRY_INTERVAL)
+    logger.warning(f"Run {args.timestamp} timed out on {url}.")
+    exit(1)
 
 def get_savename(y,m,d,h,t,n):
     base = datetime(y, m, d, h)
@@ -126,25 +119,23 @@ def grb2_to_array(filename):
 
 ## save data as npz file of ['data', 'timestamp (unix)', 'interval', 'levels']
 def combine_files():
-    file_list = os.listdir(f'{args.savedir}/temp')
     filesets = []
     
     for i in range(1, NUM_MEMBERS+1):
-        files = glob.glob(f'{args.savedir}/temp/{args.timestamp}_*_*_{str(i).zfill(2)}.npy')
+        files = glob.glob(f'{args.savedir}/temp/{args.timestamp}_*_{str(i).zfill(2)}.npy')
         files.sort()
         filesets.append(files)
 
     for i in range(len(filesets)):
         data = combine_npy_for_member(filesets[i])
         data = np.float16(data)
-        logger.info(f'Completed combining files for {i+1}')
         
         savename = args.timestamp + "_" + str(i+1).zfill(2) + ".npz"
         dt = datetime.strptime(args.timestamp, "%Y%m%d%H")
         timestamp = (dt - datetime(1970, 1, 1)).total_seconds()
         
         np.savez(f'{args.savedir}/' + savename, data=data, timestamp=timestamp, interval=FORECAST_INTERVAL*3600, levels=levels)
-        logger.info(f'File saved as {savename}')
+        logger.info(f'Combined file for member {i+1} saved as {savename}')
 
     logger.info('Completed combining files')
 
