@@ -79,7 +79,7 @@ def download(url, path):
         try:
             urllib.request.urlretrieve(url, path); return
         except Exception as e:
-            logger.debug(f'{e} --- retrying in {INTERVAL} seconds.')
+            logger.debug(f'{e} --- retrying in {RETRY_INTERVAL} seconds.')
         time.sleep(RETRY_INTERVAL)
     logger.warning(f"Run {args.timestamp} timed out on {url}.")
     exit(1)
