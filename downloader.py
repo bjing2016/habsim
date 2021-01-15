@@ -141,8 +141,7 @@ def combine_files():
 
 ## change shape of data from (2, 19, 181, 360) to (181, 360, 19, 65, 2), with the 65 timestamps added
 def combine_npy_for_member(file_list):
-    data = np.array(list(map(np.load, file_list)))
-    np.stack(data, axis=0)
+    data = np.stack(list(map(np.load, file_list)))
     data = np.transpose(data, (3, 4, 2, 0, 1))
     return data
 
