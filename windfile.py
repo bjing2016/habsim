@@ -8,7 +8,7 @@ import time
 
 class WindFile:
     def __init__(self, path):
-        self.data_npz = np.load("downtest2/" + path, "r")
+        self.data_npz = np.load(path, "r")
         self.data = self.data_npz['data']
         self.time = self.data_npz['timestamp']
         self.levels = self.data_npz['levels']
@@ -21,7 +21,14 @@ class WindFile:
         if lon < -180 or lon > 360:
             raise Exception(f"Longitude {lon} out of bounds")
         
-        # TODO wrap longitude
+        if lon < 0:
+            lon = 360 + lon
+
+        if isinstance(time, datetime.datetime):
+            time = time.timestamp()
+
+        if (time - self.time)/self.interval < 0 or (time - self.time)/self.interval > self.data.shape[-2]:
+            raise Exception(f"Time {time} out of bounds")
 
         indices = self.get_indices(lat, lon, altitude, time)
         
@@ -33,13 +40,7 @@ class WindFile:
         lat = 90 - lat
         lon = lon % 360
 
-        if isinstance(time, datetime.date):
-            time = int(datetime.timestamp(time))
-        
         time = (time - self.time)/self.interval
-        if time < 0 or time > 65: # should this be hard coded or like len(self.data[][])?
-            raise Exception(f"Time {time} out of bounds")
-
         pressure = self.get_pressure_index(alt)
         
         print("bounds:", lat, lon, pressure, time)
@@ -55,7 +56,7 @@ class WindFile:
         pressure = self.alt_to_hpa(alt)
 
         if pressure < self.levels[0]:
-            raise Exception(f"Pressure {pressure} out of bounds")
+            raise Exception(f"Altitude {alt} out of bounds")
 
         pressure_i = bisect.bisect_left(self.levels, pressure)
         if pressure_i == len(self.levels):
@@ -107,15 +108,17 @@ class WindFile:
 def main():
     wind = WindFile("2021010100_01.npz")
     print(wind.time)
-    print(wind.get(45, 90, 350, 1609480800))
+
+    date = datetime.datetime(2021, 1, 1, 6)
+    print(wind.get(45, 90, 350, date))
 
     validation()
 
 def validation():
-    data = np.load("downtest2/2021010100_01.npz")
-    datap = data['data'][45][90][17][1]
+    #data = np.load("downtest2/2021010100_01.npz")
+    #datap = data['data'][45][90][17][1]
 
-    print(datap)
+    #print(datap)
 
 if __name__ == "__main__":
     main()
