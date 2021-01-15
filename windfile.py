@@ -17,9 +17,9 @@ class WindFile:
 
     def get(self, lat, lon, altitude, time):
         if lat < -90 or lat > 90:
-            raise Exception("Latitude out of bounds")
+            raise Exception(f"Latitude {lat} out of bounds")
         if lon < -180 or lon > 360:
-            raise Exception("Longitude out of bounds")
+            raise Exception(f"Longitude {lon} out of bounds")
         
         # TODO wrap longitude
 
@@ -38,7 +38,7 @@ class WindFile:
         
         time = (time - self.time)/self.interval
         if time < 0 or time > 65: # should this be hard coded or like len(self.data[][])?
-            raise Exception("Time our of bounds")
+            raise Exception(f"Time {time} out of bounds")
 
         pressure = self.get_pressure_index(alt)
         
@@ -55,7 +55,7 @@ class WindFile:
         pressure = self.alt_to_hpa(alt)
 
         if pressure < self.levels[0]:
-            raise Exception("Pressure out of bounds")
+            raise Exception(f"Pressure {pressure} out of bounds")
 
         pressure_i = bisect.bisect_left(self.levels, pressure)
         if pressure_i == len(self.levels):
