@@ -143,9 +143,6 @@ def combine_npy_for_member(file_list):
     data = np.stack(list(map(np.load, file_list)))
     data = np.transpose(data, (3, 4, 2, 0, 1))
     data = np.append(data, data[:, 0:1], axis=1)
-    print("-----------")
-    print(data)
-    
     return data
 
 if __name__ == "__main__":
