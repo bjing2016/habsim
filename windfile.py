@@ -15,6 +15,7 @@ class WindFile:
         self.interval = self.data_npz['interval']
         self.resolution_lat_multiplier = (self.data.shape[-5] - 1) / 180
         self.resolution_lon_multiplier = (self.data.shape[-4] - 1) / 360
+        self.interp_function = interpolate.interp1d(self.levels, np.arange(0, len(self.levels)), bounds_error=False, fill_value=(0, len(self.levels)-1), assume_sorted=True)
 
     def get(self, lat, lon, altitude, time):
         if lat < -90 or lat > 90:
@@ -48,14 +49,12 @@ class WindFile:
         return lat, lon, pressure, time
 
     def get_pressure_index(self, alt):
-        indices = np.arange(0, len(self.levels))
-        interp_function = interpolate.interp1d(self.levels, indices, bounds_error=False, fill_value=(0, len(self.levels)-1))
         pressure = self.alt_to_hpa(alt)
 
         if pressure < self.levels[0]:
             raise Exception(f"Altitude {alt} out of bounds")
         
-        return interp_function(pressure)
+        return self.interp_function(pressure)
 
     def interpolate(self, lat, lon, level, time):
         pressure_filter = np.array([1-level % 1, level % 1]).reshape(1, 1, 2, 1, 1)
@@ -86,22 +85,3 @@ class WindFile:
             return 44330.7 * (1 - (p / 1013.25) ** 0.190266)
         else:
             return -6341.73 * (math.log(p) - 7.1565)
-
-def main():
-    wind = WindFile("downtest/2021011600_01.npz")
-    print(wind.time)
-
-    date = datetime.datetime(2021, 1, 16, 6)
-    print(wind.get(45, 90, 350, date))
-
-    validation()
-
-def validation():
-    data = np.load("downtest/2021011600_01.npz")
-    datap = data['data'][45][90][17][1]
-
-    print(datap)
-
-if __name__ == "__main__":
-    main()
-

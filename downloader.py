@@ -115,7 +115,6 @@ def grb2_to_array(filename):
         assert(v[i]['level'] == level)
         dataset[0][i] = u[i].data()[0][::2, ::2] # Takes the second element of every second array in data
         dataset[1][i] = v[i].data()[0][::2, ::2]
-    dataset = np.insert(dataset, 360, 0, axis=3)
     return dataset
 
 ## save data as npz file of ['data', 'timestamp (unix)', 'interval', 'levels']
@@ -143,6 +142,10 @@ def combine_files():
 def combine_npy_for_member(file_list):
     data = np.stack(list(map(np.load, file_list)))
     data = np.transpose(data, (3, 4, 2, 0, 1))
+    data = np.append(data, data[:, 0:1], axis=1)
+    print("-----------")
+    print(data)
+    
     return data
 
 if __name__ == "__main__":
