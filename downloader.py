@@ -115,6 +115,7 @@ def grb2_to_array(filename):
         assert(v[i]['level'] == level)
         dataset[0][i] = u[i].data()[0][::2, ::2] # Takes the second element of every second array in data
         dataset[1][i] = v[i].data()[0][::2, ::2]
+    dataset = np.insert(dataset, 360, 0, axis=3)
     return dataset
 
 ## save data as npz file of ['data', 'timestamp (unix)', 'interval', 'levels']
@@ -128,7 +129,6 @@ def combine_files():
 
     for i in range(len(filesets)):
         data = combine_npy_for_member(filesets[i])
-        data = np.float16(data)
         
         savename = args.timestamp + "_" + str(i+1).zfill(2) + ".npz"
         dt = datetime.strptime(args.timestamp, "%Y%m%d%H")
