@@ -11,25 +11,9 @@ from datetime import datetime, timezone
 import simulate
 import os
 
-@app.route('/')
-def home():  # pragma: no cover
-    simulate.refresh()
-    return Response(open("interface/home.html").read(), mimetype="text/html")
-
-@app.route('/paths.js')
-def pathsjs():  # pragma: no cover
-    return Response(open("interface/paths.js").read(), mimetype="text/html")
-
-@app.route('/style.js')
-def stylejs():  # pragma: no cover
-    return Response(open("interface/style.js").read(), mimetype="text/html")
-
-@app.route('/util.js')
-def utiljs():  # pragma: no cover
-    return Response(open("interface/util.js").read(), mimetype="text/html")
-
 @app.route('/which')
 def whichgefs():
+    simulate.refresh()
     return simulate.currgefs
 
 @app.route('/status')
