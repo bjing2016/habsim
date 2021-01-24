@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 import math
 import bisect
 import time
+from windfile import WindFile
 
 # Note: .replace(tzinfo=utc) is needed because we need to call .timestamp
 
@@ -15,12 +16,10 @@ DATA_STEP = 6 # hrs
 ### Filecache is in the form (timestamp, modelnumber). ###
 filecache = {}
 
-suffix = ".npy"
 currgefs = "Unavailable"
 
-mount = True
+mount = False
 gefspath = '/gefs/gefs/' if mount else 'gefs/'
-gfshistpath = '/gefs/gfshist/'
 
 def refresh():
     global currgefs
@@ -28,129 +27,30 @@ def refresh():
     s = f.readline()
     f.close()
     if s != currgefs:
-        reset()
         currgefs = s
+        reset()
         return True
     return False
 
+# opens and stores 20 windfiles in filecache
 def reset():
     global filecache
-    filecache = {}
-
-def get_basetime(simtime):
-    return datetime(simtime.year, simtime.month, simtime.day, int(math.floor(simtime.hour / 6) * 6)).replace(tzinfo=timezone.utc)
-
-def get_file(timestamp, model):
-    if (timestamp, model) not in filecache.keys():
-        name = timestamp.strftime("%Y%m%d%H")
-        if timestamp.year < 2019:
-            filecache[(timestamp, model)] = np.load(gfshistpath + name + suffix, "r")
-        else:
-            filecache[(timestamp, model)] = np.load(gefspath + currgefs + "_" + name + "_" + str(model).zfill(2) + suffix, "r")
-    return filecache[(timestamp,model)]
-
-### Returns (u, v) given a DATA BLOCK and relative coordinates WITHIN THAT BLOCK ###
-### Handles file and cache import ###
-
-def get_wind_helper(lat_res, lon_res, level_res, time_res, model, diffs):
-    lat_i, lat_f = lat_res
-    lon_i, lon_f = lon_res
-    level_i, level_f = level_res
-    timestamp, time_f = time_res
-    
-    data1 = get_file(timestamp, model)
-    data2 = get_file(timestamp + timedelta(hours=6), model)
-
-    #pressure_filter = np.array([level_f, 1-level_f]).reshape(1,2,1,1)
-    pressure_filter = np.array([level_f, 1-level_f]).reshape(1,2)
-    lat_filter = np.array([lat_f, 1-lat_f]).reshape(1,1,2,1)
-    lon_filter = np.array([lon_f, 1-lon_f]).reshape(1,1,1,2)
-    
-    cube1 = data1[:,level_i:level_i+2,lat_i:lat_i+2, lon_i:lon_i+2]
-    cube2 = data2[:,level_i:level_i+2,lat_i:lat_i+2, lon_i:lon_i+2]
-
-    line1 = np.sum(cube1 * lat_filter * lon_filter, axis=(2,3))
-    line2 = np.sum(cube2 * lat_filter * lon_filter, axis=(2,3))
-
-    line_t = line1 * time_f + line2 * (1-time_f)
-    du, dv = np.diff(line_t, axis=1).flatten()
-    dh = diffs[level_i]
-
-    u, v = (line_t * pressure_filter).sum(axis=1).flatten()
-
-    return u, v, du/dh, dv/dh
-    '''
-    u1 = np.sum(cube1[0] * pressure_filter * lat_filter * lon_filter)
-    v1 = np.sum(cube1[1] * pressure_filter * lat_filter * lon_filter)
-
-    u2 = np.sum(cube2[0] * pressure_filter * lat_filter * lon_filter)
-    v2 = np.sum(cube2[1] * pressure_filter * lat_filter * lon_filter)
-
-    return u1 * time_f + u2 * (1-time_f), v1 * time_f + v2 * (1-time_f)
-    '''
-## Array format: array[u,v][Pressure][Lat][Lon] ##
-## Currently [lat 90 to -90][lon 0 to 359]
-
-## Note: this returns bounds as array indices ##
-###     return lat_res, lon_res, pressure_res, time_res ###
-def get_bounds_and_fractions (lat, lon, alt, sim_timestamp, levels):
-    lat_res, lon_res, pressure_res = None, None, None
-        
-    lat = 90 - lat
-    lat_res = (int(math.floor(lat)), 1 - lat % 1)
-
-    lon = lon % 360
-    lon_res = (int(math.floor(lon)), 1 - lon % 1)
-    
-    base_timestamp = get_basetime(sim_timestamp)
-    offset = sim_timestamp - base_timestamp
-    time_f = 1-float(offset.seconds)/(3600*6)
-    time_res = (base_timestamp, time_f)
-    
-    pressure_res = get_pressure_bound(alt, levels)
-    return lat_res, lon_res, pressure_res, time_res
-
-def get_pressure_bound(alt, levels):
-    pressure = alt_to_hpa(alt)
-    pressure_i = bisect.bisect_left(levels, pressure)
-    if pressure_i == len(levels):
-        return pressure_i-2, 0
-    if pressure_i == 0:
-        return 0, 1
-    return pressure_i - 1, (levels[pressure_i]-pressure)/float(levels[pressure_i] - levels[pressure_i-1])
-
-## Credits to KMarshland ##
-def alt_to_hpa(altitude):
-    pa_to_hpa = 1.0/100.0
-    if altitude < 11000:
-        return pa_to_hpa * (1-altitude/44330.7)**5.2558 * 101325
-    else:
-        return pa_to_hpa * math.exp(altitude / -6341.73) * 128241
-
-def hpa_to_alt(p):
-    if p >  226.325:
-        return 44330.7 * (1 - (p / 1013.25) ** 0.190266)
-    else:
-        return -6341.73 * (math.log(p) - 7.1565)
+    filecache = []
+    for i in range(1, 21):
+        filecache.append(WindFile(f'{gefspath}{currgefs}_{str(i).zfill(2)}.npz'))
 
 def lin_to_angular_velocities(lat, lon, u, v): 
     dlat = math.degrees(v / EARTH_RADIUS)
     dlon = math.degrees(u / (EARTH_RADIUS * math.cos(math.radians(lat))))
     return dlat, dlon
 
-def get_wind(simtime, lat, lon, alt, model, levels):
-    bounds = get_bounds_and_fractions(lat, lon, alt, simtime, levels)  
-    diffs = GEFS_ALT_DIFFS if levels == GEFS else GFSHIST_ALT_DIFFS
-    u, v, du, dv = get_wind_helper(*bounds, model, diffs)
-    return u, v, du, dv
-
 def simulate(simtime, lat, lon, rate, step, max_duration, alt, model, coefficient=1, elevation=True):
-    levels = GFSHIST if simtime.year < 2019 else GEFS
     end = simtime + timedelta(hours=max_duration)
     path = list()
+
     while True:
-        u, v, du, dv = get_wind(simtime, lat, lon, alt, model, levels)
-        path.append((simtime.timestamp(), lat, lon, alt, u, v, du, dv))
+        u, v = filecache[model-1].get(lat, lon, alt, simtime)
+        path.append((simtime.timestamp(), lat, lon, alt, u, v, 0, 0))
         if simtime >= end or (elevation and elev.getElevation(lat, lon) > alt):
             break
         dlat, dlon = lin_to_angular_velocities(lat, lon, u, v)
@@ -174,7 +74,3 @@ def refreshdaemon():
                 except: pass
             startdatetime += timedelta(hours=6)
         time.sleep(60)
-
-GEFS = [1, 2, 3, 5, 7, 20, 30, 70, 150, 350, 450, 550, 600, 650, 750, 800, 900, 950, 975]
-GEFS_ALT = list(map(hpa_to_alt, GEFS))
-GEFS_ALT_DIFFS = list(np.diff(GEFS_ALT))

@@ -5,17 +5,38 @@ import datetime
 import bisect
 import time
 from scipy import interpolate
+import mmap
+import zipfile
 
 class WindFile:
     def __init__(self, path):
-        self.data_npz = np.load(path, "r")
-        self.data = self.data_npz['data']
-        self.time = self.data_npz['timestamp']
-        self.levels = self.data_npz['levels']
-        self.interval = self.data_npz['interval']
+        zf = zipfile.ZipFile(path)
+
+        self.data = self.load_from_npz(zf, 'data')
+        self.time = self.load_from_npz(zf, 'timestamp')
+        self.levels = self.load_from_npz(zf, 'levels')
+        self.interval = self.load_from_npz(zf, 'interval')
+        zf.close()
+
         self.resolution_lat_multiplier = (self.data.shape[-5] - 1) / 180
         self.resolution_lon_multiplier = (self.data.shape[-4] - 1) / 360
-        self.interp_function = interpolate.interp1d(self.levels, np.arange(0, len(self.levels)), bounds_error=False, fill_value=(0, len(self.levels)-1), assume_sorted=True)
+        self.interp_function = interpolate.interp1d(self.levels, np.arange(0, len(self.levels)), 
+                                bounds_error=False, fill_value=(0, len(self.levels)-1), assume_sorted=True)
+    
+    def load_from_npz(self, zf, name):
+        info = zf.NameToInfo[name + '.npy']
+        assert info.compress_type == 0
+        zf.fp.seek(info.header_offset + len(info.FileHeader()) + 20)
+        
+        version = np.lib.format.read_magic(zf.fp)
+        np.lib.format._check_version(version)
+        shape, fortran_order, dtype = np.lib.format._read_array_header(zf.fp, version)
+        
+        offset = zf.fp.tell()
+        
+        return np.memmap(zf.filename, dtype=dtype, shape=shape,
+                        order='F' if fortran_order else 'C', mode='r',
+                        offset=offset)    
 
     def get(self, lat, lon, altitude, time):
         if lat < -90 or lat > 90:
