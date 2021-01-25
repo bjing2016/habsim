@@ -60,17 +60,3 @@ def simulate(simtime, lat, lon, rate, step, max_duration, alt, model, coefficien
         simtime = simtime + timedelta(seconds = step)
     
     return path
-
-import time
-def refreshdaemon():
-    while True:
-        if refresh(): print('Cache reset by daemon.')
-        currdatetime = get_basetime(datetime.strptime(currgefs, "%Y%m%d%H"))
-        startdatetime = currdatetime - timedelta(hours = 384)
-        enddatetime = currdatetime + timedelta(hours = 384)
-        while startdatetime <= enddatetime:
-            for model in range(1, 21):
-                try: get_file(startdatetime, model)
-                except: pass
-            startdatetime += timedelta(hours=6)
-        time.sleep(60)

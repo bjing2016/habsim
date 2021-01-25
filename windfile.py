@@ -11,11 +11,12 @@ import zipfile
 class WindFile:
     def __init__(self, path):
         zf = zipfile.ZipFile(path)
+        self.data_npz = np.load(path, 'r')
 
         self.data = self.load_from_npz(zf, 'data')
-        self.time = self.load_from_npz(zf, 'timestamp')
-        self.levels = self.load_from_npz(zf, 'levels')
-        self.interval = self.load_from_npz(zf, 'interval')
+        self.time = self.data_npz['timestamp']
+        self.levels = self.data_npz['levels']
+        self.interval = self.data_npz['interval']
         zf.close()
 
         self.resolution_lat_multiplier = (self.data.shape[-5] - 1) / 180
