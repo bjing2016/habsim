@@ -18,7 +18,7 @@ filecache = {}
 
 currgefs = "Unavailable"
 
-mount = False
+mount = True
 gefspath = '/gefs/gefs/' if mount else 'gefs/'
 
 def refresh():
