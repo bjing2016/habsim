@@ -89,6 +89,7 @@ class DownloadManager:
             time.sleep(INTERVAL)
             if self.should_skip():
                 logger.warning(f"Waited too long; skipping run {fmt(self.next)}")
+                self.next += timedelta(hours=6)
                 return False
 
     def should_skip(self):
