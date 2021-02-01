@@ -1,6 +1,5 @@
 import numpy as np
 import math
-import elev
 import datetime
 import bisect
 import time
@@ -57,9 +56,7 @@ class WindFile:
 
         indices = self.get_indices(lat, lon, altitude, time)
         
-        u, v = self.interpolate(*indices)
-        
-        return u, v
+        return self.interpolate(*indices)
 
     def get_indices(self, lat, lon, alt, time):
         lat = (90 - lat) * self.resolution_lat_multiplier
@@ -91,9 +88,7 @@ class WindFile:
 
         cube = self.data[lat:lat+2, lon:lon+2, level:level+2, time:time+2, :]
        
-        u, v = np.sum(cube * lat_filter * lon_filter * pressure_filter * time_filter, axis=(0,1,2,3))
-
-        return u, v
+        return np.sum(cube * lat_filter * lon_filter * pressure_filter * time_filter, axis=(0,1,2,3))
 
     def alt_to_hpa(self, altitude):
         pa_to_hpa = 1.0/100.0
