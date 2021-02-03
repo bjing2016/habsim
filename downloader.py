@@ -74,7 +74,7 @@ def single_run(y,m,d,h,t,n):
     os.remove(f"{args.savedir}/temp/{savename}.grb2")
 
 def download(url, path):
-    RETRY_INTERVAL = 0
+    RETRY_INTERVAL = 10
     while datetime.now() - start < TIMEOUT:
         try:
             urllib.request.urlretrieve(url, path); return
