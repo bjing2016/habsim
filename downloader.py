@@ -26,7 +26,7 @@ levels = [1, 2, 3, 5, 7, 20, 30, 70, 150, 350, 450, 550, 600, 650, 750, 800, 900
 NUM_MEMBERS = 20
 MAX_HOURS = 384
 FORECAST_INTERVAL = 6
-TIMEOUT = timedelta(hours=6)
+TIMEOUT = timedelta(hours=12)
 start = datetime.now()
 
 def main():
@@ -74,7 +74,7 @@ def single_run(y,m,d,h,t,n):
     os.remove(f"{args.savedir}/temp/{savename}.grb2")
 
 def download(url, path):
-    RETRY_INTERVAL = 30
+    RETRY_INTERVAL = 10
     while datetime.now() - start < TIMEOUT:
         try:
             urllib.request.urlretrieve(url, path); return
