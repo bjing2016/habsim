@@ -84,9 +84,6 @@ Returns server status
 ### api.py
 Exports API described above and initialized downloader service
 
-### Dockerfile 
-Needed for server setup
-
 ### downloader.py
 Takes command line args [year month day hour] and downloads the entire dataset corresponding to that GEFS timestamp in directory gefs/ from ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gens/prod. Implements multiprocessing and broad exception handling, including premature execution, corrupted data, and interrupted downloads. Converts entire dataset to npy.
 
@@ -115,3 +112,4 @@ To expediate pygrib installation, make sure you install eccodes in your preproce
 ### Running the server
 `docker build . -t habsim-root`
 `docker run -d -v $(pwd):/home/run -v /gefs:/gefs --name=habsim-$USER -p 80:5000 habsim-root`
+`python3 downloaderd.py --dlogfile=/var/log/downloaderd.log --logfile=/var/log/downloader.log --savedir=/gefs/gefs --statusfile=/gefs/whichgefs`
